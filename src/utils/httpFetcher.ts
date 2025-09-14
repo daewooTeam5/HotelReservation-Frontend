@@ -18,7 +18,7 @@ export const httpFetcher = async <T>(queryContext: QueryFunctionContext): Promis
     console.log(keys);
     console.log('http fetcher' + result);
     return result.data as T;
-  } catch (err: AxiosError) {
+  } catch (err: any) {
     throw new Error(err.response.data.message);
   }
 };
