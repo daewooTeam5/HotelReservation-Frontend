@@ -22,19 +22,29 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/AboutView.vue'),
+      component: () => import('../views/AboutView.vue')
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/LoginView.vue'),
+      component: () => import('../views/LoginView.vue')
     },
     {
-      path: '/register',
+      path: '/auth/register',
       name: 'register',
-      component: () => import('../views/RegisterView.vue'),
+      component: () => import('../views/RegisterView.vue')
     },
-  ],
+    {
+      path: '/auth/signin',
+      name: 'signin',
+      component: () => import('@/views/auth/SignInView.vue')
+    },
+    {
+      path:'/auth/email-otp',
+      name:'verify-otp',
+      component: () => import('@/views/auth/EmailOtpView.vue')
+    }
+  ]
 });
 
 export default router;

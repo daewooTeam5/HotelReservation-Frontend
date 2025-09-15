@@ -7,8 +7,13 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 import PrimeVue from 'primevue/config';
+
 import 'primeicons/primeicons.css';
+
+import ToastService from 'primevue/toastservice';
+
 import Aura from '@primeuix/themes/aura';
+import { Toast } from 'primevue';
 
 import Popover from "primevue/popover";
 import InputText from 'primevue/inputtext';
@@ -34,7 +39,17 @@ const koreanLocale = {
 
 app.use(createPinia());
 app.use(router);
-app.use(VueQueryPlugin);
+app.use(VueQueryPlugin, {
+  queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        retry: 0,
+      },
+    },
+  },
+});
+app.use(ToastService);
+app.component('Toast', Toast);
 app.use(PrimeVue, {
   locale: koreanLocale,
   theme: {
@@ -43,6 +58,8 @@ app.use(PrimeVue, {
       darkModeSelector: ".my-dark-mode",
     }
   },
+    preset: Aura
+  }
 });
 
 app.component('PrimeInputText', InputText);

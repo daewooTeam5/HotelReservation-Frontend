@@ -1,12 +1,25 @@
-<script setup lang="ts">
+<script  lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { httpFetcher } from '@/utils/httpFetcher.ts';
 import type { ApiResult } from '@/types/ApiResult';
-import type { User } from '@/types/users.ts';
+import type { UserLegacy } from '@/types/users.ts';
+import { defineComponent, reactive } from 'vue';
 
-const { data, isLoading, isError, error } = useQuery<ApiResult<User[]>>({
-  queryKey: ['v1', 'users', 'all?start=0&size=10'],
-  queryFn: httpFetcher,
+export default defineComponent({
+  name: 'HomeView',
+  setup() {
+    const { data, isLoading, isError, error } = reactive(useQuery<ApiResult<UserLegacy[]>>({
+      queryKey: ['v1', 'users', 'all?start=0&size=10'],
+      queryFn: httpFetcher,
+    }));
+    return {
+      data,
+      isLoading,
+      isError,
+      error
+    }
+
+  },
 });
 </script>
 
