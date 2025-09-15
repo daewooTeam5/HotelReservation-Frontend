@@ -58,8 +58,6 @@ app.use(PrimeVue, {
       darkModeSelector: ".my-dark-mode",
     }
   },
-    preset: Aura
-  }
 });
 
 app.component('PrimeInputText', InputText);
