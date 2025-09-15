@@ -6,7 +6,18 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/HomeView.vue'),
+      component: () => import('../views/user/MainPage.vue'),
+    },
+    {
+      path: "/places/:id",
+      name: "PlaceDetail",
+      component: () => import('../views/user/PlaceDetailPage.vue'),
+      props: true,
+    },
+    {
+      path: '/list',
+      name: 'list',
+      component: () => import('../views/user/ListPage.vue'),
     },
     {
       path: '/about',

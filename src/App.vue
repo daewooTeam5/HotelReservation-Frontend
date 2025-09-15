@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router';
 
 <template>
   <div>
-    <header>d</header>
+    <header></header>
     <div>
       <router-view />
     </div>

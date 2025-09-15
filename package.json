@@ -21,14 +21,17 @@
     "@tanstack/vue-query": "^5.87.4",
     "axios": "^1.12.0",
     "pinia": "^3.0.3",
+    "primeicons": "^7.0.0",
     "primevue": "^4.3.9",
     "tailwindcss": "^4.1.13",
     "tailwindcss-primeui": "^0.6.1",
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue-slider-component": "^4.1.0-beta.7"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
+    "@types/google.maps": "^3.58.1",
     "@types/node": "^22.16.5",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-prettier": "^10.2.0",
