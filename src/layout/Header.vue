@@ -1,13 +1,13 @@
 <template>
   <Menubar class="border-none border-t! border-l! border-r! rounded-0">
-    <template #start>
+    <template #start><!--누르면 메인 페이지로-->
       <div onclick="location.href='/'" class="text-4xl font-bold">Hotel Reservation</div>
     </template>
 
     <template #end>
       <div class="flex gap-2 items-center">
         <Button variant="outlined" rounded icon="pi pi-shopping-cart" />
-
+        <Button variant="outlined" rounded icon="pi pi-calendar-plus" onclick="location.href='/HotelRegister'" />
         <template v-if="user?.email">
           <div class="flex items-center gap-2">
             <!-- 프로필 클릭 -->

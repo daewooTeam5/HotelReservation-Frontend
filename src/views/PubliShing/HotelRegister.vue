@@ -75,7 +75,7 @@ const form = reactive({
   description: ''
 });
 
-// 페이지 이동
+// 페이지 이동(npm install pinia 필요
 const goToAddressPage = () => router.push('/publishing/address');
 const goToRoomsPage = () => router.push('/publishing/rooms');
 const goToImagesPage = () => router.push('/publishing/images');
