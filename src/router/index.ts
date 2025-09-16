@@ -48,7 +48,13 @@ const router = createRouter({
       path:'/auth/email-otp',
       name:'verify-otp',
       component: () => import('@/views/auth/EmailOtpView.vue')
+    },
+    {
+      path:'/hotelregister',
+      name:'hotelregister',
+      component: () => import('../views/PubliShing/HotelRegister.vue')
     }
+
   ]
 });
 

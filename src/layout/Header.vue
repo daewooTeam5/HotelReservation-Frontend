@@ -1,7 +1,7 @@
 <template>
   <Menubar class="border-none border-t! border-l! border-r! rounded-0">
     <template #start>
-      <div class="text-4xl font-bold">Hotel Reservation</div>
+      <div onclick="location.href='/'" class="text-4xl font-bold">Hotel Reservation</div>
     </template>
 
     <template #end>
@@ -53,6 +53,8 @@ import { parseJwt } from '@/utils/jwtUtils';
 import { Gravatar } from '@sauromates/vue-gravatar';
 import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
+
+
 
 export default defineComponent({
   name: 'Header',
