@@ -19,6 +19,14 @@ export type User =  {
   updatedAt: string;
   createdAt: string;
 }
+export type UserDto = {
+  id: number;
+  userId: string;
+  email: string;
+  name:string;
+  role: Role;
+
+}
 export type LoginSuccessDto = {
   accessToken: string;
   user: User;

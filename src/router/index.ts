@@ -4,6 +4,11 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/test',
+      name: 'tset',
+      component: () => import('../views/HomeView.vue'),
+    },
+    {
       path: '/',
       name: 'home',
       component: () => import('../views/user/MainPage.vue'),
