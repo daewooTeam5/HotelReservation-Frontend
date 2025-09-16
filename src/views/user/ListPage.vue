@@ -20,14 +20,22 @@
               적용 해제
             </button>
           </div>
-          <Slider v-model="priceRange" :min="0" :max="400000" range class="w-full" @change="updateFilters" />
+          <!-- ✅ 슬라이더 -->
+          <Slider
+            v-model="priceRange"
+            :min="0"
+            :max="400000"
+            range
+            class="w-full"
+            @change="updateFiltersDebounced"
+          />
           <div class="flex items-center gap-2 text-sm">
             <span>₩</span>
             <input
               type="number"
               v-model.number="priceRange[0]"
               class="w-full border rounded px-2 py-1 no-spinner"
-              @change="updateFilters"
+              @change="updateFiltersDebounced"
             />
             <span> ~ </span>
             <span>₩</span>
@@ -35,7 +43,7 @@
               type="number"
               v-model.number="priceRange[1]"
               class="w-full border rounded px-2 py-1 no-spinner"
-              @change="updateFilters"
+              @change="updateFiltersDebounced"
             />
           </div>
         </div>
@@ -83,7 +91,7 @@ import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import SearchBox from '@/components/SearchBox.vue';
 import SearchHotelList from '@/components/SearchHotelList.vue';
-import Slider from 'primevue/slider'
+import Slider from 'primevue/slider';
 
 const route = useRoute();
 const router = useRouter();
@@ -98,6 +106,10 @@ const isError = ref(false);
 const error = ref('');
 const searchNotice = ref('');
 
+// ✅ 디바운스 타이머
+let debounceTimer: number | null = null;
+
+// ✅ 일반 필터 업데이트
 const updateFilters = () => {
   router.push({
     query: {
@@ -108,6 +120,16 @@ const updateFilters = () => {
       minRating: selectedRating.value || ''
     }
   });
+};
+
+// ✅ 디바운스 적용된 가격 필터 업데이트
+const updateFiltersDebounced = () => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = window.setTimeout(() => {
+    updateFilters();
+  }, 200); // 1초 후 실행 (원하면 2000으로 바꾸면 2초)
 };
 
 const fetchAllPlaces = async () => {
