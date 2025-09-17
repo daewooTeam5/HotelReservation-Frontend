@@ -55,22 +55,22 @@ const router = createRouter({//여기에 PATH는 경로, NAME은 아무거나, �
       component: () => import('../views/PubliShing/HotelRegister.vue')
     },
     {
-      path:'/Address',
+      path:'/publishing/address',
       name:'Address',
       component: () => import('../views/PubliShing/Address.vue')
     },
     {
-      path:'/Images',
+      path:'/publishing/images',
       name:'Images',
       component: () => import('../views/PubliShing/Images.vue')
     },
     {
-      path:'/Rooms',
+      path:'/publishing/rooms',
       name:'Rooms',
       component: () => import('../views/PubliShing/Rooms.vue')
     },
     {
-      path:'/Amenties',
+      path:'/publishing/amenities',
       name:'Amenties',
       component: () => import('../views/PubliShing/Amenities.vue')
     },

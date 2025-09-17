@@ -58,32 +58,56 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { reactive } from 'vue';
+<script setup lang="ts">
+import { reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+// Pinia 스토어 import
+import { usePublishingStore } from '@/stores/publishing/AddAddress';
+import { useImageStore } from '@/stores/publishing/AddImage';
+import { useRoomsStore } from '@/stores/publishing/AddRooms';
+import { useServiceStore } from '@/stores/publishing/AddService';
+
 const router = useRouter();
+
+// 메인 form에 기존 필드만 남기고, 리스트들은 스토어에서 가져오도록 computed
+const publishingstore = usePublishingStore();
+const imagestore = useImageStore();
+const roomsstore = useRoomsStore();
+const servicestore = useServiceStore();
 
 const form = reactive({
   hotelName: '',
-  addressList: [],
-  images: [],
-  rooms: [],
-  amenities: [],
-  description: ''
+  description: '',
 });
 
-// 페이지 이동(npm install pinia 필요
+// 외부 폼 데이터 연결
+const addressList = computed(() => publishingstore.addressList);
+const images = computed(() => imagestore.images);
+const rooms = computed(() => roomsstore.roomsList);
+const amenities = computed(() => servicestore.serviceList);
+
+// 페이지 이동
 const goToAddressPage = () => router.push('/publishing/address');
 const goToRoomsPage = () => router.push('/publishing/rooms');
 const goToImagesPage = () => router.push('/publishing/images');
 const goToAmenitiesPage = () => router.push('/publishing/amenities');
 
+// 제출
 const submitForm = async () => {
   try {
-    await axios.post('http://localhost:8888/hotel/publishing/register', form, {
+    // form + 외부 리스트 합쳐서 보내기
+    const payload = {
+      hotelName: form.hotelName,
+      description: form.description,
+      addressList: addressList.value,
+      images: images.value,
+      rooms: rooms.value,
+      amenities: amenities.value
+    };
+
+    await axios.post('http://localhost:8888/hotel/publishing/register', payload, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
     alert('등록 완료!');
@@ -93,6 +117,7 @@ const submitForm = async () => {
   }
 };
 </script>
+
 
 <style scoped>
 .publishing-container {
