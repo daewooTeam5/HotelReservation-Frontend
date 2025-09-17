@@ -55,7 +55,7 @@ import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 
 export default defineComponent({
-  name: 'Header',
+  name: 'UserHeader',
   components: { Gravatar, Button, Menubar, Menu },
   computed: {
     accessToken(): string | null {
