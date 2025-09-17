@@ -48,6 +48,11 @@ const router = createRouter({
       path:'/auth/email-otp',
       name:'verify-otp',
       component: () => import('@/views/auth/EmailOtpView.vue')
+    },{
+      path: "/places/:id",
+      name: "PlaceDetail",
+      component: () => import('../views/user/PlaceDetailPage.vue'),
+      props: true,
     }
   ]
 });
