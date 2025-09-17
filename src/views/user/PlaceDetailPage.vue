@@ -3,12 +3,12 @@
     <div v-if="loading">로딩 중...</div>
     <div v-else-if="error" class="text-red-500">{{ error }}</div>
     <div v-else>
-      <h1 class="text-2xl font-bold mb-2">{{ place.name }}</h1>
-      <p class="text-gray-600 mb-2">{{ place.description }}</p>
-      <p class="text-sm text-gray-500 mb-2">
+      <h1 class="text-2xl font-semibold mb-2">{{ place.name }}</h1>
+      <p class="text-sm text-gray-600 flex items-center gap-1">
+        <i class="pi pi-map-marker"></i>
         {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
       </p>
-      <p v-if="place.avgRating" class="mb-4">⭐ {{ place.avgRating.toFixed(1) }} / 5.0</p>
+      <p v-if="place.avgRating" class="mb-4"> {{ place.avgRating.toFixed(1) }}</p>
 
       <div v-if="place.fileUrls && place.fileUrls.length > 0" class="mb-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl overflow-hidden h-[400px]">
@@ -47,44 +47,56 @@
         </div>
       </div>
 
-      <div v-if="place.rooms && place.rooms.length > 0">
-        <h2 class="text-xl font-semibold mb-4">잔여 객실</h2>
-        <div
-          v-for="(room, idx) in place.rooms"
-          :key="idx"
-          class="flex justify-between items-center border-b py-4"
-          :class="room.status !== 'AVAILABLE' ? 'opacity-50 pointer-events-none' : ''"
-        >
-          <div>
-            <p class="font-semibold">{{ room.roomType }}</p>
-            <p class="text-sm text-gray-500">
-              침대: {{ room.bedType }} / 수용인원: {{ room.capacityPeople }}명
-            </p>
-            <p class="text-sm text-gray-500">남은 객실 수: {{ room.capacityRoom }}</p>
+      <div
+        v-for="(room, idx) in place.rooms"
+        :key="idx"
+        class="flex items-center justify-between py-4 border-b"
+        :class="room.status !== 'AVAILABLE' ? 'opacity-50 pointer-events-none' : ''"
+      >
+        <!-- 객실 이미지 -->
+        <div class="w-32 h-24 flex-shrink-0 mr-4">
+          <img
+            :src="room.imageUrl || 'https://via.placeholder.com/150'"
+            alt="객실 이미지"
+            class="w-full h-full object-cover rounded-md"
+          />
+        </div>
 
-            <p v-if="room.status !== 'AVAILABLE'" class="text-red-500 font-semibold mt-2">
-              선택하신 날짜의 객실이 판매 완료되었습니다.
-            </p>
-          </div>
-          <div class="text-right">
-            <p v-if="room.price" class="text-red-500 font-bold">
-              ₩{{ Number(room.price).toLocaleString() }}
-            </p>
-            <button
-              v-if="room.status === 'AVAILABLE'"
-              class="ml-4 px-4 py-2 bg-green-400 text-white rounded-lg hover:bg-green-500"
-            >
-              예약
-            </button>
-          </div>
+        <!-- 객실 정보 -->
+        <div class="flex-1">
+          <p class="font-semibold text-lg">{{ room.roomType }}</p>
+          <p class="text-sm text-gray-500">
+            침대: {{ room.bedType }} / 수용인원: {{ room.capacityPeople }}명
+          </p>
+          <p class="text-xs text-gray-400">남은 객실 수: {{ room.capacityRoom }}</p>
+
+          <p v-if="room.status !== 'AVAILABLE'" class="text-red-500 font-semibold mt-2">
+            선택하신 날짜의 객실이 판매 완료되었습니다.
+          </p>
+        </div>
+
+        <!-- 가격 + 예약버튼 -->
+        <div class="flex items-center gap-4">
+          <p v-if="room.price" class="text-lg font-bold text-gray-700">
+            ₩{{ Number(room.price).toLocaleString() }}/night
+          </p>
+          <button
+            v-if="room.status === 'AVAILABLE'"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+          >
+            예약
+          </button>
         </div>
       </div>
+
     </div>
+
+    <p class="text-gray-600 mb-2">{{ place.description }}</p>
 
     <section v-show="mapLoaded" class="mt-10">
       <h2 class="text-xl font-semibold mb-4">지도보기</h2>
       <div ref="mapContainer" class="w-full h-96 rounded-lg shadow"></div>
-      <p class="mt-2 text-gray-600 flex items-center gap-2">
+      <p class="mt-2 text-gray-600 flex items-center gap-1">
         <i class="pi pi-map-marker"></i>
         {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
       </p>
@@ -128,7 +140,7 @@
 
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-
+import axios from "axios";
 const route = useRoute();
 const id = route.params.id as string;
 const place = ref<any>({});
@@ -149,10 +161,9 @@ const closeModal = () => {
 
 onMounted(async () => {
   try {
-    const res = await fetch(`http://localhost:8080/api/v1/places/${id}`);
-    if (!res.ok) throw new Error('숙소 정보를 불러오지 못했습니다.');
-    const data = await res.json();
-    place.value = data.data;
+    const res = await axios.get(`http://localhost:8080/api/v1/places/${id}`);
+    // axios는 JSON 자동 변환되므로 .json() 불필요
+    place.value = res.data.data;
 
     const waitForGoogleMaps = () =>
       new Promise<void>((resolve) => {
@@ -174,7 +185,7 @@ onMounted(async () => {
       const map = new google.maps.Map(mapContainer.value, {
         center: { lat: 37.5665, lng: 126.978 },
         zoom: 15,
-        mapId: '7a9f228f2f427f0087b53bb2',
+        mapId: "7a9f228f2f427f0087b53bb2",
         disableDefaultUI: true,
         zoomControl: true,
         fullscreenControl: true,
@@ -184,23 +195,23 @@ onMounted(async () => {
       const fullAddress = `${place.value.sido} ${place.value.sigungu} ${place.value.roadName} ${place.value.detailAddress}`;
 
       geocoder.geocode({ address: fullAddress }, (results, status) => {
-        if (status === 'OK' && results && results[0]) {
+        if (status === "OK" && results && results[0]) {
           const location = results[0].geometry.location;
           map.setCenter(location);
 
           new google.maps.marker.AdvancedMarkerElement({
             map,
             position: location,
-            title: place.value?.name ?? '',
+            title: place.value?.name ?? "",
           });
         } else {
-          console.error('지오코딩 실패:', status);
+          console.error("지오코딩 실패:", status);
         }
       });
       mapLoaded.value = true;
     }
   } catch (e: any) {
-    error.value = e.message;
+    error.value = e.message || "숙소 데이터를 불러오는 데 실패했습니다.";
   } finally {
     loading.value = false;
   }
