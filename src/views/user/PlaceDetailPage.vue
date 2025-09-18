@@ -101,7 +101,7 @@
         {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
       </p>
     </section>
-    <ReviewSection />
+    <ReviewSection :place-id="Number(id)" />
 
     <div
       v-if="isModalOpen"
