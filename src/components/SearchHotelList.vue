@@ -43,20 +43,24 @@
 
         <div class="flex items-center justify-between mt-4">
           <div class="text-right">
-            <p class="text-red-500 font-bold">
-              ₩{{ Number(place.price).toLocaleString() }}
-            </p>
+            <p class="text-red-500 font-bold">₩{{ Number(place.price).toLocaleString() }}</p>
           </div>
           <div class="flex gap-2">
-            <button class="border rounded p-2 flex items-center justify-center">
-              <i class="pi pi-heart"></i>
-            </button>
-            <button
-              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            <PrimeButton variant="text" @click="toggleLike(place)">
+              <i
+                :class="[
+                  'pi',
+                  place.isLiked === 1 ? 'pi-heart-fill text-red-500' : 'pi-heart'
+                ]"
+              ></i>
+            </PrimeButton>
+
+            <!-- 상세보기 -->
+            <PrimeButton
               @click="router.push({ name: 'PlaceDetail', params: { id: place.id } })"
             >
               상세보기
-            </button>
+            </PrimeButton>
           </div>
         </div>
       </div>
@@ -65,11 +69,27 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router';
+import { apiClient } from '@/utils/axiosClient.ts';
 
 const router = useRouter();
-defineProps<{
+
+const props = defineProps<{
   places: any[];
   searchNotice: string;
 }>();
+
+const toggleLike = async (place: any) => {
+  try {
+    if (place.isLiked === 1) {
+      await apiClient.delete(`/v1/wishlist/${place.id}`);
+      place.isLiked = 0;
+    } else {
+      await apiClient.post(`/v1/wishlist/${place.id}`);
+      place.isLiked = 1;
+    }
+  } catch (err) {
+    console.error('찜 상태 변경 실패:', err);
+  }
+};
 </script>
