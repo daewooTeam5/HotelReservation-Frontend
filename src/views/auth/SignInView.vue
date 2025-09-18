@@ -41,6 +41,7 @@ export default defineComponent({
       },
       onSuccess: (data) => {
         console.log('Mutation 성공:', data);
+        console.log('localStorage accessToken:', localStorage.getItem('accessToken'));
         setOtpEmail(data as string);
         router.push("/auth/email-otp");
       },
