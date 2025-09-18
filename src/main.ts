@@ -15,11 +15,13 @@ import ToastService from 'primevue/toastservice';
 import Aura from '@primeuix/themes/aura';
 import { Toast } from 'primevue';
 
+import Card from 'primevue/card';
 import Popover from 'primevue/popover';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
+import Menu from 'primevue/menu';
 
 const app = createApp(App);
 
@@ -61,6 +63,8 @@ app.use(PrimeVue, {
   }
 });
 
+app.component('PrimeMenu', Menu);
+app.component('PrimeCard', Card);
 app.component('PrimeInputText', InputText);
 app.component('PrimeDatePicker', DatePicker);
 app.component('PrimeSelect', Select);

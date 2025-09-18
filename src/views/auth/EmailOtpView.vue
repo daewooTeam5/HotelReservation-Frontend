@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import InputOtp from 'primevue/inputotp';
-import Button from 'primevue/button';
+import Buttons from 'primevue/button';
 import Toast from 'primevue/toast';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { apiClient } from '@/utils/axiosClient.ts';
@@ -16,7 +16,7 @@ export default defineComponent({
   name: 'EmailOtpView',
   components: {
     InputOtp,
-    Button,
+    Buttons,
     Toast
   },
   setup() {
@@ -113,7 +113,7 @@ export default defineComponent({
         }"
       />
 
-      <Button
+      <Buttons
         label="인증하기"
         icon="pi pi-check"
         class="w-full !py-3 !text-lg !font-semibold"

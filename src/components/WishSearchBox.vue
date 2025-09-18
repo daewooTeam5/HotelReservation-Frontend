@@ -1,13 +1,6 @@
 <template>
   <div class="search-box flex gap-2 mb-6 items-start">
-    <!-- 호텔 이름 -->
-    <div class="flex flex-col">
-      <PrimeInputText v-model="keyword" placeholder="호텔 이름 입력" />
-      <span v-if="errorMessage && !keyword" class="text-red-500 text-sm mt-1">
-        호텔 이름을 입력해주세요.
-      </span>
-    </div>
-
+    <!-- 체크인/체크아웃 -->
     <div class="flex flex-col">
       <div class="flex gap-2">
         <div ref="checkinWrapperRef">
@@ -24,7 +17,6 @@
           readonly
           @click="openCalendar"
         />
-
         <PrimePopover ref="calendarPopover">
           <PrimeDatePicker
             v-model="dateRange"
@@ -35,12 +27,6 @@
           />
         </PrimePopover>
       </div>
-      <span
-        v-if="errorMessage && (!dateRange || !dateRange[0] || !dateRange[1])"
-        class="text-red-500 text-sm mt-1"
-      >
-        날짜를 선택해주세요.
-      </span>
     </div>
 
     <!-- 인원 / 객실 -->
@@ -61,7 +47,7 @@
             </div>
           </div>
           <div class="flex justify-between items-center">
-            <span class="font-medium">성인 <span class="text-sm text-gray-500">(18세 이상)</span></span>
+            <span class="font-medium">성인</span>
             <div class="flex items-center gap-2">
               <PrimeButton icon="pi pi-minus" text @click="adults > 1 && adults--" />
               <span>{{ adults }}</span>
@@ -69,7 +55,7 @@
             </div>
           </div>
           <div class="flex justify-between items-center">
-            <span class="font-medium">아동 <span class="text-sm text-gray-500">(0 ~ 17세)</span></span>
+            <span class="font-medium">아동</span>
             <div class="flex items-center gap-2">
               <PrimeButton icon="pi pi-minus" text @click="children > 0 && children--" />
               <span>{{ children }}</span>
@@ -81,17 +67,13 @@
     </div>
 
     <!-- 검색 버튼 -->
-    <PrimeButton icon="pi pi-search" @click="searchPlaces" />
+    <PrimeButton icon="pi pi-search" @click="doSearch" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from "vue";
 
-const router = useRouter();
-
-const keyword = ref("");
 const dateRange = ref<[Date, Date] | null>(null);
 const rooms = ref(1);
 const adults = ref(1);
@@ -100,8 +82,21 @@ const children = ref(0);
 const popover = ref();
 const calendarPopover = ref();
 const checkinWrapperRef = ref();
-const errorMessage = ref(false);
-const emit = defineEmits(["search"]);
+
+const emit = defineEmits<{
+  (e: "search", payload: {
+    checkIn?: string,
+    checkOut?: string,
+    rooms: number,
+    adults: number,
+    children: number
+  }): void
+}>();
+
+const formatDate = (date: Date | null) => {
+  if (!date) return "";
+  return date.toISOString().split("T")[0];
+};
 
 const openCalendar = (e: Event) => {
   popover.value?.hide();
@@ -113,62 +108,13 @@ const toggleGuestPopover = (e: Event) => {
   popover.value?.toggle(e);
 };
 
-const formatDate = (date: Date | null) => {
-  if (!date) return "";
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/. /g, "-")
-    .replace(".", "");
-};
-
-const searchPlaces = () => {
-  emit("search");
-  if (
-    !keyword.value ||
-    !dateRange.value ||
-    !dateRange.value[0] ||
-    !dateRange.value[1] ||
-    adults.value < 1 ||
-    rooms.value < 1
-  ) {
-    errorMessage.value = true;
-    return;
-  }
-  errorMessage.value = false;
-
-  const searchData = {
-    name: keyword.value,
-    checkIn: formatDate(dateRange.value[0]),
-    checkOut: formatDate(dateRange.value[1]),
-    rooms: rooms.value.toString(),
-    adults: adults.value.toString(),
-    children: children.value.toString(),
-  };
-
-  localStorage.setItem("recentSearch", JSON.stringify(searchData));
-
-  router.push({
-    name: "list",
-    query: searchData,
+const doSearch = () => {
+  emit("search", {
+    checkIn: dateRange.value?.[0] ? formatDate(dateRange.value[0]) : undefined,
+    checkOut: dateRange.value?.[1] ? formatDate(dateRange.value[1]) : undefined,
+    rooms: rooms.value,
+    adults: adults.value,
+    children: children.value,
   });
 };
-
-onMounted(() => {
-  const saved = localStorage.getItem("recentSearch");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    keyword.value = parsed.name || "";
-    rooms.value = Number(parsed.rooms) || 1;
-    adults.value = Number(parsed.adults) || 1;
-    children.value = Number(parsed.children) || 0;
-
-    if (parsed.checkIn && parsed.checkOut) {
-      dateRange.value = [new Date(parsed.checkIn), new Date(parsed.checkOut)];
-    }
-  }
-});
 </script>

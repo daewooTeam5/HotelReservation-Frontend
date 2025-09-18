@@ -83,10 +83,16 @@ export default defineComponent({
         command: () => router.push('/payments')
       },
       {
+        label: '위시리스트',
+        icon: 'pi pi-heart-fill',
+        command: () => router.push('/wishlist')
+      },
+      {
         label: '설정',
         icon: 'pi pi-cog',
         command: () => router.push('/settings')
       },
+
       { separator: true },
       {
         label: '로그아웃',
