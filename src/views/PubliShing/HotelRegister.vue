@@ -1,205 +1,113 @@
 <template>
-  <div class="publishing-container">
-    <div class="publishing-card">
-      <h1 style="font-size: 24px;">숙소 등록</h1>
-      <form class="hregister" @submit.prevent="submitForm">
+  <div class="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div class="card w-full max-w-3xl p-6 bg-white dark:bg-gray-800 rounded shadow-lg">
+      <!-- Stepper -->
+      <Stepper v-model:value="activeStep" class="w-full">
+        <Step value="step1" label="이용약관 동의" />
+        <Step value="step2" label="숙소 기본정보 제공" />
+        <Step value="step3" label="객실 정보 등록" />
+        <Step value="step4" label="편의 기능 체크리스트" />
+        <Step value="step5" label="숙소 이용수칙 설정" />
+        <Step value="step6" label="요금제 설정" />
+        <Step value="step7" label="환영합니다" />
+      </Stepper>
 
-        <!-- 숙소 이름 -->
-        <div class="form-group">
-          <label for="hotelName">숙소 이름</label>
-          <input type="text" v-model="form.hotelName" id="hotelName" placeholder="숙소 이름 입력"/>
+      <!-- Step Content -->
+      <div class="mt-4">
+        <!-- Step 1 -->
+        <div v-if="activeStep === 'step1'">
+          <div class="border p-4 rounded bg-gray-50 dark:bg-gray-700">
+            이용약관 내용 표시
+          </div>
+          <div class="flex justify-end mt-4">
+            <Button label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activeStep='step2'" />
+          </div>
         </div>
 
-        <!-- 주소 -->
-        <div class="form-group">
-          <button type="button" @click="goToAddressPage" class="full-btn">주소 추가/수정</button>
-          <ul>
-            <li v-for="(addr, index) in form.addressList" :key="index">
-              {{ addr.province }} {{ addr.city }} {{ addr.street }}
-            </li>
-          </ul>
+        <!-- Step 2 -->
+        <div v-if="activeStep === 'step2'" class="flex flex-col space-y-4">
+          <label>숙소 이름</label>
+          <PrimeInputText v-model="form.hotelName" placeholder="숙소 이름 입력" />
+          <label>설명</label>
+          <textarea v-model="form.description" placeholder="설명 입력" class="border rounded p-2"></textarea>
+          <div class="flex justify-between mt-4">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activeStep='step1'" />
+            <Button label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activeStep='step3'" />
+          </div>
         </div>
 
-        <!-- 이미지 관리 -->
-        <div class="form-group">
-          <button type="button" @click="goToImagesPage" class="full-btn">이미지 추가/수정</button>
-          <ul>
-            <li v-for="(img, index) in form.images" :key="index">{{ img }}</li>
-          </ul>
+        <!-- Step 3 -->
+        <div v-if="activeStep === 'step3'" class="flex flex-col space-y-4">
+          객실 정보 입력 폼
+          <div class="flex justify-between mt-4">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activeStep='step2'" />
+            <Button label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activeStep='step4'" />
+          </div>
         </div>
 
-        <!-- 객실 -->
-        <div class="form-group">
-          <button type="button" @click="goToRoomsPage" class="full-btn">객실 추가/수정</button>
-          <ul>
-            <li v-for="(room, index) in form.rooms" :key="index">
-              {{ room.name }} - {{ room.price }}원
-            </li>
-          </ul>
+        <!-- Step 4 -->
+        <div v-if="activeStep === 'step4'" class="flex flex-col space-y-2">
+          <div v-for="(amenity, index) in amenities" :key="index" class="flex items-center space-x-2">
+            <input type="checkbox" v-model="amenity.checked" :id="'amenity-' + index" class="w-4 h-4" />
+            <label :for="'amenity-' + index">{{ amenity.name }}</label>
+          </div>
+          <div class="flex justify-between mt-4">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activeStep='step3'" />
+            <Button label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activeStep='step5'" />
+          </div>
         </div>
 
-        <!-- 편의시설 관리 -->
-        <div class="form-group">
-          <button type="button" @click="goToAmenitiesPage" class="full-btn">편의시설 추가/수정</button>
-          <ul>
-            <li v-for="(amenity, index) in form.amenities" :key="index">{{ amenity }}</li>
-          </ul>
+        <!-- Step 5 -->
+        <div v-if="activeStep === 'step5'" class="flex flex-col space-y-4">
+          숙소 이용수칙 설정 폼
+          <div class="flex justify-between mt-4">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activeStep='step4'" />
+            <Button label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activeStep='step6'" />
+          </div>
         </div>
 
-        <!-- 설명 -->
-        <div class="form-group">
-          <label for="description">설명</label>
-          <textarea v-model="form.description" id="description"></textarea>
+        <!-- Step 6 -->
+        <div v-if="activeStep === 'step6'" class="flex flex-col space-y-4">
+          요금제 설정 폼
+          <div class="flex justify-between mt-4">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activeStep='step5'" />
+            <Button label="Next" icon="pi pi-arrow-right" iconPos="right" @click="activeStep='step7'" />
+          </div>
         </div>
 
-        <!-- 제출 -->
-        <button type="submit" class="submit-btn">등록</button>
-      </form>
+        <!-- Step 7 -->
+        <div v-if="activeStep === 'step7'" class="flex flex-col space-y-4">
+          등록 완료 메시지
+          <div class="flex justify-between mt-4">
+            <Button label="Back" severity="secondary" icon="pi pi-arrow-left" @click="activeStep='step6'" />
+            <Button label="Submit" icon="pi pi-check" @click="submitForm" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { reactive, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { reactive, computed, ref } from 'vue';
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
 
-// Pinia 스토어 import
-import { usePublishingStore } from '@/stores/publishing/AddAddress';
-import { useImageStore } from '@/stores/publishing/AddImage';
-import { useRoomsStore } from '@/stores/publishing/AddRooms';
-import { useServiceStore } from '@/stores/publishing/AddService';
-
-const router = useRouter();
-
-// 메인 form에 기존 필드만 남기고, 리스트들은 스토어에서 가져오도록 computed
-const publishingstore = usePublishingStore();
-const imagestore = useImageStore();
-const roomsstore = useRoomsStore();
-const servicestore = useServiceStore();
+const activeStep = ref('step1');
 
 const form = reactive({
   hotelName: '',
   description: '',
 });
 
-// 외부 폼 데이터 연결
-const addressList = computed(() => publishingstore.addressList);
-const images = computed(() => imagestore.images);
-const rooms = computed(() => roomsstore.roomsList);
-const amenities = computed(() => servicestore.serviceList);
 
-// 페이지 이동
-const goToAddressPage = () => router.push('/publishing/address');
-const goToRoomsPage = () => router.push('/publishing/rooms');
-const goToImagesPage = () => router.push('/publishing/images');
-const goToAmenitiesPage = () => router.push('/publishing/amenities');
-
-// 제출
 const submitForm = async () => {
-  try {
-    // form + 외부 리스트 합쳐서 보내기
-    const payload = {
-      hotelName: form.hotelName,
-      description: form.description,
-      addressList: addressList.value,
-      images: images.value,
-      rooms: rooms.value,
-      amenities: amenities.value
-    };
-
-    await axios.post('http://localhost:8888/hotel/publishing/register', payload, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    alert('등록 완료!');
-  } catch(err) {
-    console.error(err);
-    alert('등록 실패');
-  }
+  alert('폼 제출 (예시)');
 };
 </script>
 
-
 <style scoped>
-.publishing-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #c4efc8;
-}
-
-.publishing-card {
-  background: white;
-  padding: 40px;
-  border-radius: 2px;
-  width: 400px;
-  max-width: 90%;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-input, textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
-textarea {
-  min-height: 80px;
-  resize: vertical;
-
-  font-size: 12px;
-}
-
-button {
-  cursor: pointer;
-  border-radius: 6px;
-  border: none;
-}
-
-.full-btn {
-  width: 100%;
-  padding: 10px;
-  background: #b5abab;
-  color: white;
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-.full-btn:hover {
-  background: #636363;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 10px;
-  background: #dac541;
-  color: white;
-  font-weight: bold;
-  margin-top: 20px;
-}
-
-.submit-btn:hover {
-  background: #eda500;
-}
-
-ul {
-  margin: 5px 0 0 0;
-  padding-left: 15px;
+.card {
+  max-width: 800px;
 }
 </style>

@@ -50,9 +50,9 @@ const router = createRouter({//여기에 PATH는 경로, NAME은 아무거나, �
       component: () => import('@/views/auth/EmailOtpView.vue')
     },
     {
-      path:'/hotelregister',
-      name:'hotelregister',
-      component: () => import('../views/PubliShing/HotelRegister.vue')
+      path:'/HotelRegister',
+      name:'HotelRegister',
+      component: () => import('@/views/PubliShing/HotelRegister.vue')
     },
     {
       path:'/publishing/address',
