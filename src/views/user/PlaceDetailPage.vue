@@ -101,6 +101,7 @@
         {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
       </p>
     </section>
+    <ReviewSection :place-id="Number(id)" />
 
     <div
       v-if="isModalOpen"
@@ -131,6 +132,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </main>
 </template>
@@ -141,6 +143,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from "axios";
+import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
 const route = useRoute();
 const id = route.params.id as string;
 const place = ref<any>({});

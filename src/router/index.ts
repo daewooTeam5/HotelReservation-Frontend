@@ -53,6 +53,7 @@ const router = createRouter({//여기에 PATH는 경로, NAME은 아무거나, �
       path:'/auth/email-otp',
       name:'verify-otp',
       component: () => import('@/views/auth/EmailOtpView.vue')
+
     },
     {
       path:'/hotelregister',
@@ -79,6 +80,12 @@ const router = createRouter({//여기에 PATH는 경로, NAME은 아무거나, �
       name:'Amenties',
       component: () => import('../views/PubliShing/Amenities.vue')
     },
+    {
+      path: "/places/:id",
+      name: "PlaceDetail",
+      component: () => import('../views/user/PlaceDetailPage.vue'),
+      props: true,
+    }
 
   ]
 });

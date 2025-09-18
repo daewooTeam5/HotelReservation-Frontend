@@ -10,7 +10,7 @@ import type { ApiResult } from '@/types/ApiResult.ts';
 import type { LoginSuccessDto } from '@/types/users.ts';
 import { useToast } from 'primevue';
 import type { AxiosError } from 'axios';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'EmailOtpView',
@@ -23,7 +23,7 @@ export default defineComponent({
     const { otpEmail,setAccessToken } = useAuthStore();
     const toast = useToast();
     const router = useRouter();
-
+    const route = useRoute(); // 현재 라우트 객체를 가져옵니다.
     const authCodeMutate = useMutation({
       mutationFn: async (data: { email: string, code: string }) => {
         const result = await apiClient.post<ApiResult<LoginSuccessDto>>('../auth/code', {
@@ -39,7 +39,16 @@ export default defineComponent({
       onSuccess(data) {
         const param = data as LoginSuccessDto
         setAccessToken(param.accessToken);
-        router.push("/")
+
+        // 주석: 쿼리에서 redirect 경로를 확인합니다.
+        const redirectPath = route.query.redirect as string | undefined;
+
+        // 주석: redirect 경로가 있으면 그곳으로, 없으면 메인 페이지('/')로 이동합니다.
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else {
+          router.push("/");
+        }
       },
       onError(error: AxiosError<ApiResult<any>>) {
         console.log(error.response);
