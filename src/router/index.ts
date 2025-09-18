@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-const router = createRouter({
+const router = createRouter({//여기에 PATH는 경로, NAME은 아무거나, 컴포넌트 import('')는 vue 경로
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
@@ -48,12 +48,40 @@ const router = createRouter({
       path:'/auth/email-otp',
       name:'verify-otp',
       component: () => import('@/views/auth/EmailOtpView.vue')
-    },{
+
+    },
+    {
+      path:'/hotelregister',
+      name:'hotelregister',
+      component: () => import('../views/PubliShing/HotelRegister.vue')
+    },
+    {
+      path:'/publishing/address',
+      name:'Address',
+      component: () => import('../views/PubliShing/Address.vue')
+    },
+    {
+      path:'/publishing/images',
+      name:'Images',
+      component: () => import('../views/PubliShing/Images.vue')
+    },
+    {
+      path:'/publishing/rooms',
+      name:'Rooms',
+      component: () => import('../views/PubliShing/Rooms.vue')
+    },
+    {
+      path:'/publishing/amenities',
+      name:'Amenties',
+      component: () => import('../views/PubliShing/Amenities.vue')
+    },
+    {
       path: "/places/:id",
       name: "PlaceDetail",
       component: () => import('../views/user/PlaceDetailPage.vue'),
       props: true,
     }
+
   ]
 });
 
