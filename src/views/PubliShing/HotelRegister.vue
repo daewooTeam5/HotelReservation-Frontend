@@ -630,7 +630,7 @@ const submitForm = async () => {
     };
 
     // POST 요청
-    await apiClient.post('http://localhost:8888/hotel/publishing/register', payload);
+    await apiClient.post('http://localhost:8888/api/hotel/publishing/register', payload);
 
     // 성공 시 메인 페이지 이동
     router.push('/');
