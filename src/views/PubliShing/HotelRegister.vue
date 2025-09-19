@@ -63,7 +63,7 @@
           <!-- 룸 유형 -->
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">룸 유형</p>
-            <select v-model="form.roomType" class="w-full border rounded p-2">
+            <select v-model="form.rooms.roomType" class="w-full border rounded p-2">
               <option value="">선택</option>
               <option value="single">싱글룸</option>
               <option value="double">더블룸</option>
@@ -86,7 +86,7 @@
             </p>
             <div
               style="margin-bottom: 14px; margin-top: 8px"
-              v-for="(bed, index) in form.beds"
+              v-for="(bed, index) in form.rooms.beds"
               :key="index"
               class="flex items-center justify-between rounded-md mb-2"
             >
@@ -142,18 +142,18 @@
                 style="background: lightgrey"
                 type="button"
                 class="px-2 py-1 bg-gray-100 rounded"
-                @click="form.maxCount = Math.max(1, form.maxCount - 1)"
+                @click="form.rooms.maxCount = Math.max(1, form.rooms.maxCount - 1)"
               >
                 −
               </button>
-              <span class="w-6 text-center">{{ form.maxCount }}</span>
+              <span class="w-6 text-center">{{ form.rooms.maxCount }}</span>
               <button
                 onmouseover="this.style.backgroundColor='#2781d0'"
                 onmouseout="this.style.backgroundColor='lightgrey'"
                 style="background-color: lightgrey"
                 type="button"
                 class="px-2 py-1 bg-gray-100 rounded"
-                @click="form.maxCount++"
+                @click="form.rooms.maxCount++"
               >
                 +
               </button>
@@ -243,7 +243,7 @@
               체크 인 시간은 어떻게 할까요?
             </p>
             <InputText
-              v-model="form.checkIn"
+              v-model="form.rooms.checkIn"
               placeholder="체크 인 시간"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -257,7 +257,7 @@
               체크 아웃 시간은 어떻게 할까요?
             </p>
             <InputText
-              v-model="form.checkOut"
+              v-model="form.rooms.checkOut"
               placeholder="체크 아웃 시간"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -317,7 +317,7 @@
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">1박 요금</p>
             <InputText
-              v-model="form.price"
+              v-model="form.rooms.price"
               placeholder="예:45000(원 제외)"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -326,7 +326,7 @@
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">추가 인원 요금</p>
             <InputText
-              v-model="form.extraPrice"
+              v-model="form.rooms.extraPrice"
               placeholder="예:30000(원 제외)"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -377,7 +377,49 @@
           </div>
         </div>
       </div>
-      <div v-if="activeStep === 'step7'" class="flex flex-col h-full p-4 gap-6">
+      <!-- Step 7 : 실제 주소 -->
+      <div v-if="activeStep === 'step7'" class="flex flex-col gap-2 justify-start h-full">
+        <input
+          v-model="form.address.province"
+          placeholder="주/도"
+          class="address-input"
+        />
+        <input
+          v-model="form.address.city"
+          placeholder="시/군/구"
+          class="address-input"
+        />
+        <input
+          v-model="form.address.town"
+          placeholder="동/읍/면"
+          class="address-input"
+        />
+        <input
+          v-model="form.address.road"
+          placeholder="도로명"
+          class="address-input"
+        />
+        <input
+          v-model="form.address.roadNumber"
+          placeholder="도로번호"
+          class="address-input"
+        />
+        <input
+          v-model="form.address.postNumber"
+          placeholder="우편번호"
+          class="address-input"
+        />
+        <input
+          v-model="form.address.detailPost"
+          placeholder="상세주소"
+          class="address-input"
+        />
+      </div>
+
+
+      <!--확인-->
+
+      <div v-if="activeStep === 'step8'" class="flex flex-col h-full p-4 gap-6">
 
         <div class="flex flex-col gap-6 flex-1 justify-start">
           <!-- 호텔 이름 -->
@@ -392,11 +434,13 @@
             <p class="text-gray-900 dark:text-gray-100">{{ form.hotelType }}</p>
           </div>
 
-          <!-- 룸 유형 -->
+          <!-- 룸 번호 -->
           <div class="flex justify-between items-center">
-            <p class="font-semibold text-gray-700 dark:text-gray-200">룸 유형</p>
-            <p class="text-gray-900 dark:text-gray-100">{{ form.roomType }}</p>
+            <p class="font-semibold text-gray-700 dark:text-gray-200">호실 번호</p>
+            <p class="text-gray-900 dark:text-gray-100">{{ form.rooms.roomNumber }}</p>
           </div>
+
+
 
           <!-- 업로드된 사진 -->
           <div>
@@ -411,24 +455,28 @@
           <!-- 1박당 가격 -->
           <div class="flex justify-between items-center">
             <p class="font-semibold text-gray-700 dark:text-gray-200">1박당 가격</p>
-            <p class="text-gray-900 dark:text-gray-100">{{ form.price }} 원</p>
+            <p class="text-gray-900 dark:text-gray-100">{{ form.rooms.price }} 원</p>
           </div>
 
           <div class="flex justify-between items-center">
             <p class="font-semibold text-gray-700 dark:text-gray-200">체크인</p>
-            <p class="text-gray-900 dark:text-gray-100">{{ form.checkIn }}</p>
+            <p class="text-gray-900 dark:text-gray-100">{{ form.rooms.checkIn }}</p>
 
           </div>
 
 <div class="flex justify-between items-center">
           <p class="font-semibold text-gray-700 dark:text-gray-200">체크아웃</p>
-          <p class="text-gray-900 dark:text-gray-100">{{ form.checkOut }}</p>
+          <p class="text-gray-900 dark:text-gray-100">{{ form.rooms.checkOut }}</p>
         </div>
-
           <div class="flex justify-between items-center">
-            <p class="font-semibold text-gray-700 dark:text-gray-200">설명</p>
-            <p class="text-gray-900 dark:text-gray-100">{{ form.description }}</p>
+            <p class="text-gray-700 dark:text-gray-200 font-semibold">주소</p>
+            <p class="text-gray-900 dark:text-gray-100">
+              {{ form.address.province }} {{ form.address.city }} {{ form.address.town }}
+              {{ form.address.road }} {{ form.address.roadNumber }}
+              {{ form.address.postNumber }} {{ form.address.detailPost }}
+            </p>
           </div>
+
         </div>
 
       </div>
@@ -445,7 +493,7 @@
         />
         <div class="flex-1"></div>
         <Button
-          v-if="activeStep !== 'step7'"
+          v-if="activeStep !== 'step8'"
           label="Next"
           icon="pi pi-arrow-right"
           iconPos="right"
@@ -453,7 +501,7 @@
           @click="nextStep"
         />
         <Button
-          v-if="activeStep === 'step7'"
+          v-if="activeStep === 'step8'"
           label="Submit"
           icon="pi pi-check"
           class="w-24"
@@ -506,7 +554,8 @@ const stepTitles: Record<string, string> = {
   step4: '편의 기능 체크리스트',
   step5: '체크인/체크아웃 시간',
   step6: '요금제 설정',
-  step7: '완료',
+  step7: '주소 입력',
+  step8: '정보 확인',
 };
 
 
@@ -523,19 +572,33 @@ interface BedOption {
 }
 
 const form = reactive({
+  rooms:{
+    maxCount: 1,
+    price:1,
+    extraPrice: 1,
+    roomNumber:1,
+    roomType:'',
+    beds: [] as BedOption[],
+    checkIn: '',
+    checkOut: '',
+
+  },
   hotelName: '',
   hotelGrade: '',
   hotelType: '',
-  roomType: '',
-  maxCount: 1,
-  beds: [] as BedOption[],
-  checkIn: '',
-  checkOut: '',
-  price: '',
-  extraPrice: '',
   description: '',
+
   discounts: [] as DiscountOption[],
 
+  address: {//엔티티가 따로 있으면 이렇게 묶어서 가능하구나
+    province: '',
+    city: '',
+    town: '',
+    road: '',
+    roadNumber: '',
+    postNumber: '',
+    detailPost: ''
+  }
 });
 
 // 침대 기본 옵션
@@ -547,14 +610,14 @@ const availableBeds: BedOption[] = [
 ];
 
 // beds 배열 초기화
-form.beds = availableBeds.map((b) => ({ ...b }));
+form.rooms.beds = availableBeds.map((b) => ({ ...b }));
 
 const incrementBed = (index: number) => {
-  form.beds[index].count++;
+  form.rooms.beds[index].count++;
 };
 
 const decrementBed = (index: number) => {
-  if (form.beds[index].count > 0) form.beds[index].count--;
+  if (form.rooms.beds[index].count > 0) form.rooms.beds[index].count--;
 };
 
 const nextStep = () => {
@@ -599,8 +662,8 @@ const removeImage = (index) => {
 
 
 const calculateDiscountedPrice = (d: DiscountOption) => {
-  const basePrice = Number(form.price || 0);          // 1박 기본 요금
-  const extraPrice = Number(form.extraPrice || 0);   // 추가 인원 요금
+  const basePrice = Number(form.rooms.price || 0);          // 1박 기본 요금
+  const extraPrice = Number(form.rooms.extraPrice || 0);   // 추가 인원 요금
   const persons = d.person || 1;
   const discount = d.discount || 0;
 
@@ -618,25 +681,38 @@ const prevStep = () => {
   const idx = steps.indexOf(activeStep.value);
   if (idx > 0) activeStep.value = steps[idx - 1];
 };
-
 const submitForm = async () => {
   try {
-    // 폼 데이터에 이미지와 언어, 편의시설 등을 포함시켜서 전송
+    // DTO 구조 맞춰서 payload 생성
     const payload = {
-      ...form,
+      hotelName: form.hotelName,
+      description: form.description,
+      addressList: [form.address], // 단일 주소라도 리스트로 감싸기
+      images: uploadedImages.value,
       amenities: amenities.filter(a => a.checked).map(a => a.name),
-      languages: ranguage.filter(l => l.checked).map(l => l.types),
-      images: uploadedImages.value, // 이미지를 base64로 보내는 경우
+      rooms: form.rooms.length
+        ? form.rooms.map((r, index) => ({
+          roomNumber: index + 1,
+          price: Number(r.price || form.rooms.price), // form.price 기본값 활용
+          maxCount: r.maxCount || form.rooms.maxCount
+        }))
+        : [
+          {
+            roomNumber: 1,
+            price: Number(form.rooms.price),
+            maxCount: form.rooms.maxCount
+          }
+        ]
     };
 
     // POST 요청
-    await apiClient.post('http://localhost:8888/api/hotel/publishing/register', payload);
+    await apiClient.post(
+      'http://localhost:8888/api/hotel/publishing/register',
+      payload
+    );
 
-    // 성공 시 메인 페이지 이동
-    router.push('/');
-
-    // 선택적으로 알림
     alert('폼 제출 완료!');
+    router.push('/'); // 완료 후 메인 페이지 이동
   } catch (error) {
     console.error('폼 제출 실패:', error);
     alert('폼 제출 중 오류가 발생했습니다.');
@@ -649,4 +725,20 @@ margin: 10px;
   gap:5px;
 }
 
+.address-input {
+  margin: 5px 0; /* 위아래 5px */
+  padding: 8px;
+  border: 1px solid lightgrey;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+.address-input:hover {
+  border-color: grey;
+}
+
+.address-input:focus {
+  outline: none;
+  border-color: grey;
+}
 </style>
