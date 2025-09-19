@@ -27,15 +27,16 @@
             />
           </div>
           <div>
-            <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">호텔 성급</p>
-            <select v-model="form.hotelGrade" class="w-full border rounded p-2">
-              <option value="">선택</option>
-              <option value="1">★</option>
-              <option value="2">★★</option>
-              <option value="3">★★★</option>
-              <option value="4">★★★★</option>
-              <option value="5">★★★★★</option>
-            </select>
+            <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">호실 번호</p>
+            <InputText
+              v-model.number="form.rooms.roomNumber"
+              placeholder="호실 번호"
+              unstyled
+              class="w-50 border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
+            />
+            <button   style="margin:5px;" class="w-12 h-10 border-2 rounded-md p-2"
+            @click="addRoom"
+            >추가</button>
           </div>
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 유형</p>
@@ -86,48 +87,23 @@
             </p>
             <div
               style="margin-bottom: 14px; margin-top: 8px"
-              v-for="(bed, index) in form.rooms.beds"
-              :key="index"
-              class="flex items-center justify-between rounded-md mb-2"
-            >
-              <div>
-                <p class="font-medium">{{ bed.type }}</p>
-                <p class="text-sm text-gray-500">폭: {{ bed.width }}</p>
-              </div>
-              <div
-                class="flex items-center gap-2"
-                style="
-                  border: 1px solid black;
-                  padding: 4px;
-                  border-top-left-radius: 8px;
-                  border-top-right-radius: 8px;
-                  border-bottom-right-radius: 8px;
-                  border-bottom-left-radius: 8px;
-                "
-              >
-                <button
-                  type="button"
-                  class="px-2 py-0.5 bg-gray-200 rounded"
-                  @click="decrementBed(index)"
-                  onmouseover="this.style.backgroundColor='lightgrey'"
-                  onmouseout="this.style.backgroundColor='lightblue'"
-                  style="background-color: lightblue"
-                >
-                  −
-                </button>
-                <span class="w-10 text-center">{{ bed.count }}</span>
-                <button
-                  type="button"
-                  class="px-2 py-0.5 bg-gray-200 rounded"
-                  @click="incrementBed(index)"
-                  onmouseover="this.style.backgroundColor='#2781d0'"
-                  onmouseout="this.style.backgroundColor='lightblue'"
-                  style="background-color: lightblue"
-                >
-                  +
-                </button>
-              </div>
+
+
+              class="flex items-center justify-between rounded-md mb-2">
             </div>
+<div>
+              <select v-model="form.rooms.beds" class="w-full border rounded p-2">
+                <option value="">사이즈 선택</option>
+                <option value="single">싱글, 90~130cm</option>
+                <option value="quin">퀸, 131~150cm</option>
+                <option value="king">킹, 151~180cm</option>
+                <option value="superking">수퍼 킹, 181~210cm</option>
+
+              </select>
+              </div>
+
+
+
           </div>
 
           <!-- 최대 숙박 인원 -->
@@ -159,6 +135,7 @@
               </button>
             </div>
           </div>
+
         </div>
         <!-- step3 이미지 등록 -->
         <div v-if="activeStep === 'step3'" class="flex flex-col items-center gap-6">
@@ -317,7 +294,7 @@
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">1박 요금</p>
             <InputText
-              v-model="form.rooms.price"
+              v-model.number="form.rooms.price"
               placeholder="예:45000(원 제외)"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -326,7 +303,7 @@
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">추가 인원 요금</p>
             <InputText
-              v-model="form.rooms.extraPrice"
+              v-model.number="form.rooms.extraPrice"
               placeholder="예:30000(원 제외)"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
