@@ -87,6 +87,13 @@ const router = createRouter({
           meta: { layout: "owner" },
         },
         {
+          path: "reservations/:id",
+          name: "owner-reservation-detail",
+          component: () => import("@/views/placeOwner/ReservationDetail.vue"),
+          props: true,
+          meta: { layout: "owner" },
+        },
+        {
           path: "reviews",
           name: "owner-reviews",
           component: () => import("@/views/placeOwner/ReviewManagement.vue"),
@@ -115,7 +122,7 @@ const router = createRouter({
           name: "owner-settings",
           component: () => import("@/views/placeOwner/SettingsPage.vue"),
           meta: { layout: "owner" },
-        }
+        },
       ],
     },
   ],
