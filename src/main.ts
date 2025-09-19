@@ -1,9 +1,8 @@
 import './assets/main.css';
 
-import '../node_modules/primevue/resources/themes/saga-blue/theme.css';
-import '../node_modules/primevue/resources/primevue.min.css';
-import '../node_modules/primeicons/primeicons.css';
-//나 혼자 프로젝트 경로랑 node_modules랑 경로가 달라서 절대 경로로 사용
+import 'primevue/resources/themes/saga-blue/theme.css';   // v3 테마
+import 'primevue/resources/primevue.min.css';
+import 'primeicons/primeicons.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -13,19 +12,12 @@ import App from './App.vue';
 import router from './router';
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
-   // ← 필요
-import { Toast } from 'primevue';
+import Toast from 'primevue/toast';
 
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import DatePicker from 'primevue/datepicker';
-import Select from 'primevue/select';
-import Popover from 'primevue/popover';
 import Stepper from 'primevue/stepper';
-import Step from 'primevue/step';
 import Steps from 'primevue/steps';
-
-
 
 const app = createApp(App);
 
@@ -50,13 +42,8 @@ app.component('Toast', Toast);
 app.use(PrimeVue, { locale: koreanLocale, ripple: true });
 
 app.component('PrimeInputText', InputText);
-app.component('PrimeDatePicker', DatePicker);
-app.component('PrimeSelect', Select);
 app.component('PrimeButton', Button);
-app.component('PrimePopover', Popover);
 app.component('Stepper', Stepper);
-app.component('Step', Step);
 app.component('Steps', Steps);
-
 
 app.mount('#app');
