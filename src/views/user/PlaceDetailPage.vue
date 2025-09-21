@@ -10,6 +10,29 @@
       </p>
       <p v-if="place.avgRating" class="mb-4"> {{ place.avgRating.toFixed(1) }}</p>
 
+      <!-- 선택된 예약 정보 표시 -->
+      <div v-if="checkInDate && checkOutDate" class="bg-blue-50 p-4 rounded-lg mb-6">
+        <h3 class="text-lg font-semibold mb-3 text-blue-800">선택하신 예약 정보</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <span class="font-medium text-blue-700">체크인:</span>
+            <div class="text-gray-700">{{ checkInDate }}</div>
+          </div>
+          <div>
+            <span class="font-medium text-blue-700">체크아웃:</span>
+            <div class="text-gray-700">{{ checkOutDate }}</div>
+          </div>
+          <div>
+            <span class="font-medium text-blue-700">투숙객:</span>
+            <div class="text-gray-700">성인 {{ adults || 0 }}명, 아동 {{ children || 0 }}명</div>
+          </div>
+          <div>
+            <span class="font-medium text-blue-700">객실:</span>
+            <div class="text-gray-700">{{ rooms || 1 }}개</div>
+          </div>
+        </div>
+      </div>
+
       <div v-if="place.fileUrls && place.fileUrls.length > 0" class="mb-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl overflow-hidden h-[400px]">
           <div class="h-full">
@@ -83,6 +106,7 @@
           <button
             v-if="room.status === 'AVAILABLE'"
             class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+            @click="handleReservation(room.id)"
           >
             예약
           </button>
@@ -141,10 +165,12 @@
 /// <reference types="google.maps" />
 
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from "axios";
 import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
+
 const route = useRoute();
+const router = useRouter();
 const id = route.params.id as string;
 const place = ref<any>({});
 const loading = ref(true);
@@ -154,12 +180,43 @@ const mapLoaded = ref(false);
 
 const isModalOpen = ref(false);
 
+// 리스트페이지에서 받은 체크인/체크아웃 날짜
+const checkInDate = ref(route.query.checkIn as string || '');
+const checkOutDate = ref(route.query.checkOut as string || '');
+const adults = ref(route.query.adults as string || '');
+const children = ref(route.query.children as string || '');
+const rooms = ref(route.query.rooms as string || '');
+
+
 const openModal = () => {
   isModalOpen.value = true;
 };
 
 const closeModal = () => {
   isModalOpen.value = false;
+};
+
+// 예약하기 버튼 클릭 핸들러
+const handleReservation = (roomId: number) => {
+  if (!checkInDate.value || !checkOutDate.value) {
+    alert('체크인/체크아웃 날짜 정보가 없습니다. 검색 페이지에서 다시 시도해주세요.');
+    return;
+  }
+
+
+  // 쿼리 파라미터로 데이터 전달
+  router.push({
+    path: '/places/order',
+    query: {
+      hotelId: id,
+      roomId: roomId,
+      checkIn: checkInDate.value,
+      checkOut: checkOutDate.value,
+      adults: adults.value,
+      children: children.value,
+      rooms: rooms.value
+    }
+  });
 };
 
 onMounted(async () => {
