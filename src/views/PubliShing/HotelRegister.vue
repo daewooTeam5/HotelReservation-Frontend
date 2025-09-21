@@ -702,48 +702,30 @@ const prevStep = () => {
   const steps = Object.keys(stepTitles);
   const idx = steps.indexOf(activeStep.value);
   if (idx > 0) activeStep.value = steps[idx - 1];
-};
-const submitForm = async () => {
+};const submitForm = async () => {
   try {
-    // DTO 구조 맞춰서 payload 생성
-    const submitForm = async () => {
-      try {
-        const payload = {
-          hotelName: form.hotelName,
-          description: form.description,
-          addressList: [form.address],
-          images: uploadedImages.value,
-          amenities: amenities.filter(a => a.checked).map(a => a.name),
-          rooms: [form.rooms, ...addedRooms.value]  // 기본 객실 + 추가된 객실
-        };
-
-        await apiClient.post(
-          'http://localhost:8888/api/hotel/publishing/register',
-          payload
-        );
-
-        alert('폼 제출 완료!');
-        router.push('/');
-      } catch (error) {
-        console.error('폼 제출 실패:', error);
-        alert('폼 제출 중 오류가 발생했습니다.');
-      }
+    const payload = {
+      hotelName: form.hotelName,
+      description: form.description,
+      addressList: [form.address],
+      images: uploadedImages.value,
+      amenities: amenities.filter(a => a.checked).map(a => a.name),
+      rooms: [form.rooms, ...addedRooms.value].flat()
     };
 
-
-    // POST 요청
     await apiClient.post(
-      'http://localhost:8888/api/hotel/publishing/register',
+      'http://localhost:8888/hotel/publishing/register',
       payload
     );
 
     alert('폼 제출 완료!');
-    router.push('/'); // 완료 후 메인 페이지 이동
+    router.push('/');
   } catch (error) {
     console.error('폼 제출 실패:', error);
     alert('폼 제출 중 오류가 발생했습니다.');
   }
 };
+
 </script>
 <style>
 .thead{
