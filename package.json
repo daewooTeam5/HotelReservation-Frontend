@@ -20,6 +20,7 @@
     "@sauromates/vue-gravatar": "^1.0.2",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/vue-query": "^5.87.4",
+    "@tosspayments/tosspayments-sdk": "^2.4.0",
     "@types/gravatar": "^1.8.6",
     "axios": "^1.12.2",
     "lodash.debounce": "^4.0.8",

@@ -11,7 +11,6 @@ export type User =  {
   id: number;
   userId: string;
   email: string;
-  password?: string;
   name: string;
   phone?: string;
   role: Role;

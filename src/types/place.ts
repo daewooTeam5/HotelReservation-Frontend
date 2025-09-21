@@ -1,3 +1,5 @@
+import type { Room } from '@/types/room.ts';
+
 export interface PlaceDetailResponse {
   id: number;
   name: string;
@@ -8,5 +10,5 @@ export interface PlaceDetailResponse {
   roadName: string;
   detailAddress: string;
   fileUrls: string[];
-  rooms: any[]; // TODO: Room 타입 정의 필요
+  rooms: Room[]; // TODO: Room 타입 정의 필요
 }
