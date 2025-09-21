@@ -82,7 +82,7 @@ export default defineComponent({
       {
         label: '결제 내역',
         icon: 'pi pi-credit-card',
-        command: () => router.push('/payments')
+        command: () => router.push('/reservation')
       },
       {
         label: '위시리스트',

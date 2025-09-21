@@ -12,7 +12,7 @@ const items = ref([
     label: "Documents",
     items: [
       { label: "계정", icon: "pi pi-user", to: "/account" },
-      { label: "결제 내역", icon: "pi pi-credit-card", to: "/payments" },
+      { label: "결제 내역", icon: "pi pi-credit-card", to: "/reservation" },
       { label: "위시리스트", icon: "pi pi-heart", to: "/wishlist" },
       { label: "설정", icon: "pi pi-cog", to: "/settings" },
       { label: "로그아웃", icon: "pi pi-sign-out", to: "/logout" }
