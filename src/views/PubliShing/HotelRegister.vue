@@ -34,9 +34,7 @@
               unstyled
               class="w-50 border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
             />
-            <button   style="margin:5px;" class="w-12 h-10 border-2 rounded-md p-2"
-            @click="addRoom"
-            >추가</button>
+
           </div>
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 유형</p>
@@ -134,9 +132,42 @@
                 +
               </button>
             </div>
+            <button
+              type="button"
+              class="w-full px-2 py-1 mt-4 bg-blue-400 text-white rounded hover:bg-blue-500"
+              @click="addRoom"
+              style="margin-top:8px;"
+            >
+              객실 추가
+            </button>
+
+
+          </div>
+          <div v-if="addedRooms.length > 0" class="mt-4 flex flex-col gap-2">
+            <p class="font-semibold text-gray-700 dark:text-gray-200">추가된 객실</p>
+            <div
+              v-for="(room, index) in addedRooms"
+              :key="index"
+              class="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded"
+            >
+              <div>
+                <p>호실: {{ room.roomNumber }}</p>
+                <p>유형: {{ room.roomType || '미정' }}</p>
+                <p>최대인원: {{ room.maxCount }}</p>
+              </div>
+              <button
+                @click="removeAddedRoom(index)"
+                class="text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
           </div>
 
-        </div>
+          <!-- 객실 추가 버튼 -->
+
+
         <!-- step3 이미지 등록 -->
         <div v-if="activeStep === 'step3'" class="flex flex-col items-center gap-6">
           <!-- 제목 -->
@@ -157,7 +188,6 @@
             />
 
             <div
-              v-if="uploadedImages.length === 0"
               class="flex flex-col items-center text-gray-400"
             >
               <!-- 여기가 아이콘-->
@@ -495,6 +525,21 @@ import Button from 'primevue/button';
 
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter } from 'vue-router';
+const addedRooms = ref<typeof form.rooms[]>([]);
+
+// 객실 추가
+const addRoom = () => {
+  // 현재 form.rooms를 deep copy 해서 추가
+  addedRooms.value.push(JSON.parse(JSON.stringify(form.rooms)));
+
+  // 다음 방 기본값 세팅 (roomNumber 자동 증가)
+  form.rooms.roomNumber++;
+};
+
+// 작은 카드에서 삭제
+const removeAddedRoom = (index: number) => {
+  addedRooms.value.splice(index, 1);
+};
 
 const router = useRouter();
 
@@ -661,26 +706,30 @@ const prevStep = () => {
 const submitForm = async () => {
   try {
     // DTO 구조 맞춰서 payload 생성
-    const payload = {
-      hotelName: form.hotelName,
-      description: form.description,
-      addressList: [form.address], // 단일 주소라도 리스트로 감싸기
-      images: uploadedImages.value,
-      amenities: amenities.filter(a => a.checked).map(a => a.name),
-      rooms: form.rooms.length
-        ? form.rooms.map((r, index) => ({
-          roomNumber: index + 1,
-          price: Number(r.price || form.rooms.price), // form.price 기본값 활용
-          maxCount: r.maxCount || form.rooms.maxCount
-        }))
-        : [
-          {
-            roomNumber: 1,
-            price: Number(form.rooms.price),
-            maxCount: form.rooms.maxCount
-          }
-        ]
+    const submitForm = async () => {
+      try {
+        const payload = {
+          hotelName: form.hotelName,
+          description: form.description,
+          addressList: [form.address],
+          images: uploadedImages.value,
+          amenities: amenities.filter(a => a.checked).map(a => a.name),
+          rooms: [form.rooms, ...addedRooms.value]  // 기본 객실 + 추가된 객실
+        };
+
+        await apiClient.post(
+          'http://localhost:8888/api/hotel/publishing/register',
+          payload
+        );
+
+        alert('폼 제출 완료!');
+        router.push('/');
+      } catch (error) {
+        console.error('폼 제출 실패:', error);
+        alert('폼 제출 중 오류가 발생했습니다.');
+      }
     };
+
 
     // POST 요청
     await apiClient.post(
