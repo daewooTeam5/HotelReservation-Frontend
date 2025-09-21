@@ -36,7 +36,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive } from "vue";
 import { apiClient } from "@/utils/axiosClient"; // default export 아님, 이름 import
 

@@ -584,7 +584,7 @@ onMounted(() => {
     if (!hasSearchValues.value) {
       fetchReservations();
     }
-  }, 5000);
+  }, 5 * 60 * 1000);
 
   // 1초마다 "몇 초 전" 갱신
   timerId = setInterval(() => {

@@ -75,12 +75,6 @@ const router = createRouter({
           meta: { layout: "owner" },
         },
         {
-          path: "rooms",
-          name: "owner-rooms",
-          component: () => import("@/views/placeOwner/RoomManagement.vue"),
-          meta: { layout: "owner" },
-        },
-        {
           path: "reservations",
           name: "owner-reservations",
           component: () => import("@/views/placeOwner/ReservationManagement.vue"),
@@ -121,6 +115,19 @@ const router = createRouter({
           path: "settings",
           name: "owner-settings",
           component: () => import("@/views/placeOwner/SettingsPage.vue"),
+          meta: { layout: "owner" },
+        },
+        {
+          path: "rooms",
+          name: "owner-rooms",
+          component: () => import("@/views/placeOwner/RoomManagement.vue"),
+          meta: { layout: "owner" },
+        },
+        {
+          path: "rooms/:id",
+          name: "owner-room-detail",
+          component: () => import("@/views/placeOwner/RoomDetail.vue"),
+          props: true,
           meta: { layout: "owner" },
         },
       ],
