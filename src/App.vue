@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
-import Header from '@/layout/Header.vue';
-import { onMounted } from 'vue';
-import { apiClient } from '@/utils/axiosClient.ts';
-import { useAuthStore } from '@/stores/authStore.ts';
+import { useRoute } from "vue-router";
 
-const {setAccessToken} = useAuthStore();
+import DefaultLayout from "@/layout/DefaultLayout.vue";
+import OwnerLayout from "@/layout/OwnerLayout.vue";
+import UserLayout from "@/layout/UserLayout.vue";
 
-onMounted(async () => {
-  // 진입시 최초 토큰 발급
-  const result = await apiClient.post("../auth/token")
-  if(result.data.success){
-    setAccessToken(result.data.data.accessToken);
-  }
-});
+const route = useRoute();
 </script>
 
 <template>
   <div class="flex flex-col h-screen overflow-hidden">
-    <Header />
-    <div class="flex-1 overflow-auto">
+    <!-- Owner Layout -->
+    <OwnerLayout v-if="route.meta.layout === 'owner'">
       <router-view />
-    </div>
+    </OwnerLayout>
+
+    <!-- User Layout -->
+    <UserLayout v-else-if="route.meta.layout === 'user'">
+      <router-view />
+    </UserLayout>
+
+    <!-- Default Layout -->
+    <DefaultLayout v-else>
+      <router-view />
+    </DefaultLayout>
   </div>
 </template>
-
-<style scoped></style>
