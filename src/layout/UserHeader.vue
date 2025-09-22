@@ -1,6 +1,7 @@
 <template>
   <Menubar class="border-none border-t! border-l! border-r! rounded-0">
     <template #start>
+
       <div class="text-4xl font-bold">Hotel Reservation</div>
     </template>
 
@@ -43,6 +44,7 @@
 </template>
 
 <script lang="ts">
+
 import { defineComponent, ref } from 'vue';
 import Button from 'primevue/button';
 import Menubar from 'primevue/menubar';
@@ -105,6 +107,7 @@ export default defineComponent({
 
     return { menu, profileItems, toggleMenu };
   }
+
 });
 </script>
 

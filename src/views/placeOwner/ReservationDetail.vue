@@ -46,7 +46,7 @@
           </div>
           <div>
             <span class="text-gray-500">최종 결제 금액</span>
-            <p class="font-semibold text-lg text-blue-600">{{ formatCurrency(reservation.finalAmount) }}</p>
+            <p class="text-semibold text-lg text-blue-600">{{ formatCurrency(reservation.finalAmount) }}</p>
           </div>
         </div>
       </div>

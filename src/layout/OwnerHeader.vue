@@ -97,7 +97,6 @@ import { parseJwt } from "@/utils/jwtUtils";
 
 const router = useRouter();
 const { setAccessToken, accessToken ,userAuth} = useAuthStore();
-console.log(userAuth);
 
 // 사용자 정보 추출
 const user = ref<UserDto | null>(null);
