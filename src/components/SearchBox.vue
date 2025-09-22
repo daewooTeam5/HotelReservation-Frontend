@@ -174,6 +174,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { apiClient } from '@/utils/axiosClient.ts';
 
 const router = useRouter()
 
@@ -222,7 +223,7 @@ const openSuggestions = async (e: Event) => {
 const fetchSuggestions = async (e?: Event) => {
   try {
     // keyword 없을 때도 API 호출 → 전체 리스트 가져오기
-    const res = await axios.get(`http://localhost:8080/api/v1/autocomplete?keyword=${keyword.value || ''}`)
+    const res = await apiClient.get(`/v1/autocomplete?keyword=${keyword.value || ''}`)
     const data = res.data.data || {}
     regions.value = data.regions || []
     places.value = data.places || []

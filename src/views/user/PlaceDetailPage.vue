@@ -1,5 +1,4 @@
 <template>
-
   <div class="flex justify-center mt-4!">
     <WishSearchBox @search="onSearch" />
   </div>
@@ -17,57 +16,6 @@
               variant="text"
               @click="toggleWish"
               class="w-10 h-10 rounded-full! border! border-gray-200! flex items-center justify-center"
-
-  <main class="p-6">
-    <div v-if="loading">로딩 중...</div>
-    <div v-else-if="error" class="text-red-500">{{ error }}</div>
-    <div v-else>
-      <h1 class="text-2xl font-semibold mb-2">{{ place.name }}</h1>
-      <p class="text-sm text-gray-600 flex items-center gap-1">
-        <i class="pi pi-map-marker"></i>
-        {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
-      </p>
-      <p v-if="place.avgRating" class="mb-4"> {{ place.avgRating.toFixed(1) }}</p>
-
-      <!-- 선택된 예약 정보 표시 -->
-      <div v-if="checkInDate && checkOutDate" class="bg-blue-50 p-4 rounded-lg mb-6">
-        <h3 class="text-lg font-semibold mb-3 text-blue-800">선택하신 예약 정보</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <span class="font-medium text-blue-700">체크인:</span>
-            <div class="text-gray-700">{{ checkInDate }}</div>
-          </div>
-          <div>
-            <span class="font-medium text-blue-700">체크아웃:</span>
-            <div class="text-gray-700">{{ checkOutDate }}</div>
-          </div>
-          <div>
-            <span class="font-medium text-blue-700">투숙객:</span>
-            <div class="text-gray-700">성인 {{ adults || 0 }}명, 아동 {{ children || 0 }}명</div>
-          </div>
-          <div>
-            <span class="font-medium text-blue-700">객실:</span>
-            <div class="text-gray-700">{{ rooms || 1 }}개</div>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="place.fileUrls && place.fileUrls.length > 0" class="mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl overflow-hidden h-[400px]">
-          <div class="h-full">
-            <img
-              v-if="place.fileUrls[0]"
-              :src="place.fileUrls[0]"
-              alt="숙소 대표 이미지"
-              class="w-full h-full object-cover"
-            />
-          </div>
-          <div class="hidden md:grid grid-cols-2 grid-rows-2 gap-2 h-full">
-            <div
-              v-for="(img, index) in place.fileUrls.slice(1, 5)"
-              :key="index"
-              class="relative"
-
             >
               <i
                 class="pi text-2xl"
@@ -214,31 +162,19 @@
                     class="px-4 py-2"
                   >
                   </PrimeButton>
-                  <PrimeButton
-                    v-if="room.status === 'AVAILABLE'"
-                    class="px-4 py-2"
-                  >
-                    예약하기
-                  </PrimeButton>
+                  <div class="flex items-center gap-4">
+                    <PrimeButton
+                      v-if="room.status === 'AVAILABLE'"
+                      class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                      @click="handleReservation(room.id)"
+                    >
+                      예약하기
+                    </PrimeButton>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-        <!-- 가격 + 예약버튼 -->
-        <div class="flex items-center gap-4">
-          <p v-if="room.price" class="text-lg font-bold text-gray-700">
-            ₩{{ Number(room.price).toLocaleString() }}/night
-          </p>
-          <button
-            v-if="room.status === 'AVAILABLE'"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-            @click="handleReservation(room.id)"
-          >
-            예약
-          </button>
-        </div>
-      </div>
 
         </template>
       </PrimeCard>
@@ -266,7 +202,6 @@
         </template>
       </PrimeCard>
     </section>
-    <ReviewSection :place-id="Number(id)" />
 
     <section
       id="map"
@@ -287,14 +222,7 @@
     </section>
 
     <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl!">
-      <PrimeCard class="border-none! shadow-none! pt-4!">
-        <template #content>
-          <h2 class="text-xl font-semibold! mb-4">리뷰</h2>
-          <div class="text-center text-gray-500 py-10">
-            <p>아직 작성된 리뷰가 없습니다.</p>
-          </div>
-        </template>
-      </PrimeCard>
+      <ReviewSection :place-id="parseInt(id)"/>
     </section>
   </div>
 
@@ -319,7 +247,6 @@
           />
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -329,14 +256,9 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 import WishSearchBox from '@/components/WishSearchBox.vue';
-
-
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import axios from "axios";
 import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
 
-
+// 기존 상태 변수
 const route = useRoute();
 const router = useRouter();
 const id = route.params.id as string;
@@ -345,7 +267,6 @@ const loading = ref(true);
 const error = ref('');
 const mapContainer = ref<HTMLDivElement | null>(null);
 const isModalOpen = ref(false);
-
 
 // 탭 및 스크롤 관련 상태 변수
 const tabs = [
@@ -407,22 +328,12 @@ const infoSection = ref<HTMLElement | null>(null);
 const mapSection = ref<HTMLElement | null>(null);
 const reviewsSection = ref<HTMLElement | null>(null);
 
-// 리스트페이지에서 받은 체크인/체크아웃 날짜
-const checkInDate = ref(route.query.checkIn as string || '');
-const checkOutDate = ref(route.query.checkOut as string || '');
-const adults = ref(route.query.adults as string || '');
-const children = ref(route.query.children as string || '');
-const rooms = ref(route.query.rooms as string || '');
-
-
-
 const openModal = () => {
   isModalOpen.value = true;
 };
 const closeModal = () => {
   isModalOpen.value = false;
 };
-
 
 const addToCart = async (room: any) => {
   try {
@@ -466,29 +377,6 @@ const scrollToSection = (sectionId: string) => {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   activeTab.value = sectionId;
-
-// 예약하기 버튼 클릭 핸들러
-const handleReservation = (roomId: number) => {
-  if (!checkInDate.value || !checkOutDate.value) {
-    alert('체크인/체크아웃 날짜 정보가 없습니다. 검색 페이지에서 다시 시도해주세요.');
-    return;
-  }
-
-
-  // 쿼리 파라미터로 데이터 전달
-  router.push({
-    path: '/places/order',
-    query: {
-      hotelId: id,
-      roomId: roomId,
-      checkIn: checkInDate.value,
-      checkOut: checkOutDate.value,
-      adults: adults.value,
-      children: children.value,
-      rooms: rooms.value
-    }
-  });
-
 };
 
 onMounted(async () => {
@@ -627,6 +515,32 @@ onMounted(async () => {
     }
   }
 });
+// 예약 검색 조건 (쿼리 or localStorage)
+const checkInDate = ref(route.query.checkIn as string || '');
+const checkOutDate = ref(route.query.checkOut as string || '');
+const adults = ref(route.query.adults as string || '');
+const children = ref(route.query.children as string || '');
+const rooms = ref(route.query.rooms as string || '');
+
+const handleReservation = (roomId: number) => {
+  if (!checkInDate.value || !checkOutDate.value) {
+    alert('체크인/체크아웃 날짜 정보가 없습니다.');
+    return;
+  }
+  router.push({
+    path: '/places/order',
+    query: {
+      hotelId: id,
+      roomId,
+      checkIn: checkInDate.value,
+      checkOut: checkOutDate.value,
+      adults: adults.value,
+      children: children.value,
+      rooms: rooms.value,
+    },
+  });
+};
+
 </script>
 <style scoped>
 section[id] {

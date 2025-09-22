@@ -68,7 +68,7 @@
             <PrimeButton variant="text" @click="toggleLike(place)">
               <i :class="['pi', place.isLiked === 1 ? 'pi-heart-fill text-red-500' : 'pi-heart']"></i>
             </PrimeButton>
-            <PrimeButton @click="goDetail(place.id)">상세보기</PrimeButton>
+            <PrimeButton @click="goToDetail(place.id)">상세보기</PrimeButton>
           </div>
         </div>
       </div>
