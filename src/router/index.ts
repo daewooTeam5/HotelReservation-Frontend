@@ -75,6 +75,11 @@ const router = createRouter({//여기에 PATH는 경로, NAME은 아무거나, �
       component: () => import('../views/WishList.vue')
     },
     {
+      path: '/cart',
+      name: 'cart',
+      component: () => import('../views/ShoppingCartPage.vue')
+    },
+    {
       path: '/auth/register',
       name: 'register',
       component: () => import('../views/RegisterView.vue')
