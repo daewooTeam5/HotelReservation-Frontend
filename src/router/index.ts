@@ -120,9 +120,10 @@ const router = createRouter({
     },
     // 숙소 관리자 영역
     {
-      path: "/publishing/address",
-      name: "Address",
-      component: () => import("../views/PubliShing/Address.vue"),
+
+      path:'/HotelRegister',
+      name:'HotelRegister',
+      component: () => import('@/views/PubliShing/HotelRegister.vue')
     },
     {
       path: "/publishing/images",
