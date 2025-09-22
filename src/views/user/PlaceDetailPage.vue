@@ -149,6 +149,7 @@
                 </p>
               </div>
 
+=
               <!-- 아래: 가격 + 버튼 (row) -->
               <div class="flex items-center justify-between mt-4">
                 <p v-if="room.price" class="text-2xl font-semibold! text-gray-700">
@@ -175,7 +176,7 @@
               </div>
             </div>
           </div>
-
+=
         </template>
       </PrimeCard>
     </section>
