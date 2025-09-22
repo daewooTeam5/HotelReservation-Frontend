@@ -66,7 +66,8 @@
 
           <div class="flex gap-2">
             <PrimeButton variant="text" @click="toggleLike(place)">
-              <i :class="['pi', place.isLiked === 1 ? 'pi-heart-fill text-red-500' : 'pi-heart']"></i>
+              <i
+                :class="['pi', place.isLiked === 1 ? 'pi-heart-fill text-red-500' : 'pi-heart']"></i>
             </PrimeButton>
             <PrimeButton @click="goToDetail(place.id)">상세보기</PrimeButton>
           </div>
@@ -104,8 +105,8 @@ const goDetail = (placeId: number) => {
       endDate: storedEnd || '',
       rooms: storedRooms || '1',
       adults: storedAdults || '1',
-      children: storedChildren || '0',
-    },
+      children: storedChildren || '0'
+    }
   });
 };
 
