@@ -74,12 +74,7 @@ import { apiClient } from "@/utils/axiosClient.ts";
 import router from "@/router";
 
 export default defineComponent({
-  name: "Header",
-  methods: {
-    router() {
-      return router;
-    },
-  },
+  name: 'UserHeader',
   components: { Gravatar, Button, Menubar, Menu },
   computed: {
     accessToken(): string | null {
