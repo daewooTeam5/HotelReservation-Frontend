@@ -9,12 +9,20 @@
       <div class="p-4 space-y-6">
         <div class="flex justify-between border-b pb-4">
           <span class="font-semibold">예약 ID</span>
-          <span>{{ reservationId }}</span>
+          <span>{{ orderId }}</span>
         </div>
 
+        <div class="flex justify-between ">
+          <span class="font-semibold">숙박일수</span>
+          <span class="text-red-600 font-bold">{{ parseInt(route?.query?.rooms ?? 1).toLocaleString() }}</span>
+        </div>
+        <div class="flex justify-between ">
+          <span class="font-semibold">객실수</span>
+          <span class="text-red-600 font-bold">{{ parseInt(route?.query?.rooms ?? 1).toLocaleString() }}</span>
+        </div>
         <div class="flex justify-between border-b pb-4">
           <span class="font-semibold">결제 금액</span>
-          <span class="text-red-600 font-bold">₩{{ amount.toLocaleString() }}</span>
+          <span class="text-red-600 font-bold">₩{{ (amount*parseInt(route?.query?.rooms ?? 1)).toLocaleString() }}</span>
         </div>
 
         <div class="flex justify-between border-b pb-4">
@@ -46,7 +54,10 @@
 import { defineProps, defineEmits, watch, ref, onMounted } from 'vue';
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { apiClient } from '@/utils/axiosClient.ts';
+import { useRoute } from 'vue-router';
 
+
+const route = useRoute()
 const reservationData = ref<any | null>(null);
 
 // Props
@@ -124,6 +135,26 @@ onMounted(
     ]);
   },
 );
+// 숙박일수 계산 (checkIn, checkOut 차이)
+const nights = computed(() => {
+  const checkIn = route.query.checkIn as string | undefined
+  const checkOut = route.query.checkOut as string | undefined
+
+  if (!checkIn || !checkOut) return 1 // 기본 1박
+
+  const start = new Date(checkIn)
+  const end = new Date(checkOut)
+
+  const diffTime = end.getTime() - start.getTime()
+  const diffDays = diffTime / (1000 * 60 * 60 * 24)
+
+  return diffDays > 0 ? diffDays : 1
+})
+
+// 객실 수
+const rooms = computed(() =>
+  parseInt((route.query.rooms as string) ?? '1')
+)
 </script>
 
 <style scoped>
