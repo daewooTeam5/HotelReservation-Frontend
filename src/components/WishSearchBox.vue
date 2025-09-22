@@ -1,6 +1,5 @@
 <template>
   <div class="search-box flex gap-2 mb-6 items-start">
-    <!-- 체크인/체크아웃 -->
     <div class="flex flex-col">
       <div class="flex gap-2">
         <div ref="checkinWrapperRef">
@@ -72,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const dateRange = ref<[Date, Date] | null>(null);
 const rooms = ref(1);
@@ -93,10 +92,38 @@ const emit = defineEmits<{
   }): void
 }>();
 
+// 날짜 포맷 (yyyy-mm-dd)
 const formatDate = (date: Date | null) => {
   if (!date) return "";
   return date.toISOString().split("T")[0];
 };
+
+const saveSearchData = () => {
+  const searchData = {
+    checkIn: dateRange.value?.[0] ? formatDate(dateRange.value[0]) : undefined,
+    checkOut: dateRange.value?.[1] ? formatDate(dateRange.value[1]) : undefined,
+    rooms: rooms.value.toString(),
+    adults: adults.value.toString(),
+    children: children.value.toString(),
+  };
+  localStorage.setItem("detailSearch", JSON.stringify(searchData));
+};
+
+
+onMounted(() => {
+  const saved = localStorage.getItem("recentSearch");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    rooms.value = Number(parsed.rooms) || 1;
+    adults.value = Number(parsed.adults) || 1;
+    children.value = Number(parsed.children) || 0;
+
+    if (parsed.checkIn && parsed.checkOut) {
+      dateRange.value = [new Date(parsed.checkIn), new Date(parsed.checkOut)];
+    }
+    doSearch();
+  }
+});
 
 const openCalendar = (e: Event) => {
   popover.value?.hide();
@@ -109,6 +136,7 @@ const toggleGuestPopover = (e: Event) => {
 };
 
 const doSearch = () => {
+  saveSearchData();
   emit("search", {
     checkIn: dateRange.value?.[0] ? formatDate(dateRange.value[0]) : undefined,
     checkOut: dateRange.value?.[1] ? formatDate(dateRange.value[1]) : undefined,

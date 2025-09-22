@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import Sidebar from "@/components/SideBar.vue";
 import WishSearchBox from "@/components/WishSearchBox.vue";
-import SearchHotelList from "@/components/SearchHotelList.vue";
 import { apiClient } from "@/utils/axiosClient.ts";
 import SearchWishHotelList from '@/components/SearchWishHotelList.vue';
 
@@ -12,7 +11,6 @@ const isError = ref(false);
 const error = ref("");
 const searchNotice = ref("");
 
-/** 위시리스트 불러오기 */
 const loadWishlist = async (searchData?: any) => {
   isLoading.value = true;
   isError.value = false;
@@ -50,17 +48,23 @@ onMounted(() => loadWishlist());
     <Sidebar />
 
     <div class="content flex-1 p-6">
-      <h1 class="text-2xl font-bold mb-4">위시리스트</h1>
+      <!-- 검색창: 가운데 정렬 -->
+      <div class="flex justify-center mb-6!">
+        <WishSearchBox @search="loadWishlist" />
+      </div>
 
-      <WishSearchBox @search="loadWishlist" />
-
-      <div v-if="isLoading" class="mt-6">불러오는 중...</div>
-      <div v-else-if="isError" class="mt-6 text-red-500">❌ {{ error }}</div>
-      <div v-else-if="!places.length" class="mt-6 text-gray-500">
+      <!-- 상태 표시 -->
+      <div v-if="isLoading" class="mt-6 text-center">불러오는 중...</div>
+      <div v-else-if="isError" class="mt-6 text-center text-red-500">❌ {{ error }}</div>
+      <div v-else-if="!places.length" class="mt-6 text-center text-gray-500">
         위시리스트가 비어 있습니다.
       </div>
-      <div v-else class="mt-6">
-        <SearchWishHotelList :places="places" :searchNotice="searchNotice" />
+
+      <!-- 리스트 -->
+      <div v-else class="mt-6 flex justify-center">
+        <div class="max-w-6xl w-full px-4">
+          <SearchWishHotelList :places="places" :searchNotice="searchNotice" />
+        </div>
       </div>
     </div>
   </div>
