@@ -149,6 +149,7 @@
                 </p>
               </div>
 
+              =
               <!-- 아래: 가격 + 버튼 (row) -->
               <div class="flex items-center justify-between mt-4">
                 <p v-if="room.price" class="text-2xl font-semibold! text-gray-700">
@@ -175,7 +176,7 @@
               </div>
             </div>
           </div>
-
+          =
         </template>
       </PrimeCard>
     </section>
@@ -222,7 +223,14 @@
     </section>
 
     <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl!">
-      <ReviewSection :place-id="parseInt(id)"/>
+      <PrimeCard class="border-none! shadow-none! pt-4!">
+        <template #content>
+          <h2 class="text-xl font-semibold! mb-4">리뷰</h2>
+          <div class="text-center text-gray-500 py-10">
+            <p>아직 작성된 리뷰가 없습니다.</p>
+          </div>
+        </template>
+      </PrimeCard>
     </section>
   </div>
 
@@ -256,7 +264,6 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 import WishSearchBox from '@/components/WishSearchBox.vue';
-import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
 
 // 기존 상태 변수
 const route = useRoute();
