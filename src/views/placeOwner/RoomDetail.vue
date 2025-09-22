@@ -114,11 +114,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto p-6 space-y-6">
+  <div class="max-w-7xl mx-auto p-6 space-y-6 flex flex-col gap-6">
     <!-- 헤더 -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 gap-6">
           <button
             @click="$router.go(-1)"
             class="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
@@ -133,7 +133,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3 gap-6">
           <!-- 업데이트 정보 -->
           <div class="text-right">
             <p class="text-xs text-gray-500">
@@ -196,7 +196,7 @@ onUnmounted(() => {
           <p class="font-semibold text-lg text-blue-600">{{ formatPrice(room?.price) }}</p>
         </div>
         <div class="space-y-1">
-          <span class="text-sm text-gray-500">상태</span>
+          <span class="text-sm text-gray-500">상태</span><br>
           <span
             :class="room?.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
             class="inline-block px-2 py-1 rounded-full text-xs font-medium"
@@ -208,10 +208,10 @@ onUnmounted(() => {
     </div>
 
     <!-- 재고 관리 카드 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col gap-6">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-lg font-semibold text-gray-900">재고 관리</h2>
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 gap-4">
           <Calendar
             v-model="dateRange"
             selectionMode="range"
