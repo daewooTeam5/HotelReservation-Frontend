@@ -77,12 +77,13 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 
 const router = useRouter();
+const route = useRoute();
 
-const props = defineProps<{
+defineProps<{
   places: any[];
   searchNotice: string;
 }>();
@@ -120,5 +121,20 @@ const toggleLike = async (place: any) => {
   } catch (err) {
     console.error('찜 상태 변경 실패:', err);
   }
+};
+
+// 상세보기 클릭 시 체크인/체크아웃 날짜도 함께 전달
+const goToDetail = (placeId: number) => {
+  router.push({
+    name: 'PlaceDetail',
+    params: { id: placeId },
+    query: {
+      checkIn: route.query.checkIn,
+      checkOut: route.query.checkOut,
+      adults: route.query.adults,
+      children: route.query.children,
+      rooms: route.query.rooms
+    }
+  });
 };
 </script>

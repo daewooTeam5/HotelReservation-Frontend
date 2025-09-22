@@ -10,7 +10,7 @@ import type { ApiResult } from '@/types/ApiResult';
 import { useToast } from 'primevue';
 import type { AxiosError } from 'axios';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'SignInView',
@@ -29,6 +29,7 @@ export default defineComponent({
   setup() {
     const toast = useToast();
     const router = useRouter();
+    const route = useRoute(); // 현재 라우트 객체를 가져옵니다.
     const { setOtpEmail } = useAuthStore();
     const emailMutate = reactive(useMutation({
       mutationFn: async (data: { email: string })=> {
@@ -43,7 +44,11 @@ export default defineComponent({
         console.log('Mutation 성공:', data);
         console.log('localStorage accessToken:', localStorage.getItem('accessToken'));
         setOtpEmail(data as string);
-        router.push("/auth/email-otp");
+        // 주석: OTP 페이지로 이동할 때 현재 라우트의 쿼리(redirect 포함)를 그대로 전달합니다.
+        router.push({
+          path: "/auth/email-otp",
+          query: route.query
+        });
       },
       onError: (error: AxiosError<ApiResult<any>>) => {
         toast.add({
