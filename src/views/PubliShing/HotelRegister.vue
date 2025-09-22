@@ -20,7 +20,7 @@
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 이름</p>
             <InputText
-              v-model="form.hotelName"
+              v-model="form.name"
               placeholder="숙소 이름"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -90,7 +90,7 @@
               class="flex items-center justify-between rounded-md mb-2">
             </div>
 <div>
-              <select v-model="form.rooms.beds" class="w-full border rounded p-2">
+              <select v-model="form.rooms.bedType" class="w-full border rounded p-2">
                 <option value="">사이즈 선택</option>
                 <option value="single">싱글, 90~130cm</option>
                 <option value="quin">퀸, 131~150cm</option>
@@ -116,18 +116,18 @@
                 style="background: lightgrey"
                 type="button"
                 class="px-2 py-1 bg-gray-100 rounded"
-                @click="form.rooms.maxCount = Math.max(1, form.rooms.maxCount - 1)"
+                @click="form.rooms.capacityPeople = Math.max(1, form.rooms.capacityPeople - 1)"
               >
                 −
               </button>
-              <span class="w-6 text-center">{{ form.rooms.maxCount }}</span>
+              <span class="w-6 text-center">{{ form.rooms.capacityPeople }}</span>
               <button
                 onmouseover="this.style.backgroundColor='#2781d0'"
                 onmouseout="this.style.backgroundColor='lightgrey'"
                 style="background-color: lightgrey"
                 type="button"
                 class="px-2 py-1 bg-gray-100 rounded"
-                @click="form.rooms.maxCount++"
+                @click="form.rooms.capacityPeople++"
               >
                 +
               </button>
@@ -241,10 +241,10 @@
 
         <!-- Step 5 : 이용수칙 -->
         <div v-if="activeStep === 'step5'" class="flex flex-col gap-6">
-          <h1 style="text-align:center; font-size:24px; font-style=sans;">이용 수칙</h1>
+          <h1 style="text-align:center; font-size:24px; font-style:sans;">이용 수칙</h1>
           <div>
             <p
-              style="margin-bottom: 8px; font-size: 14px; font-style: sans"
+              style="margin-bottom: 8px; font-size: 14px; font-style: sans;"
               class="font-semibold mb-2 text-gray-700 dark:text-gray-200"
             >
               체크 인 시간은 어떻게 할까요?
@@ -258,7 +258,7 @@
           </div>
           <div>
             <p
-              style="margin-bottom: 8px; font-size: 14px; font-style: sans"
+              style="margin-bottom: 8px; font-size: 14px; font-style:sans;"
               class="font-semibold mb-2 text-gray-700 dark:text-gray-200"
             >
               체크 아웃 시간은 어떻게 할까요?
@@ -510,35 +510,50 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter } from 'vue-router';
-const addedRooms = ref<typeof form.rooms[]>([]);
 
-// 객실 추가
-const addRoom = () => {
-  // 현재 form.rooms를 deep copy 해서 추가
-  addedRooms.value.push(JSON.parse(JSON.stringify(form.rooms)));
+/* ----------------- 타입 정의 ----------------- */
+interface BedOption {
+  type: string;
+  width: string;
+  count: number;
+}
 
-  // 다음 방 기본값 세팅 (roomNumber 자동 증가)
-  form.rooms.roomNumber++;
-};
+interface DiscountOption {
+  person: number;
+  discount: number;
+}
 
-// 작은 카드에서 삭제
-const removeAddedRoom = (index: number) => {
-  addedRooms.value.splice(index, 1);
-};
+interface RoomForm {
+  capacityPeople: number;
+  price: number;
+  extraPrice: number;
+  roomNumber: number;
+  roomType: string;
+  bedType: BedOption[];
+  checkIn: string;
+  checkOut: string;
+}
 
+interface Address {
+  sigungu: string;
+  sido: string;
+  roadName: string;
+  postalCode: string;
+  detailAddress: string;
+}
+
+/* ----------------- 상태 관리 ----------------- */
 const router = useRouter();
-
 const activeStep = ref('step1');
+const uploadedImages = ref<string[]>([]);
+const fileInput = ref<HTMLInputElement | null>(null);
 
-const uploadedImages = ref([]);
-const fileInput = ref(null);
-const ranguage = reactive([
+const ranguage = reactive<{ types: string; checked: boolean }[]>([
   { types: '영어', checked: false },
   { types: '중국어', checked: false },
   { types: '일본어', checked: false },
@@ -546,20 +561,10 @@ const ranguage = reactive([
   { types: '독일어', checked: false },
   { types: '러시아어', checked: false },
 ]);
-const showInput = ref(false)
-const newLanguage = ref('')
 
-const addLanguage = () => {
-  if (newLanguage.value.trim() !== '') {
-    ranguage.push({ types: newLanguage.value.trim(), checked: false })
-    newLanguage.value = ''
-    showInput.value = false
-  }
-}
+const showInput = ref(false);
+const newLanguage = ref('');
 
-const removeLanguage = (index) => {
-  ranguage.splice(index, 1)
-}
 const stepTitles: Record<string, string> = {
   step1: '숙소 기본정보',
   step2: '객실 정보',
@@ -571,141 +576,142 @@ const stepTitles: Record<string, string> = {
   step8: '정보 확인',
 };
 
-
-
-interface DiscountOption {
-  person: number;    // 인원수
-  discount: number;  // %
-}
-
-interface BedOption {
-  type: string;
-  width: string;
-  count: number;
-}
-
+/* ----------------- form ----------------- */
 const form = reactive({
-  rooms:{
+  rooms: {
     capacityPeople: 1,
-    price:1,
+    price: 1,
     extraPrice: 1,
-    roomNumber:1,
-    roomType:'',
+    roomNumber: 1,
+    roomType: '',
     bedType: [] as BedOption[],
     checkIn: '',
     checkOut: '',
-
-  },
+  } as RoomForm,
   name: '',
   hotelType: '',
   description: '',
-
   discounts: [] as DiscountOption[],
-
-  address: {//엔티티가 따로 있으면 이렇게 묶어서 가능하구나
+  address: {
     sigungu: '',
     sido: '',
     roadName: '',
     postalCode: '',
     detailAddress: '',
-  }
+  } as Address,
 });
 
-// 침대 기본 옵션
+const addedRooms = ref<RoomForm[]>([]);
+
+/* ----------------- 침대 기본값 ----------------- */
 const availableBeds: BedOption[] = [
   { type: '싱글침대', width: '90~130cm', count: 0 },
   { type: '더블침대', width: '131~150cm', count: 0 },
   { type: '대형침대(킹사이즈)', width: '151~180cm', count: 0 },
   { type: '초대형 더블침대(수퍼킹사이즈)', width: '181~210cm', count: 0 },
 ];
+form.rooms.bedType = availableBeds.map(b => ({ ...b }));
 
-// beds 배열 초기화
-form.rooms.bedType = availableBeds.map((b) => ({ ...b }));
-
-const incrementBed = (index: number) => {
-  form.rooms.bedType[index].count++;
+/* ----------------- 함수 ----------------- */
+// 객실 추가
+const addRoom = () => {
+  addedRooms.value.push(JSON.parse(JSON.stringify(form.rooms)) as RoomForm);
+  form.rooms.roomNumber++;
 };
 
-const decrementBed = (index: number) => {
-  if (form.rooms.bedType[index].count > 0) form.rooms.bedType[index].count--;
+// 객실 삭제
+const removeAddedRoom = (index: number) => {
+  addedRooms.value.splice(index, 1);
 };
 
+// 다국어 추가
+const addLanguage = () => {
+  if (newLanguage.value.trim() !== '') {
+    ranguage.push({ types: newLanguage.value.trim(), checked: false });
+    newLanguage.value = '';
+    showInput.value = false;
+  }
+};
+
+// 다음 단계
 const nextStep = () => {
   const steps = Object.keys(stepTitles);
   const idx = steps.indexOf(activeStep.value);
   if (idx < steps.length - 1) activeStep.value = steps[idx + 1];
 };
 
-const amenities = reactive([
-  { name: 'Wi-Fi', checked: false },
-  { name: '주차장', checked: false },
-  { name: '수영장', checked: false },
-  { name: '조식 제공', checked: false },
-  { name: '스파', checked: false },
-  { name: '피트니스 센터', checked: false },
-  { name: '정원', checked: false },
-  { name: '금연 객실', checked: false },
-  { name: '에어컨', checked: false },
-  { name: '바비큐 그릴', checked: false },
-  { name: '사우나', checked: false },
-]);
+// 이전 단계
+const prevStep = () => {
+  const steps = Object.keys(stepTitles);
+  const idx = steps.indexOf(activeStep.value);
+  if (idx > 0) activeStep.value = steps[idx - 1];
+};
 
+// 침대 선택
+const onBedSelect = (type: string) => {
+  form.rooms.bedType.forEach(b => (b.count = b.type === type ? 1 : 0));
+};
+
+// 이미지 업로드
 const triggerFileInput = () => {
-  fileInput.value.click();
+  fileInput.value?.click();
 };
 
-const handleImageUpload = (event) => {
-  const files = event.target.files;
-  for (let i = 0; i < files.length; i++) {
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (!target.files) return;
+
+  for (let i = 0; i < target.files.length; i++) {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      uploadedImages.value.push(e.target.result);
+    reader.onload = e => {
+      if (e.target?.result) {
+        uploadedImages.value.push(e.target.result as string);
+      }
     };
-    reader.readAsDataURL(files[i]);
+    reader.readAsDataURL(target.files[i]);
   }
-  event.target.value = null;
+  target.value = '';
 };
 
-const removeImage = (index) => {
+const removeImage = (index: number) => {
   uploadedImages.value.splice(index, 1);
 };
 
-
+// 할인 계산
 const calculateDiscountedPrice = (d: DiscountOption) => {
-  const basePrice = Number(form.rooms.price || 0);          // 1박 기본 요금
-  const extraPrice = Number(form.rooms.extraPrice || 0);   // 추가 인원 요금
+  const basePrice = Number(form.rooms.price || 0);
+  const extraPrice = Number(form.rooms.extraPrice || 0);
   const persons = d.person || 1;
   const discount = d.discount || 0;
 
-  // 2인 이상이면 추가요금 적용
   const totalBeforeDiscount = basePrice + extraPrice * Math.max(0, persons - 1);
-
-  // 할인 적용
   const totalAfterDiscount = totalBeforeDiscount * (1 - discount / 100);
 
   return Math.round(totalAfterDiscount);
 };
 
-const prevStep = () => {
-  const steps = Object.keys(stepTitles);
-  const idx = steps.indexOf(activeStep.value);
-  if (idx > 0) activeStep.value = steps[idx - 1];
-};const submitForm = async () => {
+// 폼 제출
+const submitForm = async () => {
   try {
     const payload = {
-      name: form.name,
+      hotelName: form.name,
       description: form.description,
       addressList: [form.address],
       images: uploadedImages.value,
-      amenities: amenities.filter(a => a.checked).map(a => a.name),
-      rooms: [form.rooms, ...addedRooms.value].flat()
+      rooms: [form.rooms, ...addedRooms.value].map(r => ({
+        roomNumber: r.roomNumber,
+        roomType: r.roomType,
+        capacityPeople: r.capacityPeople,
+        price: r.price,
+        extraPrice: r.extraPrice,
+        checkIn: r.checkIn,
+        checkOut: r.checkOut,
+        bedType: Array.isArray(r.bedType)
+          ? r.bedType.map(b => ({ type: b.type, width: b.width, count: b.count }))
+          : [],
+      })),
     };
-
-    await apiClient.post(
-      'http://localhost:8888/hotel/publishing/register',
-      payload
-    );
-
+    await apiClient.post('http://localhost:8888/hotel/publishing/register', payload);
     alert('폼 제출 완료!');
     router.push('/');
   } catch (error) {
@@ -713,6 +719,7 @@ const prevStep = () => {
     alert('폼 제출 중 오류가 발생했습니다.');
   }
 };
+
 
 </script>
 <style>
