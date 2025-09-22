@@ -153,7 +153,7 @@
               <div>
                 <p>호실: {{ room.roomNumber }}</p>
                 <p>유형: {{ room.roomType || '미정' }}</p>
-                <p>최대인원: {{ room.maxCount }}</p>
+                <p>최대인원: {{ room.capacityPeople }}</p>
               </div>
               <button
                 @click="removeAddedRoom(index)"
@@ -387,37 +387,28 @@
       <!-- Step 7 : 실제 주소 -->
       <div v-if="activeStep === 'step7'" class="flex flex-col gap-2 justify-start h-full">
         <input
-          v-model="form.address.province"
-          placeholder="주/도"
-          class="address-input"
-        />
-        <input
-          v-model="form.address.city"
+          v-model="form.address.sigungu"
           placeholder="시/군/구"
           class="address-input"
         />
         <input
-          v-model="form.address.town"
-          placeholder="동/읍/면"
+          v-model="form.address.sido"
+          placeholder="시/도"
           class="address-input"
         />
         <input
-          v-model="form.address.road"
+          v-model="form.address.roadName"
           placeholder="도로명"
           class="address-input"
         />
+
         <input
-          v-model="form.address.roadNumber"
-          placeholder="도로번호"
-          class="address-input"
-        />
-        <input
-          v-model="form.address.postNumber"
+          v-model="form.address.postalCode"
           placeholder="우편번호"
           class="address-input"
         />
         <input
-          v-model="form.address.detailPost"
+          v-model="form.address.detailAddress"
           placeholder="상세주소"
           class="address-input"
         />
@@ -432,7 +423,7 @@
           <!-- 호텔 이름 -->
           <div class="flex justify-between items-center">
             <p class="font-semibold text-gray-700 dark:text-gray-200">호텔 이름</p>
-            <p class="text-gray-900 dark:text-gray-100">{{ form.hotelName }}</p>
+            <p class="text-gray-900 dark:text-gray-100">{{ form.name }}</p>
           </div>
 
           <!-- 숙소 유형 -->
@@ -478,9 +469,9 @@
           <div class="flex justify-between items-center">
             <p class="text-gray-700 dark:text-gray-200 font-semibold">주소</p>
             <p class="text-gray-900 dark:text-gray-100">
-              {{ form.address.province }} {{ form.address.city }} {{ form.address.town }}
-              {{ form.address.road }} {{ form.address.roadNumber }}
-              {{ form.address.postNumber }} {{ form.address.detailPost }}
+              {{ form.address.sigungu }} {{ form.address.sido }}
+              {{ form.address.roadName }} {{ form.address.postalCode }}
+               {{ form.address.detailAddress }}
             </p>
           </div>
 
@@ -595,31 +586,28 @@ interface BedOption {
 
 const form = reactive({
   rooms:{
-    maxCount: 1,
+    capacityPeople: 1,
     price:1,
     extraPrice: 1,
     roomNumber:1,
     roomType:'',
-    beds: [] as BedOption[],
+    bedType: [] as BedOption[],
     checkIn: '',
     checkOut: '',
 
   },
-  hotelName: '',
-  hotelGrade: '',
+  name: '',
   hotelType: '',
   description: '',
 
   discounts: [] as DiscountOption[],
 
   address: {//엔티티가 따로 있으면 이렇게 묶어서 가능하구나
-    province: '',
-    city: '',
-    town: '',
-    road: '',
-    roadNumber: '',
-    postNumber: '',
-    detailPost: ''
+    sigungu: '',
+    sido: '',
+    roadName: '',
+    postalCode: '',
+    detailAddress: '',
   }
 });
 
@@ -632,14 +620,14 @@ const availableBeds: BedOption[] = [
 ];
 
 // beds 배열 초기화
-form.rooms.beds = availableBeds.map((b) => ({ ...b }));
+form.rooms.bedType = availableBeds.map((b) => ({ ...b }));
 
 const incrementBed = (index: number) => {
-  form.rooms.beds[index].count++;
+  form.rooms.bedType[index].count++;
 };
 
 const decrementBed = (index: number) => {
-  if (form.rooms.beds[index].count > 0) form.rooms.beds[index].count--;
+  if (form.rooms.bedType[index].count > 0) form.rooms.bedType[index].count--;
 };
 
 const nextStep = () => {
@@ -705,7 +693,7 @@ const prevStep = () => {
 };const submitForm = async () => {
   try {
     const payload = {
-      hotelName: form.hotelName,
+      name: form.name,
       description: form.description,
       addressList: [form.address],
       images: uploadedImages.value,
