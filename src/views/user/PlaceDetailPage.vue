@@ -174,8 +174,6 @@
               </div>
             </div>
           </div>
-
-
         </template>
       </PrimeCard>
     </section>
@@ -256,7 +254,9 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 import WishSearchBox from '@/components/WishSearchBox.vue';
+
 import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
+
 
 // 기존 상태 변수
 const route = useRoute();

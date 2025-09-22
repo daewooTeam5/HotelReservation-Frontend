@@ -116,25 +116,47 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
-    <div class="flex justify-between items-center mb-6">
+  <div class="p-6 bg-gray-50 min-h-screen flex flex-col gap-6">
+    <!-- 상단 헤더 -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
       <h1 class="text-2xl font-bold text-gray-900">객실 유형 관리</h1>
-      <div class="flex items-center gap-3">
-        <Button label="객실 유형 추가" icon="pi pi-plus" @click="openDialog()" />
+
+      <div class="flex flex-wrap items-center gap-3">
+        <Button
+          label="객실 유형 추가"
+          icon="pi pi-plus"
+          class="h-10"
+          @click="openDialog()"
+        />
 
         <!-- 새로고침 버튼 -->
         <button
           @click="handleRefresh"
           :disabled="loading"
-          class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg shadow-sm hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <svg v-if="!loading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            v-if="!loading"
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1" />
           </svg>
-          <svg v-else class="animate-spin h-4 w-4 mr-1 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          <svg
+            v-else
+            class="animate-spin h-4 w-4 mr-2 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle class="opacity-25" cx="12" cy="12" r="10"
+                    stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
           </svg>
           새로고침
         </button>
@@ -146,10 +168,11 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- 테이블 -->
     <DataTable
       :value="rooms"
-      class="shadow rounded-lg"
-      tableStyle="min-width: 60rem"
+      class="shadow-md rounded-lg overflow-hidden"
+      tableStyle="min-width: 65rem"
       selectionMode="single"
       @row-click="onRowClick"
     >
@@ -159,30 +182,34 @@ onUnmounted(() => {
       <Column field="capacityRoom" header="총 객실 수" />
       <Column field="availableRoom" header="남은 객실 수">
         <template #body="slotProps">
-          <span class="text-blue-600 font-semibold">
+          <span class="text-blue-600 font-semibold text-center block">
             {{ slotProps.data.availableRoom ?? '-' }}
           </span>
         </template>
       </Column>
       <Column field="price" header="가격">
         <template #body="slotProps">
-          {{ formatPrice(slotProps.data.price) }}
+          <span class="text-gray-800">
+            {{ formatPrice(slotProps.data.price) }}
+          </span>
         </template>
       </Column>
       <Column field="status" header="상태" />
-      <Column header="액션">
+      <Column header="액션" bodyClass="text-center">
         <template #body="slotProps">
           <Button
             label="삭제"
             icon="pi pi-trash"
             severity="danger"
             size="small"
+            class="px-3 py-1"
             @click.stop="deleteRoom(slotProps.data.id)"
           />
         </template>
       </Column>
     </DataTable>
 
+    <!-- 다이얼로그 -->
     <RoomDialog
       v-if="showDialog"
       :key="selectedRoom ? selectedRoom.id : 'new'"
