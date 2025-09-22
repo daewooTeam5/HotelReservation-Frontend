@@ -1,6 +1,5 @@
 import type { QueryFunctionContext } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient.ts';
-import type { AxiosError } from 'axios';
 
 export const httpFetcher = async <T>(queryContext: QueryFunctionContext): Promise<T> => {
   const token = localStorage.getItem('accessToken');
@@ -8,12 +7,7 @@ export const httpFetcher = async <T>(queryContext: QueryFunctionContext): Promis
 
   try {
     const keys = queryContext.queryKey.join('/');
-    const result = await apiClient.get<T>(`${keys}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      withCredentials: true,
-    } as any);
+    const result = await apiClient.get<T>(`${keys}`);
 
     console.log(keys);
     console.log('http fetcher' + result);
