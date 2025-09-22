@@ -114,76 +114,180 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">{{ room?.roomType }} 상세</h1>
-      <div class="flex gap-2 items-center">
-        <Button label="수정" icon="pi pi-pencil" @click="openDialog" />
-        <Button label="삭제" icon="pi pi-trash" severity="danger" @click="deleteRoom" />
+  <div class="max-w-7xl mx-auto p-6 space-y-6">
+    <!-- 헤더 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <button
+            @click="$router.go(-1)"
+            class="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+          >
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ room?.roomType }}</h1>
+            <p class="text-gray-500 text-sm mt-1">객실 상세 관리</p>
+          </div>
+        </div>
 
-        <!-- 새로고침 버튼 -->
-        <button
-          @click="handleRefresh"
-          :disabled="loading"
-          class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg v-if="!loading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1" />
-          </svg>
-          <svg v-else class="animate-spin h-4 w-4 mr-1 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-          </svg>
-          새로고침
-        </button>
+        <div class="flex items-center space-x-3">
+          <!-- 업데이트 정보 -->
+          <div class="text-right">
+            <p class="text-xs text-gray-500">
+              {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : "업데이트 기록 없음" }}
+            </p>
+          </div>
 
-        <!-- 마지막 업데이트 시간 -->
-        <span class="text-xs text-gray-500">
-          {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : "업데이트 기록 없음" }}
-        </span>
+          <!-- 새로고침 버튼 -->
+          <button
+            @click="handleRefresh"
+            :disabled="loading"
+            class="inline-flex items-center px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="!loading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1" />
+            </svg>
+            <svg v-else class="animate-spin h-4 w-4 mr-2 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            새로고침
+          </button>
+
+          <!-- 액션 버튼들 -->
+          <Button
+            label="수정"
+            icon="pi pi-pencil"
+            @click="openDialog"
+            class="!bg-blue-500 !border-blue-500 hover:!bg-blue-600"
+          />
+          <Button
+            label="삭제"
+            icon="pi pi-trash"
+            severity="danger"
+            @click="deleteRoom"
+          />
+        </div>
       </div>
     </div>
 
-    <div class="bg-white shadow rounded-lg p-6 mb-6">
-      <p class="mb-2"><span class="font-medium">침대 타입:</span> {{ room?.bedType }}</p>
-      <p class="mb-2"><span class="font-medium">정원:</span> {{ room?.capacityPeople }}명</p>
-      <p class="mb-2"><span class="font-medium">총 객실 수:</span> {{ room?.capacityRoom }}개</p>
-      <p class="mb-2"><span class="font-medium">가격:</span> {{ formatPrice(room?.price) }}</p>
-      <p class="mb-2"><span class="font-medium">상태:</span> {{ room?.status }}</p>
+    <!-- 객실 정보 카드 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">객실 정보</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div class="space-y-1">
+          <span class="text-sm text-gray-500">침대 타입</span>
+          <p class="font-medium text-gray-900">{{ room?.bedType || '-' }}</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-sm text-gray-500">정원</span>
+          <p class="font-medium text-gray-900">{{ room?.capacityPeople }}명</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-sm text-gray-500">총 객실 수</span>
+          <p class="font-medium text-gray-900">{{ room?.capacityRoom }}개</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-sm text-gray-500">가격</span>
+          <p class="font-semibold text-lg text-blue-600">{{ formatPrice(room?.price) }}</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-sm text-gray-500">상태</span>
+          <span
+            :class="room?.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+            class="inline-block px-2 py-1 rounded-full text-xs font-medium"
+          >
+            {{ room?.status || '-' }}
+          </span>
+        </div>
+      </div>
     </div>
 
-    <div class="flex gap-4 items-center mb-4">
-      <Calendar v-model="dateRange" selectionMode="range" dateFormat="yy-mm-dd" showIcon placeholder="기간 선택" />
-      <Button label="조회" icon="pi pi-search" @click="fetchInventory" />
-    </div>
-
-    <DataTable :value="inventory" class="shadow rounded-lg" tableStyle="min-width: 40rem" editMode="row">
-      <Column field="date" header="날짜" />
-      <Column field="availableRoom" header="남은 객실 수">
-        <template #body="slotProps">
-          <InputNumber
-            v-model="slotProps.data.availableRoom"
-            :min="0"
-            class="w-24"
-            @update:modelValue="markAsEdited(slotProps.data)"
+    <!-- 재고 관리 카드 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-semibold text-gray-900">재고 관리</h2>
+        <div class="flex items-center space-x-4">
+          <Calendar
+            v-model="dateRange"
+            selectionMode="range"
+            dateFormat="yy-mm-dd"
+            showIcon
+            placeholder="기간 선택"
+            class="w-64"
           />
-        </template>
-      </Column>
-      <Column header="저장">
-        <template #body="slotProps">
           <Button
-            label="저장"
-            icon="pi pi-check"
-            size="small"
-            severity="success"
-            @click="updateInventory(slotProps.data)"
-            :disabled="!slotProps.data._edited"
+            label="조회"
+            icon="pi pi-search"
+            @click="fetchInventory"
+            class="!bg-blue-500 !border-blue-500 hover:!bg-blue-600"
           />
-        </template>
-      </Column>
-    </DataTable>
+        </div>
+      </div>
 
+      <!-- 재고 테이블 -->
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <DataTable
+          :value="inventory"
+          editMode="row"
+          :paginator="inventory.length > 10"
+          :rows="10"
+          class="w-full"
+        >
+          <Column field="date" header="날짜" class="!bg-gray-50 !font-medium">
+            <template #body="slotProps">
+              <span class="font-medium text-gray-900">{{ slotProps.data.date }}</span>
+            </template>
+          </Column>
+
+          <Column field="availableRoom" header="남은 객실 수">
+            <template #body="slotProps">
+              <div class="flex items-center space-x-2">
+                <InputNumber
+                  v-model="slotProps.data.availableRoom"
+                  :min="0"
+                  :max="room?.capacityRoom"
+                  class="w-20"
+                  @update:modelValue="markAsEdited(slotProps.data)"
+                />
+                <span v-if="slotProps.data._edited" class="text-xs text-orange-500 font-medium">
+                  수정됨
+                </span>
+              </div>
+            </template>
+          </Column>
+
+          <Column header="저장" class="w-24">
+            <template #body="slotProps">
+              <Button
+                label="저장"
+                icon="pi pi-check"
+                size="small"
+                severity="success"
+                @click="updateInventory(slotProps.data)"
+                :disabled="!slotProps.data._edited"
+                class="w-full"
+              />
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+
+      <!-- 빈 상태 -->
+      <div v-if="inventory.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">재고 데이터 없음</h3>
+        <p class="mt-1 text-sm text-gray-500">기간을 선택하고 조회 버튼을 클릭해주세요.</p>
+      </div>
+    </div>
+
+    <!-- 다이얼로그 -->
     <RoomDialog
       v-if="showDialog"
       :room="room"
