@@ -1,173 +1,180 @@
 <template>
-  <div class="flex justify-center mb-6">
-    <SearchBox @search="resetFilters" />
-  </div>
-  <div class="p-6 bg-gray-50 min-h-screen">
-    <div v-if="isLoading">불러오는 중...</div>
-    <div v-else-if="isError" class="text-red-500">❌ {{ error }}</div>
+  <div class="flex flex-col items-center w-full gap-4">
+    <!-- 검색창 -->
+    <div class="w-full max-w-7xl px-6 mt-4! flex justify-center">
+      <SearchBox @search="resetFilters" />
+    </div>
 
-    <div class="flex gap-6">
-      <!-- 왼쪽 필터 영역 -->
-      <div class="w-64 bg-white shadow rounded-lg p-4 flex flex-col gap-8">
-        <!-- 1박당 요금 -->
-        <div class="flex flex-col gap-4">
-          <div class="flex justify-between items-center">
-            <h2 class="font-semibold">1박당 요금</h2>
-            <button class="text-blue-500 text-sm hover:underline" @click="resetFilters">
-              적용 해제
-            </button>
+    <!-- 필터 + 리스트 -->
+    <div class="w-full max-w-7xl px-6">
+      <div class="p-6 bg-gray-50 min-h-screen">
+        <div v-if="isLoading">불러오는 중...</div>
+        <div v-else-if="isError" class="text-red-500">❌ {{ error }}</div>
+
+        <div class="flex gap-6">
+          <!-- 왼쪽 필터 -->
+          <div class="w-64 bg-white shadow rounded-lg p-4 flex flex-col gap-8">
+            <!-- 1박당 요금 -->
+            <div class="flex flex-col gap-4">
+              <div class="flex justify-between items-center">
+                <h2 class="font-semibold">1박당 요금</h2>
+                <button class="text-blue-500 text-sm hover:underline" @click="resetFilters">
+                  적용 해제
+                </button>
+              </div>
+              <!-- ✅ 슬라이더 -->
+              <Slider
+                v-model="priceRange"
+                :min="0"
+                :max="400000"
+                range
+                class="w-full"
+                @change="updateFiltersDebounced"
+              />
+              <div class="flex items-center gap-2 text-sm">
+                <span>₩</span>
+                <input
+                  type="number"
+                  v-model.number="priceRange[0]"
+                  class="w-full border rounded px-2 py-1 no-spinner"
+                  @change="updateFiltersDebounced"
+                />
+                <span> ~ </span>
+                <span>₩</span>
+                <input
+                  type="number"
+                  v-model.number="priceRange[1]"
+                  class="w-full border rounded px-2 py-1 no-spinner"
+                  @change="updateFiltersDebounced"
+                />
+              </div>
+            </div>
+
+            <!-- 숙소 종류 -->
+            <div class="flex flex-col">
+              <h2 class="font-semibold">숙소 종류</h2>
+              <div class="flex flex-col gap-1 text-sm">
+                <label
+                  ><input
+                    type="checkbox"
+                    value="아파트"
+                    v-model="selectedCategories"
+                    @change="updateFilters"
+                  />
+                  아파트</label
+                >
+                <label
+                  ><input
+                    type="checkbox"
+                    value="호텔"
+                    v-model="selectedCategories"
+                    @change="updateFilters"
+                  />
+                  호텔</label
+                >
+                <label
+                  ><input
+                    type="checkbox"
+                    value="리조트"
+                    v-model="selectedCategories"
+                    @change="updateFilters"
+                  />
+                  리조트</label
+                >
+                <label
+                  ><input
+                    type="checkbox"
+                    value="게스트하우스"
+                    v-model="selectedCategories"
+                    @change="updateFilters"
+                  />
+                  게스트하우스 / 비앤비</label
+                >
+                <label
+                  ><input
+                    type="checkbox"
+                    value="모텔"
+                    v-model="selectedCategories"
+                    @change="updateFilters"
+                  />
+                  모텔</label
+                >
+              </div>
+            </div>
+
+            <!-- 투숙객 평가 점수 -->
+            <div class="flex flex-col">
+              <h2 class="font-semibold">투숙객 평가 점수</h2>
+              <div class="flex flex-col gap-1 text-sm">
+                <label
+                  ><input
+                    type="radio"
+                    name="rating"
+                    value="5"
+                    v-model="selectedRating"
+                    @change="updateFilters"
+                  />
+                  5+ 최고</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="rating"
+                    value="4"
+                    v-model="selectedRating"
+                    @change="updateFilters"
+                  />
+                  4+ 우수</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="rating"
+                    value="3"
+                    v-model="selectedRating"
+                    @change="updateFilters"
+                  />
+                  3+ 양호</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="rating"
+                    value="2"
+                    v-model="selectedRating"
+                    @change="updateFilters"
+                  />
+                  2+ 낮음</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="rating"
+                    value="1"
+                    v-model="selectedRating"
+                    @change="updateFilters"
+                  />
+                  1+ 최악</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="rating"
+                    value=""
+                    v-model="selectedRating"
+                    @change="updateFilters"
+                  />
+                  상관없음</label
+                >
+              </div>
+            </div>
           </div>
-          <!-- ✅ 슬라이더 -->
-          <Slider
-            v-model="priceRange"
-            :min="0"
-            :max="400000"
-            range
-            class="w-full"
-            @change="updateFiltersDebounced"
-          />
-          <div class="flex items-center gap-2 text-sm">
-            <span>₩</span>
-            <input
-              type="number"
-              v-model.number="priceRange[0]"
-              class="w-full border rounded px-2 py-1 no-spinner"
-              @change="updateFiltersDebounced"
-            />
-            <span> ~ </span>
-            <span>₩</span>
-            <input
-              type="number"
-              v-model.number="priceRange[1]"
-              class="w-full border rounded px-2 py-1 no-spinner"
-              @change="updateFiltersDebounced"
-            />
+
+          <!-- 오른쪽 검색 결과 리스트 -->
+          <div class="flex-1">
+            <SearchHotelList :places="places" :searchNotice="searchNotice" />
           </div>
         </div>
-
-        <!-- 숙소 종류 -->
-        <div class="flex flex-col">
-          <h2 class="font-semibold">숙소 종류</h2>
-          <div class="flex flex-col gap-1 text-sm">
-            <label
-              ><input
-                type="checkbox"
-                value="아파트"
-                v-model="selectedCategories"
-                @change="updateFilters"
-              />
-              아파트</label
-            >
-            <label
-              ><input
-                type="checkbox"
-                value="호텔"
-                v-model="selectedCategories"
-                @change="updateFilters"
-              />
-              호텔</label
-            >
-            <label
-              ><input
-                type="checkbox"
-                value="리조트"
-                v-model="selectedCategories"
-                @change="updateFilters"
-              />
-              리조트</label
-            >
-            <label
-              ><input
-                type="checkbox"
-                value="게스트하우스"
-                v-model="selectedCategories"
-                @change="updateFilters"
-              />
-              게스트하우스 / 비앤비</label
-            >
-            <label
-              ><input
-                type="checkbox"
-                value="모텔"
-                v-model="selectedCategories"
-                @change="updateFilters"
-              />
-              모텔</label
-            >
-          </div>
-        </div>
-
-        <!-- 투숙객 평가 점수 -->
-        <div class="flex flex-col">
-          <h2 class="font-semibold">투숙객 평가 점수</h2>
-          <div class="flex flex-col gap-1 text-sm">
-            <label
-              ><input
-                type="radio"
-                name="rating"
-                value="5"
-                v-model="selectedRating"
-                @change="updateFilters"
-              />
-              5+ 최고</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="rating"
-                value="4"
-                v-model="selectedRating"
-                @change="updateFilters"
-              />
-              4+ 우수</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="rating"
-                value="3"
-                v-model="selectedRating"
-                @change="updateFilters"
-              />
-              3+ 양호</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="rating"
-                value="2"
-                v-model="selectedRating"
-                @change="updateFilters"
-              />
-              2+ 낮음</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="rating"
-                value="1"
-                v-model="selectedRating"
-                @change="updateFilters"
-              />
-              1+ 최악</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="rating"
-                value=""
-                v-model="selectedRating"
-                @change="updateFilters"
-              />
-              상관없음</label
-            >
-          </div>
-        </div>
-      </div>
-
-      <!-- 오른쪽 검색 결과 리스트 -->
-      <div class="flex-1">
-        <SearchHotelList :places="places" :searchNotice="searchNotice" />
       </div>
     </div>
   </div>
