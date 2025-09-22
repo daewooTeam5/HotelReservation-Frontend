@@ -16,7 +16,7 @@
     </div>
 
     <!-- 검색 필터 -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-10">
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-10 flex flex-col gap-6">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-gray-900">검색 필터</h2>
         <button
@@ -31,7 +31,7 @@
       </div>
 
       <!-- 기본 검색 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">예약 번호</label>
           <input
