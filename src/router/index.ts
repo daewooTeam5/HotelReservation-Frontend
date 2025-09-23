@@ -5,6 +5,32 @@ import Dashboard from "@/views/placeOwner/Dashboard.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/profile",
+      meta: { layout: "profile" },   // 공통 ProfileLayout 사용
+      children: [
+        {
+          path: "account",
+          name: "account",
+          component: () => import("@/views/profile/AccountPage.vue"),
+        },
+        {
+          path: "payments",
+          name: "payments",
+          component: () => import("@/views/profile/PaymentsPage.vue"),
+        },
+        {
+          path: "wishlist",
+          name: "wishlist",
+          component: () => import("@/views/profile/WishList.vue"),
+        },
+        {
+          path: "settings",
+          name: "settings",
+          component: () => import("@/views/profile/SettingsPage.vue"),
+        },
+      ],
+    },
     // 예약 스텝 라우트 (레이아웃 + 자식 페이지)
     {
       path: '/places',
@@ -152,13 +178,6 @@ const router = createRouter({
       component: () => import('@/views/RegisterView.vue'),
       meta: { layout: 'user' }
     },
-    {
-      path: '/wishlist',
-      name: 'wishlist',
-      component: () => import('../views/WishList.vue'),
-      meta: { layout: 'user' }
-    },
-
     // 인증/회원가입
     {
       path: '/cart',
