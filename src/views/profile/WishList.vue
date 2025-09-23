@@ -45,8 +45,6 @@ onMounted(() => loadWishlist());
 
 <template>
   <div class="wishlist-page flex">
-    <Sidebar />
-
     <div class="content flex-1 p-6">
       <!-- 검색창: 가운데 정렬 -->
       <div class="flex justify-center mb-6!">
