@@ -29,7 +29,6 @@ const isAllReviewsModalVisible = ref(false);
 const isReviewFormModalVisible = ref(false);
 const isReviewGuidanceModalVisible = ref(false);
 
-const userReservationId = ref(123); // 예시 ID
 
 const canWriteReview = ref(false);
 const isCheckingPermission = ref(true);
@@ -171,9 +170,8 @@ onMounted(() => {
     </Dialog>
 
     <ReviewFormModal
-      v-if="placeId && userReservationId"
+      v-if="placeId"
       :place-id="props.placeId"
-      :reservation-id="userReservationId"
       v-model:visible="isReviewFormModalVisible"
       @review-submitted="onReviewSubmitted"
     />
