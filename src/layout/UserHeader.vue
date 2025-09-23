@@ -107,22 +107,22 @@ const profileItems = [
   {
     label: "계정",
     icon: "pi pi-user",
-    command: () => router.push("/account"),
+    command: () => router.push("/profile/account"),
   },
   {
     label: "결제 내역",
     icon: "pi pi-credit-card",
-    command: () => router.push("/payments"),
+    command: () => router.push("/profile/payments"),
   },
   {
     label: "위시리스트",
     icon: "pi pi-heart-fill",
-    command: () => router.push("/wishlist"),
+    command: () => router.push("/profile/wishlist"),
   },
   {
     label: "설정",
     icon: "pi pi-cog",
-    command: () => router.push("/settings"),
+    command: () => router.push("/profile/settings"),
   },
   { separator: true },
   {
