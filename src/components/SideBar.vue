@@ -6,26 +6,41 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import Menu from "primevue/menu";
+
+const router = useRouter();
 
 const items = ref([
   {
-    label: "Documents",
+    label: "내 계정",
     items: [
-      { label: "계정", icon: "pi pi-user", to: "/account" },
-      { label: "결제 내역", icon: "pi pi-credit-card", to: "/reservation" },
-      { label: "위시리스트", icon: "pi pi-heart", to: "/wishlist" },
-      { label: "설정", icon: "pi pi-cog", to: "/settings" },
-      { label: "로그아웃", icon: "pi pi-sign-out", to: "/logout" }
+      {
+        label: "계정",
+        icon: "pi pi-user",
+        command: () => router.push("/profile/account")
+      },
+      {
+        label: "결제 내역",
+        icon: "pi pi-credit-card",
+        command: () => router.push("/profile/payments")
+      },
+      {
+        label: "위시리스트",
+        icon: "pi pi-heart",
+        command: () => router.push("/profile/wishlist")
+      },
+      {
+        label: "설정",
+        icon: "pi pi-cog",
+        command: () => router.push("/profile/settings")
+      },
+      {
+        label: "로그아웃",
+        icon: "pi pi-sign-out",
+        command: () => router.push("/auth/signin")
+      },
     ],
   },
 ]);
 </script>
-
-<style scoped>
-.sidebar {
-  width: 220px;
-  background: #f9f9f9;
-  border-right: 1px solid #ddd;
-  padding: 1rem 0;
-}
-</style>
