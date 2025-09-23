@@ -24,7 +24,7 @@ const queryClient = useQueryClient();
 
 // 주석: 리뷰 생성을 위한 useMutation 훅 설정
 const { mutate: submitReview, isPending } = useMutation({
-  mutationFn: (newReview: { rating: number; comment: string }) => {
+  mutationFn: (newReview: {rating: number; comment: string }) => {
     // 백엔드의 리뷰 생성 API 엔드포인트로 요청을 보냅니다.
     return apiClient.post(`/v1/places/${props.placeId}/reviews`, newReview);
   },
