@@ -97,6 +97,7 @@
               v-model="dateRange"
               selectionMode="range"
               numberOfMonths="2"
+              :min-date="minDate"
               dateFormat="yy-mm-dd"
               inline
             />
@@ -214,7 +215,7 @@ const formatDate = (date: Date | null) => {
     .replace(/. /g, '-')
     .replace('.', '')
 }
-
+const minDate = ref(new Date());
 // 자동완성
 const openSuggestions = async (e: Event) => {
   await fetchSuggestions(e)
