@@ -20,7 +20,6 @@ interface CartItem {
   sigungu: string;
 }
 
-// 장바구니 데이터
 const cartItems = ref<CartItem[]>([]);
 
 // 호텔별 그룹핑
@@ -35,15 +34,31 @@ const groupedCart = computed(() => {
   return groups;
 });
 
-// 수량 변경 핸들러
-const updateQuantity = (cartId: number, delta: number) => {
+// 수량 변경 핸들러 (서버 반영)
+const updateQuantity = async (cartId: number, delta: number) => {
   const item = cartItems.value.find(i => i.cartId === cartId);
   if (item) {
     const newQty = item.quantity + delta;
     if (newQty > 0) {
-      item.quantity = newQty;
-      // TODO: 서버에 수량 업데이트 API 호출 (예: PATCH /cart/{cartId})
+      try {
+        await apiClient.patch(`/v1/cart/${cartId}`, null, {
+          params: { quantity: newQty }
+        });
+        item.quantity = newQty; // 성공 시 로컬 반영
+      } catch (error) {
+        console.error("수량 변경 실패:", error);
+      }
     }
+  }
+};
+
+// 장바구니 삭제
+const removeFromCart = async (cartId: number) => {
+  try {
+    await apiClient.delete(`/v1/cart/${cartId}`);
+    cartItems.value = cartItems.value.filter(i => i.cartId !== cartId);
+  } catch (error) {
+    console.error("장바구니 삭제 실패:", error);
   }
 };
 
@@ -57,7 +72,6 @@ onMounted(async () => {
 <template>
   <div class="p-4">
     <div v-for="(rooms, placeName) in groupedCart" :key="placeName" class="mb-6">
-      <!-- 호텔 카드 -->
       <PrimeCard>
         <template #title>
           <div class="text-xl font-bold">{{ placeName }}</div>
@@ -78,11 +92,12 @@ onMounted(async () => {
               <div class="text-sm text-gray-500">최대 {{ room.capacityPeople }}명</div>
             </div>
 
-            <!-- 수량 조절 -->
+            <!-- 수량 조절 + 삭제 -->
             <div class="flex items-center gap-2">
               <Button icon="pi pi-minus" @click="updateQuantity(room.cartId, -1)" />
               <span class="px-3">{{ room.quantity }}</span>
               <Button icon="pi pi-plus" @click="updateQuantity(room.cartId, 1)" />
+              <Button icon="pi pi-trash" severity="danger" @click="removeFromCart(room.cartId)" />
             </div>
           </div>
         </template>
