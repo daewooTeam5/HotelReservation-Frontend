@@ -12,7 +12,6 @@ import { useToast } from 'primevue/usetoast';
 const props = defineProps<{
   visible: boolean;
   placeId: number;
-  reservationId: number;
 }>();
 
 // 주석: 부모 컴포넌트로 보낼 이벤트를 정의합니다. (모달 닫기, 리뷰 제출 완료)
@@ -25,7 +24,7 @@ const queryClient = useQueryClient();
 
 // 주석: 리뷰 생성을 위한 useMutation 훅 설정
 const { mutate: submitReview, isPending } = useMutation({
-  mutationFn: (newReview: { reservationId: number; rating: number; comment: string }) => {
+  mutationFn: (newReview: { rating: number; comment: string }) => {
     // 백엔드의 리뷰 생성 API 엔드포인트로 요청을 보냅니다.
     return apiClient.post(`/v1/places/${props.placeId}/reviews`, newReview);
   },
@@ -52,7 +51,6 @@ const closeModal = () => {
 const handleSubmit = () => {
   if (rating.value > 0 && comment.value.trim() !== '') {
     submitReview({
-      reservationId: props.reservationId,
       rating: rating.value,
       comment: comment.value
     });

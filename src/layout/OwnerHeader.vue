@@ -86,18 +86,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
-import Button from "primevue/button";
-import { Gravatar } from "@sauromates/vue-gravatar";
-import { apiClient } from "@/utils/axiosClient.ts";
-import { useAuthStore } from "@/stores/authStore";
-import type { UserDto } from "@/types/users";
-import { parseJwt } from "@/utils/jwtUtils";
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
+import Button from 'primevue/button';
+import { Gravatar } from '@sauromates/vue-gravatar';
+import { apiClient } from '@/utils/axiosClient.ts';
+import { useAuthStore } from '@/stores/authStore';
+import type { UserDto } from '@/types/users';
+import { parseJwt } from '@/utils/jwtUtils';
 
 const router = useRouter();
-const { setAccessToken, accessToken ,userAuth} = useAuthStore();
-console.log(userAuth);
+const { setAccessToken, accessToken, userAuth, getAccessToken } = useAuthStore();
 
 // 사용자 정보 추출
 const user = ref<UserDto | null>(null);
@@ -116,26 +115,26 @@ const toggleProfileMenu = () => {
 
 // 네비게이션 함수
 const navigateToProfile = () => {
-  router.push("/owner/profile");
+  router.push('/owner/profile');
   isProfileMenuOpen.value = false;
 };
 
 const navigateToSettings = () => {
-  router.push("/owner/settings");
+  router.push('/owner/settings');
   isProfileMenuOpen.value = false;
 };
 
 // 로그아웃
 const logout = async () => {
   try {
-    await apiClient.post("../auth/logout", null, { withCredentials: true });
+    await apiClient.post('../auth/logout', null, { withCredentials: true });
     setAccessToken(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("placeId");
-    router.push("/auth/signin");
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('placeId');
+    router.push('/auth/signin');
   } catch (e) {
-    console.error("로그아웃 실패:", e);
+    console.error('로그아웃 실패:', e);
   } finally {
     isProfileMenuOpen.value = false;
   }
@@ -149,11 +148,18 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
-onMounted(() => {
-  window.addEventListener("click", handleClickOutside);
+onMounted(async () => {
+  window.addEventListener('click', handleClickOutside);
+
+  console.log(getAccessToken);
+  if (!getAccessToken) {
+    const data = await apiClient.post('../auth/token');
+    console.log(data.data.data.accessToken);
+    setAccessToken(data.data.data.accessToken);
+  }
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("click", handleClickOutside);
+  window.removeEventListener('click', handleClickOutside);
 });
 </script>

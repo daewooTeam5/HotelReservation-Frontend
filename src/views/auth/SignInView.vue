@@ -32,12 +32,12 @@ export default defineComponent({
     const route = useRoute(); // 현재 라우트 객체를 가져옵니다.
     const { setOtpEmail } = useAuthStore();
     const emailMutate = reactive(useMutation({
-      mutationFn: async (data: { email: string })=> {
+      mutationFn: async (data: { email: string }) => {
         const result = await apiClient.post<ApiResult<boolean>>('../auth', {
           email: data.email
         });
         if (result.data.success) {
-          return data.email
+          return data.email;
         }
       },
       onSuccess: (data) => {
@@ -46,7 +46,7 @@ export default defineComponent({
         setOtpEmail(data as string);
         // 주석: OTP 페이지로 이동할 때 현재 라우트의 쿼리(redirect 포함)를 그대로 전달합니다.
         router.push({
-          path: "/auth/email-otp",
+          path: '/auth/email-otp',
           query: route.query
         });
       },
@@ -115,21 +115,21 @@ export default defineComponent({
         <Divider align="center">또는</Divider>
 
         <!-- 이메일 로그인 -->
-        <div class="flex flex-col gap-3">
-          <span class="p-float-label">
-            <label for="email">이메일</label>
-            <InputText id="email" v-model="email" class="w-full" placeholder="이메일 주소를 입력해주세요" />
-          </span>
-
+        <form @submit.prevent="handleEmailLogin">
+  <span class="p-float-label">
+    <label for="email">이메일</label>
+    <InputText id="email" v-model="email" class="w-full" placeholder="이메일 주소를 입력해주세요" />
+  </span>
 
           <Button
             :loading="emailMutate.isPending"
             label="이메일 로그인"
             icon="pi pi-sign-in"
             class="w-full"
-            @click="handleEmailLogin"
+            type="submit"
           />
-        </div>
+        </form>
+
       </template>
     </Card>
   </div>
