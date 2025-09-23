@@ -11,14 +11,12 @@ const removeAddedRoom = (index: number) => store.removeAddedRoom(index);
 
 const goPrev = () => router.push('/publishing/register/basic');
 const goNext = () => router.push('/publishing/register/images');
+
 </script>
 
 <template>
   <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-4">
-    <div>
-      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">호실 번호</p>
-      <input type="number" v-model.number="store.rooms.roomNumber" placeholder="호실 번호" class="w-48 border rounded p-2" />
-    </div>
+
 
     <div>
       <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">룸 유형</p>
@@ -36,11 +34,11 @@ const goNext = () => router.push('/publishing/register/images');
     </div>
 
     <div>
-      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">이 객실에 숙박 가능한 인원</p>
+      <p class=" font-semibold mb-2 text-gray-700 dark:text-gray-200">이 객실에 숙박 가능한 인원</p>
       <div class="flex items-center gap-2">
-        <Button label="-" severity="secondary" @click="store.rooms.capacityPeople = Math.max(1, store.rooms.capacityPeople - 1)" />
-        <span class="w-8 text-center">{{ store.rooms.capacityPeople }}</span>
-        <Button label="+" @click="store.rooms.capacityPeople++" />
+        <Button severity="secondary" @click="store.rooms.capacityPeople = Math.max(1, store.rooms.capacityPeople - 1)" >-</Button>
+        <span style="margin-left: 3px; font-size: 18px;" class="w-8 text-center">{{ store.rooms.capacityPeople }}</span>
+        <Button @click="store.rooms.capacityPeople++" >+</Button>
       </div>
     </div>
 
@@ -53,16 +51,27 @@ const goNext = () => router.push('/publishing/register/images');
         </div>
       </div>
     </div>
-
     <div>
-      <Button label="객실 추가" class="!bg-blue-500 !border-blue-500" @click="addRoom" />
+      <p>공개여부</p>
+
+      <select v-model="store.rooms.isPublic" class="w-full border rounded p-2">
+        <option value="">선택</option>
+        <option value="true">공개</option>
+        <option value="false">비공개</option>
+
+      </select>
+    </div>
+
+    <div class="w-full">
+      <Button label="객실 추가" class="!bg-blue-500 !border-blue-500" style="margin-top:6px;" @click="addRoom" />
     </div>
 
     <div v-if="store.addedRooms.length" class="mt-4 space-y-2">
       <p class="font-semibold text-gray-700 dark:text-gray-200">추가된 객실</p>
       <div v-for="(room, index) in store.addedRooms" :key="index" class="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-2 rounded">
         <div class="text-sm">
-          <p>호실: {{ room.roomNumber }} | 유형: {{ room.roomType || '미정' }} | 최대인원: {{ room.capacityPeople }}</p>
+          <p>호실: {{ room.roomNumber }} | 유형: {{ room.roomType || '미정' }} | 최대인원: {{ room.capacityPeople }}
+            | 공개여부: {{ room.isPublic }}</p>
         </div>
         <Button label="삭제" severity="danger" size="small" @click="removeAddedRoom(index)" />
       </div>

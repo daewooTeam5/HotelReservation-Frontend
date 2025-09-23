@@ -21,6 +21,7 @@ export type RoomForm = {
   bedType: BedOption[];
   checkIn: string;
   checkOut: string;
+  isPublic: boolean;  //방 공개 여부
 };
 
 export type Address = {
@@ -59,6 +60,7 @@ export const useRegisterStore = defineStore('registerStore', {
     name: '',
     hotelType: '',
     description: '',
+
     rooms: {
       capacityPeople: 1,
       price: 0,
@@ -67,7 +69,8 @@ export const useRegisterStore = defineStore('registerStore', {
       roomType: '',
       bedType: defaultBeds.map(b => ({ ...b })),
       checkIn: '',
-      checkOut: ''
+      checkOut: '',
+      isPublic: true
     },
     addedRooms: [],
     discounts: [],
@@ -77,7 +80,11 @@ export const useRegisterStore = defineStore('registerStore', {
       { name: '조식 제공', checked: false },
       { name: '수영장', checked: false },
       { name: '피트니스', checked: false },
-      { name: '금연실', checked: false }
+      { name: '금연실', checked: false },
+      { name: '바비큐 그릴', checked: false },
+      { name: '테라스', checked: false },
+      { name: '정원', checked: false },
+      { name: '룸서비스', checked: false },
     ],
     languages: [
       { types: '한국어', checked: true },

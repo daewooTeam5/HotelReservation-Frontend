@@ -9,18 +9,35 @@ const router = useRouter();
 const route = useRoute();
 
 const submit = async () => {
+  const getCategoryIdByType = (type: string): number => {
+    const categoryMap: { [key: string]: number } = {
+      '호텔': 1,
+      '리조트': 2,
+      '게스트하우스/비앤비': 3,
+      '아파트': 4,
+      '펜션': 4,
+      '모텔': 5
+    };
+    return categoryMap[type] || 1;
+  };
+
   try {
     const payload = {
       hotelName: store.name,
       description: store.description,
+      checkIn: store.rooms.checkIn,
+      checkOut: store.rooms.checkOut,
+
+
       addressList: [store.address],
       images: store.images,
-      rooms: [store.rooms, ...store.addedRooms].map(r => ({
+      rooms: [store.rooms, ...store.addedRooms].map(r => ({//방마다 다르게 적용할 내용들
         roomNumber: r.roomNumber,
         roomType: r.roomType,
-        capacityPeople: r.capacityPeople,
-        minPrice: r.price,  //db연동
-        extraPrice: r.extraPrice,
+        capacityPeople: r.capacityPeople,//최대 수용가능인원
+        minPrice: r.price,  //1인 기본 요금
+        extraPrice: r.extraPrice,//1인 더 들어왔을 때 추가 요금
+        isPublic: r.isPublic,
         bedType: Array.isArray(r.bedType) ? r.bedType.map(b => ({ type: b.type, width: b.width, count: b.count })) : []
       }))
     };
