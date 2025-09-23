@@ -20,7 +20,7 @@
           <div>
             <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 이름</p>
             <InputText
-              v-model="form.hotelName"
+              v-model="form.name"
               placeholder="숙소 이름"
               unstyled
               class="w-full border-2 border-gray-300 rounded-md p-2 focus:ring-black-900"
@@ -90,7 +90,7 @@
               class="flex items-center justify-between rounded-md mb-2">
             </div>
 <div>
-              <select v-model="form.rooms.beds" class="w-full border rounded p-2">
+              <select v-model="form.rooms.bedType" class="w-full border rounded p-2">
                 <option value="">사이즈 선택</option>
                 <option value="single">싱글, 90~130cm</option>
                 <option value="quin">퀸, 131~150cm</option>
@@ -116,18 +116,18 @@
                 style="background: lightgrey"
                 type="button"
                 class="px-2 py-1 bg-gray-100 rounded"
-                @click="form.rooms.maxCount = Math.max(1, form.rooms.maxCount - 1)"
+                @click="form.rooms.capacityPeople = Math.max(1, form.rooms.capacityPeople - 1)"
               >
                 −
               </button>
-              <span class="w-6 text-center">{{ form.rooms.maxCount }}</span>
+              <span class="w-6 text-center">{{ form.rooms.capacityPeople }}</span>
               <button
                 onmouseover="this.style.backgroundColor='#2781d0'"
                 onmouseout="this.style.backgroundColor='lightgrey'"
                 style="background-color: lightgrey"
                 type="button"
                 class="px-2 py-1 bg-gray-100 rounded"
-                @click="form.rooms.maxCount++"
+                @click="form.rooms.capacityPeople++"
               >
                 +
               </button>
@@ -241,10 +241,10 @@
 
         <!-- Step 5 : 이용수칙 -->
         <div v-if="activeStep === 'step5'" class="flex flex-col gap-6">
-          <h1 style="text-align:center; font-size:24px; font-style=sans;">이용 수칙</h1>
+          <h1 style="text-align:center; font-size:24px;">이용 수칙</h1>
           <div>
             <p
-              style="margin-bottom: 8px; font-size: 14px; font-style: sans"
+              style="margin-bottom: 8px; font-size: 14px; font-style:sans;"
               class="font-semibold mb-2 text-gray-700 dark:text-gray-200"
             >
               체크 인 시간은 어떻게 할까요?
@@ -258,7 +258,7 @@
           </div>
           <div>
             <p
-              style="margin-bottom: 8px; font-size: 14px; font-style: sans"
+              style="margin-bottom: 8px; font-size: 14px; font-style:sans;"
               class="font-semibold mb-2 text-gray-700 dark:text-gray-200"
             >
               체크 아웃 시간은 어떻게 할까요?
