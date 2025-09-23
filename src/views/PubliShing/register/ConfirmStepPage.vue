@@ -19,16 +19,15 @@ const submit = async () => {
         roomNumber: r.roomNumber,
         roomType: r.roomType,
         capacityPeople: r.capacityPeople,
-        price: r.price,
+        minPrice: r.price,  //db연동
         extraPrice: r.extraPrice,
-        checkIn: r.checkIn,
-        checkOut: r.checkOut,
         bedType: Array.isArray(r.bedType) ? r.bedType.map(b => ({ type: b.type, width: b.width, count: b.count })) : []
       }))
     };
     // Keep same endpoint used in legacy HotelRegister.vue
     await apiClient.post('../hotel/publishing/register', payload);
     await router.push({ name: 'owner-dashboard' });
+    alert('등록 완료');
   } catch (e: any) {
     const title = e?.response?.data?.error?.title || '등록 중 오류가 발생했어요';
     const detail = e?.response?.data?.error?.detail || e?.message || '잠시 후 다시 시도해 주세요.';

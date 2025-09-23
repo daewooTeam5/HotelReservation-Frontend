@@ -46,7 +46,7 @@ const goToStep = (step: string) => {
 </script>
 
 <template>
-  <div class="space-y-8 px-2 pt-2 max-w-4xl mx-auto">
+  <div class="flex-flex space-y-8 px-2 pt-2 max-w-4xl mx-auto">
     <Stepper v-model:value="activeStep" @update:value="goToStep" :readonly="true">
       <StepList>
         <Step value="1" disabled>기본정보</Step>
