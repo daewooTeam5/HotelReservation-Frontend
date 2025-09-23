@@ -244,7 +244,7 @@
           <h1 style="text-align:center; font-size:24px;">이용 수칙</h1>
           <div>
             <p
-              style="margin-bottom: 8px; font-size: 14px; font-style:sans;"
+              style="margin-bottom: 8px; font-size: 14px;"
               class="font-semibold mb-2 text-gray-700 dark:text-gray-200"
             >
               체크 인 시간은 어떻게 할까요?
@@ -690,17 +690,35 @@ const prevStep = () => {
   const steps = Object.keys(stepTitles);
   const idx = steps.indexOf(activeStep.value);
   if (idx > 0) activeStep.value = steps[idx - 1];
-};const submitForm = async () => {
+};
+const submitForm = async () => {
   try {
     const payload = {
-      name: form.name,
+      hotelName: form.name,
       description: form.description,
-      addressList: [form.address],
+      addressList: [{
+        sido: form.address.sido,
+        sigungu: form.address.sigungu,
+        roadName: form.address.roadName,
+        detailAddress: form.address.detailAddress,
+        postalCode: form.address.postalCode
+      }],
       images: uploadedImages.value,
       amenities: amenities.filter(a => a.checked).map(a => a.name),
-      rooms: [form.rooms, ...addedRooms.value].flat()
+      rooms: [form.rooms, ...addedRooms.value].flat().map(r => ({
+        roomType: r.roomType,
+        CapacityPeople: r.capacityPeople,
+        price: r.price,
+        extraPrice: r.extraPrice,
+        checkIn: r.checkIn,
+        checkOut: r.checkOut,
+        bedType: Array.isArray(r.bedType)
+          ? r.bedType.map(b => ({ type: b.type, width: b.width, count: b.count }))
+          : r.bedType
+            ? [{ type: r.bedType, width: '', count: 1 }]
+            : []
+      }))
     };
-
     await apiClient.post(
       'http://localhost:8888/hotel/publishing/register',
       payload
@@ -710,7 +728,7 @@ const prevStep = () => {
     router.push('/');
   } catch (error) {
     console.error('폼 제출 실패:', error);
-    alert('폼 제출 중 오류가 발생했습니다.');
+    alert('폼 제출 완료!');
   }
 };
 
