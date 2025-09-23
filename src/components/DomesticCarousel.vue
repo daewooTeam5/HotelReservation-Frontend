@@ -37,7 +37,7 @@ const router = useRouter();
 
 // 국내 여행지 리스트 (중복 제거 + 이미지 경로 샘플 지정)
 const domesticCities = ref([
-  { name: "서울시", image: "/images/domestic/seoul.jpg" },
+  { name: "서울", image: "/images/domestic/seoul.jpg" },
   { name: "부산", image: "/images/domestic/busan.jpg" },
   { name: "대구", image: "/images/domestic/seoul.jpg" },
   { name: "인천", image: "/images/domestic/busan.jpg" },
@@ -52,7 +52,7 @@ const domesticCities = ref([
   { name: "전라남도", image: "/images/domestic/seoul.jpg" },
   { name: "경상북도", image: "/images/domestic/busan.jpg" },
   { name: "경상남도", image: "/images/domestic/seoul.jpg" },
-  { name: "제주특별자치도", image: "/images/domestic/seoul.jpg" },
+  { name: "제주", image: "/images/domestic/seoul.jpg" },
 ]);
 
 // Carousel 반응형 옵션
@@ -90,7 +90,7 @@ const goToDomestic = (city: any) => {
   }
 
   const searchData = {
-    name: city.name,
+    address: city.name,
     checkIn: base?.checkIn || "",
     checkOut: base?.checkOut || "",
     rooms: base?.rooms || "1",

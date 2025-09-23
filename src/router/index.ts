@@ -41,6 +41,72 @@ const router = createRouter({
         },
       ],
     },
+    // 발행(숙소 등록) 스텝 라우트
+    {
+      path: '/publishing/register',
+      component: () => import('@/views/PubliShing/register/RegisterLayout.vue'),
+      children: [
+        {
+          path: 'basic',
+          name: 'RegisterBasic',
+          component: () => import('@/views/PubliShing/register/BasicStepPage.vue'),
+          meta: { step: '1' }
+        },
+        {
+          path: 'rooms',
+          name: 'RegisterRooms',
+          component: () => import('@/views/PubliShing/register/RoomsStepPage.vue'),
+          meta: { step: '2' }
+        },
+        {
+          path: 'images',
+          name: 'RegisterImages',
+          component: () => import('@/views/PubliShing/register/ImagesStepPage.vue'),
+          meta: { step: '3' }
+        },
+        {
+          path: 'amenities',
+          name: 'RegisterAmenities',
+          component: () => import('@/views/PubliShing/register/AmenitiesStepPage.vue'),
+          meta: { step: '4' }
+        },
+        {
+          path: 'policy',
+          name: 'RegisterPolicy',
+          component: () => import('@/views/PubliShing/register/PolicyStepPage.vue'),
+          meta: { step: '5' }
+        },
+        {
+          path: 'pricing',
+          name: 'RegisterPricing',
+          component: () => import('@/views/PubliShing/register/PricingStepPage.vue'),
+          meta: { step: '6' }
+        },
+        {
+          path: 'address',
+          name: 'RegisterAddress',
+          component: () => import('@/views/PubliShing/register/AddressStepPage.vue'),
+          meta: { step: '7' }
+        },
+        {
+          path: 'confirm',
+          name: 'RegisterConfirm',
+          component: () => import('../views/PubliShing/register/ConfirmStepPage.vue'),
+          meta: { step: '8' }
+        },
+        {
+          path: 'error',
+          name: 'RegisterError',
+          component: () => import('../views/PubliShing/register/RegisterErrorPage.vue'),
+          meta: { step: '8' }
+        }
+      ]
+    },
+    {
+      path: '/HotelRegister',
+      name: 'HotelRegister',
+      redirect: { name: 'RegisterBasic' }
+    },
     {
       path: '/places/:id',
       name: 'PlaceDetail',
@@ -121,8 +187,8 @@ const router = createRouter({
     // 숙소 관리자 영역
     {
 
-      path:'/HotelRegister',
-      name:'HotelRegister',
+      path:'/HotelRegister-old',
+      name:'HotelRegister-old',
       component: () => import('@/views/PubliShing/HotelRegister.vue')
     },
     {
@@ -216,6 +282,38 @@ const router = createRouter({
         },
       ],
     },
+    // 관리자 영역
+    {
+      path: '/admin',
+      meta: { layout: 'admin' },
+      children: [
+        {
+          path: '',
+          name: 'admin-dashboard',
+          component: () => import('@/views/admin/Dashboard.vue'),
+          meta: { layout: 'admin' }
+        },
+        {
+          path: 'hotels',
+          name: 'admin-hotels',
+          component: () => import('@/views/admin/Hotels.vue'),
+          meta: { layout: 'admin' }
+        },
+        {
+          path: 'hotels/:id',
+          name: 'admin-hotel-detail',
+          component: () => import('@/views/admin/HotelDetail.vue'),
+          props: true,
+          meta: { layout: 'admin' }
+        },
+        {
+          path: 'requests',
+          name: 'admin-requests',
+          component: () => import('@/views/admin/Requests.vue'),
+          meta: { layout: 'admin' }
+        }
+      ]
+    }
   ],
 });
 

@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import DefaultLayout from "@/layout/DefaultLayout.vue";
 import OwnerLayout from "@/layout/OwnerLayout.vue";
 import UserLayout from "@/layout/UserLayout.vue";
+import AdminLayout from "@/layout/AdminLayout.vue";
 
 const route = useRoute();
 </script>
@@ -19,6 +20,11 @@ const route = useRoute();
     <UserLayout v-else-if="route.meta.layout === 'user'">
       <router-view />
     </UserLayout>
+
+    <!-- Admin Layout -->
+    <AdminLayout v-else-if="route.meta.layout === 'admin'">
+      <router-view />
+    </AdminLayout>
 
     <!-- Default Layout -->
     <DefaultLayout v-else>
