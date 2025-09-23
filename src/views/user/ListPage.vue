@@ -187,6 +187,7 @@ import SearchBox from '@/components/SearchBox.vue';
 import SearchHotelList from '@/components/SearchHotelList.vue';
 import Slider from 'primevue/slider';
 import { apiClient } from '@/utils/axiosClient.ts';
+import { useToast } from 'primevue';
 
 const route = useRoute();
 const router = useRouter();
@@ -242,6 +243,7 @@ const fetchSearchPlaces = async () => {
       checkOut: route.query.checkOut,
       adults: route.query.adults,
       children: route.query.children,
+      address: route.query.address,
       rooms: route.query.rooms,
       placeCategory: route.query.placeCategory || '',
       minPrice: route.query.minPrice || 0,
@@ -269,6 +271,7 @@ const resetFilters = () => {
     },
   });
 };
+const toast = useToast();
 
 const loadPlaces = async () => {
   isLoading.value = true;

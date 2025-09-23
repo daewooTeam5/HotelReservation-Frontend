@@ -49,7 +49,7 @@ const checkReviewPermission = async () => {
     return;
   }
   try {
-    const response = await apiClient.get<{ data: { canReview: boolean } }>(`/api/v1/reservations/can-review?placeId=${props.placeId}`);
+    const response = await apiClient.get<{ data: { canReview: boolean } }>(`/v1/reservations/can-review?placeId=${props.placeId}`);
     canWriteReview.value = response.data.data.canReview;
   } catch (error) {
     console.error('리뷰 작성 권한 확인 실패:', error);

@@ -11,6 +11,7 @@
         </div>
         <span class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
         </span>
+
       </div>
       <!-- 닫기 버튼 -->
       <button
@@ -65,6 +66,7 @@
         class="flex items-center space-x-3 p-3 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-colors duration-200"
         @click="$router.push('/owner/profile')"
       >
+
         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
           <i class="pi pi-user text-white"></i>
         </div>
@@ -98,6 +100,7 @@ defineEmits<{
   (e: "toggle"): void;
 }>();
 
+
 // 배지 제거된 메뉴 리스트
 const menuItems = computed(() => [
   { name: "대시보드", path: "/owner", icon: "pi pi-th-large" },
@@ -110,5 +113,3 @@ const menuItems = computed(() => [
   { name: "설정", path: "/owner/settings", icon: "pi pi-cog" }
 ]);
 </script>
-
-

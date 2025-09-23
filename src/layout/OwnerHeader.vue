@@ -31,7 +31,7 @@
           <!-- 동적 아바타 -->
           <Gravatar
             class="rounded-full w-8 h-8"
-            :email="user?.email || 'default@example.com'"
+            :email="userAuth?.email || 'default@example.com'"
             :size="80"
             default="identicon"
           />
@@ -96,7 +96,7 @@ import type { UserDto } from "@/types/users";
 import { parseJwt } from "@/utils/jwtUtils";
 
 const router = useRouter();
-const { setAccessToken, accessToken } = useAuthStore();
+const { setAccessToken, accessToken ,userAuth} = useAuthStore();
 
 // 사용자 정보 추출
 const user = ref<UserDto | null>(null);
@@ -127,7 +127,7 @@ const navigateToSettings = () => {
 // 로그아웃
 const logout = async () => {
   try {
-    await apiClient.post("/api/v1/auth/logout", null, { withCredentials: true });
+    await apiClient.post("../auth/logout", null, { withCredentials: true });
     setAccessToken(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");

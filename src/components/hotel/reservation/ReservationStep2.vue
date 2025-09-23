@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, watch, ref, onMounted } from 'vue';
+import { defineProps, defineEmits, watch, ref, onMounted, computed } from 'vue';
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { apiClient } from '@/utils/axiosClient.ts';
 import { useRoute } from 'vue-router';
