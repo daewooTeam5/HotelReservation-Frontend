@@ -148,8 +148,6 @@
                   선택하신 날짜의 객실이 판매 완료되었습니다.
                 </p>
               </div>
-
-              =
               <!-- 아래: 가격 + 버튼 (row) -->
               <div class="flex items-center justify-between mt-4">
                 <p v-if="room.price" class="text-2xl font-semibold! text-gray-700">
@@ -176,7 +174,6 @@
               </div>
             </div>
           </div>
-          =
         </template>
       </PrimeCard>
     </section>
@@ -223,14 +220,7 @@
     </section>
 
     <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl!">
-      <PrimeCard class="border-none! shadow-none! pt-4!">
-        <template #content>
-          <h2 class="text-xl font-semibold! mb-4">리뷰</h2>
-          <div class="text-center text-gray-500 py-10">
-            <p>아직 작성된 리뷰가 없습니다.</p>
-          </div>
-        </template>
-      </PrimeCard>
+      <ReviewSection :place-id="parseInt(id)"/>
     </section>
   </div>
 
@@ -264,6 +254,10 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 import WishSearchBox from '@/components/WishSearchBox.vue';
+
+import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
+import { useAuthStore } from '@/stores/authStore.ts';
+
 
 // 기존 상태 변수
 const route = useRoute();
@@ -443,9 +437,12 @@ onMounted(async () => {
       };
     });
     place.value = rawData;
+    const {getAccessToken} = useAuthStore()
+    if(getAccessToken){
+      const wishRes = await apiClient.get(`/v1/wishlist/${id}`);
+      place.value.isLiked = wishRes.data.data;
+    }
 
-    const wishRes = await apiClient.get(`/v1/wishlist/${id}`);
-    place.value.isLiked = wishRes.data.data;
   } catch (e: any) {
     error.value = e.message || '숙소 데이터를 불러오는 데 실패했습니다.';
   } finally {
