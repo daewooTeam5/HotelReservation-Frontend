@@ -18,7 +18,7 @@ import { useRouter, useRoute } from 'vue-router';
 const props = defineProps<{
   placeId: number;
 }>();
-
+//브런치 생성
 const authStore = useAuthStore();
 const toast = useToast();
 const router = useRouter();
