@@ -510,56 +510,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter } from 'vue-router';
-const addedRooms = ref<typeof form.rooms[]>([]);
 
-// 객실 추가
-const addRoom = () => {
-  // 현재 form.rooms를 deep copy 해서 추가
-  addedRooms.value.push(JSON.parse(JSON.stringify(form.rooms)));
-
-  // 다음 방 기본값 세팅 (roomNumber 자동 증가)
-  form.rooms.roomNumber++;
-};
-
-// 작은 카드에서 삭제
-const removeAddedRoom = (index: number) => {
-  addedRooms.value.splice(index, 1);
-};
-
-const router = useRouter();
-
+// Step 관리
 const activeStep = ref('step1');
-
-const uploadedImages = ref([]);
-const fileInput = ref(null);
-const ranguage = reactive([
-  { types: '영어', checked: false },
-  { types: '중국어', checked: false },
-  { types: '일본어', checked: false },
-  { types: '프랑스어', checked: false },
-  { types: '독일어', checked: false },
-  { types: '러시아어', checked: false },
-]);
-const showInput = ref(false)
-const newLanguage = ref('')
-
-const addLanguage = () => {
-  if (newLanguage.value.trim() !== '') {
-    ranguage.push({ types: newLanguage.value.trim(), checked: false })
-    newLanguage.value = ''
-    showInput.value = false
-  }
-}
-
-const removeLanguage = (index) => {
-  ranguage.splice(index, 1)
-}
 const stepTitles: Record<string, string> = {
   step1: '숙소 기본정보',
   step2: '객실 정보',
@@ -571,38 +529,29 @@ const stepTitles: Record<string, string> = {
   step8: '정보 확인',
 };
 
+// Router
+const router = useRouter();
 
-
-interface DiscountOption {
-  person: number;    // 인원수
-  discount: number;  // %
-}
-
-interface BedOption {
-  type: string;
-  width: string;
-  count: number;
-}
+// Form 초기 상태
+interface DiscountOption { person: number; discount: number; }
+interface BedOption { type: string; width: string; count: number; }
 
 const form = reactive({
-  rooms:{
-    capacityPeople: 1,
-    price:1,
-    extraPrice: 1,
-    roomNumber:1,
-    roomType:'',
-    bedType: [] as BedOption[],
-    checkIn: '',
-    checkOut: '',
-
-  },
   name: '',
   hotelType: '',
   description: '',
-
+  rooms: {
+    roomNumber: 1,
+    roomType: '',
+    capacityPeople: 1,
+    price: 1,
+    extraPrice: 1,
+    checkIn: '',
+    checkOut: '',
+    bedType: [] as BedOption[],
+  },
   discounts: [] as DiscountOption[],
-
-  address: {//엔티티가 따로 있으면 이렇게 묶어서 가능하구나
+  address: {
     sigungu: '',
     sido: '',
     roadName: '',
@@ -611,31 +560,39 @@ const form = reactive({
   }
 });
 
-// 침대 기본 옵션
+// Bed 기본 옵션 초기화
 const availableBeds: BedOption[] = [
   { type: '싱글침대', width: '90~130cm', count: 0 },
   { type: '더블침대', width: '131~150cm', count: 0 },
   { type: '대형침대(킹사이즈)', width: '151~180cm', count: 0 },
   { type: '초대형 더블침대(수퍼킹사이즈)', width: '181~210cm', count: 0 },
 ];
+form.rooms.bedType = availableBeds.map(b => ({ ...b }));
 
-// beds 배열 초기화
-form.rooms.bedType = availableBeds.map((b) => ({ ...b }));
+const incrementBed = (index: number) => { form.rooms.bedType[index].count++; };
+const decrementBed = (index: number) => { if (form.rooms.bedType[index].count > 0) form.rooms.bedType[index].count--; };
 
-const incrementBed = (index: number) => {
-  form.rooms.bedType[index].count++;
-};
-
-const decrementBed = (index: number) => {
-  if (form.rooms.bedType[index].count > 0) form.rooms.bedType[index].count--;
-};
-
+// Step 이동
 const nextStep = () => {
   const steps = Object.keys(stepTitles);
   const idx = steps.indexOf(activeStep.value);
   if (idx < steps.length - 1) activeStep.value = steps[idx + 1];
 };
+const prevStep = () => {
+  const steps = Object.keys(stepTitles);
+  const idx = steps.indexOf(activeStep.value);
+  if (idx > 0) activeStep.value = steps[idx - 1];
+};
 
+// 객실 추가/삭제
+const addedRooms = ref<typeof form.rooms[]>([]);
+const addRoom = () => {
+  addedRooms.value.push(JSON.parse(JSON.stringify(form.rooms)));
+  form.rooms.roomNumber++;
+};
+const removeAddedRoom = (index: number) => { addedRooms.value.splice(index, 1); };
+
+// 편의시설 체크리스트
 const amenities = reactive([
   { name: 'Wi-Fi', checked: false },
   { name: '주차장', checked: false },
@@ -650,47 +607,54 @@ const amenities = reactive([
   { name: '사우나', checked: false },
 ]);
 
-const triggerFileInput = () => {
-  fileInput.value.click();
-};
-
-const handleImageUpload = (event) => {
-  const files = event.target.files;
+// 이미지 업로드
+const uploadedImages = ref<string[]>([]);
+const fileInput = ref<HTMLInputElement | null>(null);
+const triggerFileInput = () => { fileInput.value?.click(); };
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const files = target.files;
+  if (!files) return;
   for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      uploadedImages.value.push(e.target.result);
-    };
+    reader.onload = (e) => { uploadedImages.value.push(e.target?.result as string); };
     reader.readAsDataURL(files[i]);
   }
-  event.target.value = null;
+  target.value = null;
 };
+const removeImage = (index: number) => { uploadedImages.value.splice(index, 1); };
 
-const removeImage = (index) => {
-  uploadedImages.value.splice(index, 1);
+// 언어 체크리스트
+const ranguage = reactive([
+  { types: '영어', checked: false },
+  { types: '중국어', checked: false },
+  { types: '일본어', checked: false },
+  { types: '프랑스어', checked: false },
+  { types: '독일어', checked: false },
+  { types: '러시아어', checked: false },
+]);
+const showInput = ref(false);
+const newLanguage = ref('');
+const addLanguage = () => {
+  if (newLanguage.value.trim() !== '') {
+    ranguage.push({ types: newLanguage.value.trim(), checked: false });
+    newLanguage.value = '';
+    showInput.value = false;
+  }
 };
+const removeLanguage = (index: number) => { ranguage.splice(index, 1); };
 
-
+// 할인 적용 계산
 const calculateDiscountedPrice = (d: DiscountOption) => {
-  const basePrice = Number(form.rooms.price || 0);          // 1박 기본 요금
-  const extraPrice = Number(form.rooms.extraPrice || 0);   // 추가 인원 요금
+  const basePrice = Number(form.rooms.price || 0);
+  const extraPrice = Number(form.rooms.extraPrice || 0);
   const persons = d.person || 1;
   const discount = d.discount || 0;
-
-  // 2인 이상이면 추가요금 적용
   const totalBeforeDiscount = basePrice + extraPrice * Math.max(0, persons - 1);
-
-  // 할인 적용
-  const totalAfterDiscount = totalBeforeDiscount * (1 - discount / 100);
-
-  return Math.round(totalAfterDiscount);
+  return Math.round(totalBeforeDiscount * (1 - discount / 100));
 };
 
-const prevStep = () => {
-  const steps = Object.keys(stepTitles);
-  const idx = steps.indexOf(activeStep.value);
-  if (idx > 0) activeStep.value = steps[idx - 1];
-};
+// 제출
 const submitForm = async () => {
   try {
     const payload = {
@@ -719,20 +683,17 @@ const submitForm = async () => {
             : []
       }))
     };
-    await apiClient.post(
-      'http://localhost:8888/hotel/publishing/register',
-      payload
-    );
-
-    alert('폼 제출 완료!');
+    // 프록시 적용
+    await apiClient.post('/hotel/publishing/register', payload);
+    alert('호텔 등록 완료!');
     router.push('/');
   } catch (error) {
-    console.error('폼 제출 실패:', error);
-    alert('폼 제출 완료!');
+    console.error(error);
+    alert('호텔 등록 완료');
   }
 };
-
 </script>
+
 <style>
 .thead{
 margin: 10px;
