@@ -7,6 +7,8 @@ export type BedOption = {
   count: number;
 };
 
+
+
 export type DiscountOption = {
   person: number; // 인원수
   discount: number; // %
@@ -22,14 +24,17 @@ export type RoomForm = {
   checkIn: string;
   checkOut: string;
   isPublic: boolean;  //방 공개 여부
+  selectedBed: string; //고른 침대 종류를 담을 곳
 };
 
 export type Address = {
   sigungu: string;
   sido: string;
+  town: string;
   roadName: string;
   postalCode: string;
   detailAddress: string;
+
 };
 
 export type Amenity = { name: string; checked: boolean };
@@ -43,9 +48,9 @@ export type RegisterState = {
   addedRooms: RoomForm[]; // 추가된 룸 목록
   discounts: DiscountOption[];
   amenities: Amenity[];
-  languages: Language[];
   images: string[]; // data URL (base64)
   address: Address;
+
 };
 
 export const defaultBeds: BedOption[] = [
@@ -54,6 +59,7 @@ export const defaultBeds: BedOption[] = [
   { type: '대형침대(킹사이즈)', width: '151~180cm', count: 0 },
   { type: '초대형 더블침대(수퍼킹사이즈)', width: '181~210cm', count: 0 }
 ];
+
 
 export const useRegisterStore = defineStore('registerStore', {
   state: (): RegisterState => ({
@@ -70,7 +76,8 @@ export const useRegisterStore = defineStore('registerStore', {
       bedType: defaultBeds.map(b => ({ ...b })),
       checkIn: '',
       checkOut: '',
-      isPublic: true
+      isPublic: true,
+      selectedBed: ''
     },
     addedRooms: [],
     discounts: [],
@@ -86,16 +93,12 @@ export const useRegisterStore = defineStore('registerStore', {
       { name: '정원', checked: false },
       { name: '룸서비스', checked: false },
     ],
-    languages: [
-      { types: '한국어', checked: true },
-      { types: '영어', checked: false },
-      { types: '중국어', checked: false },
-      { types: '일본어', checked: false }
-    ],
+
     images: [],
     address: {
       sigungu: '',
       sido: '',
+      town:'',
       roadName: '',
       postalCode: '',
       detailAddress: ''
@@ -112,10 +115,7 @@ export const useRegisterStore = defineStore('registerStore', {
     removeAddedRoom(index: number) {
       this.addedRooms.splice(index, 1);
     },
-    addLanguage(name: string) {
-      if (!name.trim()) return;
-      this.languages.push({ types: name.trim(), checked: false });
-    },
+
     addImage(dataUrl: string) {
       this.images.push(dataUrl);
     },

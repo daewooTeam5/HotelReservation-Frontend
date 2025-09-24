@@ -30,8 +30,8 @@ const goNext = () => router.push('/publishing/register/policy');
        text-blue-400 dark:text-gray-200 mb-2">편의시설 제공리스트</p>
       <div>
         <label v-for="(a, idx) in store.amenities" :key="idx" class="flex items-center gap-2">
-          <input type="checkbox" v-model="a.checked" class="w-5 h-5" />
-          <p style="font-size: 24px;" class=" text-gray-700 dark:text-gray-200">{{ a.name }}</p>
+          <input type="checkbox" v-model="a.checked" class="w-4 h-4" />
+          <p style="font-size: 18px; margin-top: 5px; margin-bottom:5px;" class=" text-gray-700 dark:text-gray-200">{{ a.name }}</p>
         </label>
       </div>
     </div>
