@@ -259,52 +259,62 @@
       <!-- 최근 리뷰 -->
       <Card class="border-0 shadow-lg">
         <template #title>
-          <div class="flex items-center space-x-3 p-2">
-            <i class="pi pi-star text-yellow-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">최근 리뷰</span>
+          <div class="flex items-center justify-between p-2">
+            <div class="flex items-center space-x-3">
+              <i class="pi pi-star text-yellow-600 text-lg"></i>
+              <span class="text-xl font-semibold text-gray-900">최근 리뷰</span>
+            </div>
+            <router-link
+              to="/owner/reviews"
+              class="p-button p-button-text p-button-sm text-yellow-600"
+            >
+              전체 보기
+            </router-link>
           </div>
         </template>
         <template #content>
           <div class="space-y-4 px-2">
-            <div class="p-5 bg-yellow-50/70 rounded-xl border border-yellow-100">
+            <div
+              v-for="review in recentReviews"
+              :key="review.reviewId"
+              class="p-5 rounded-xl border"
+              :class="review.rating >= 4
+          ? 'bg-yellow-50/70 border-yellow-100'
+          : 'bg-gray-50/70 border-gray-200'"
+            >
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center space-x-3">
-                  <span class="font-semibold text-gray-900">홍길동</span>
+                  <span class="font-semibold text-gray-900">{{ review.userName }}</span>
                   <div class="flex space-x-1">
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
+                    <i
+                      v-for="i in 5"
+                      :key="i"
+                      class="pi"
+                      :class="i <= review.rating
+                  ? 'pi-star-fill text-yellow-400 text-sm'
+                  : 'pi-star text-gray-300 text-sm'"
+                    ></i>
                   </div>
                 </div>
-                <span class="text-xs text-gray-500 font-medium">2시간 전</span>
+                <span class="text-xs text-gray-500 font-medium">
+            {{ formatDate(review.createdAt) }}
+          </span>
               </div>
               <p class="text-sm text-gray-700 leading-relaxed">
-                "객실이 매우 깨끗하고 직원분들이 친절했습니다. 다시 오고 싶네요!"
+                "{{ review.comment }}"
               </p>
             </div>
-            <div class="p-5 bg-green-50/70 rounded-xl border border-green-100">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-3">
-                  <span class="font-semibold text-gray-900">김영희</span>
-                  <div class="flex space-x-1">
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star text-gray-300 text-sm"></i>
-                  </div>
-                </div>
-                <span class="text-xs text-gray-500 font-medium">1일 전</span>
-              </div>
-              <p class="text-sm text-gray-700 leading-relaxed">
-                "위치가 좋고 조식이 맛있었어요. 다음에도 이용하겠습니다."
-              </p>
+
+            <div
+              v-if="recentReviews.length === 0"
+              class="text-center py-6 text-sm text-gray-500"
+            >
+              최근 리뷰가 없습니다.
             </div>
           </div>
         </template>
       </Card>
+
     </div>
   </div>
 </template>
@@ -345,7 +355,8 @@ const refreshData = async () => {
   await fetchOccupancyRate();
   await fetchRatingStats();
   await fetchRevenueStats();
-  await fetchSalesData(); // ✅ 매출 추이 추가
+  await fetchSalesData();
+  await fetchRecentReviews();   // ✅ 최근 리뷰 추가
   lastUpdated.value = Date.now();
   updateTimeAgo();
   isRefreshing.value = false;
@@ -529,6 +540,19 @@ const fetchRevenueStats = async () => {
     console.error("이번 달 매출 불러오기 실패:", err);
   }
 };
+
+// 📌 최근 리뷰
+const recentReviews = ref<any[]>([]);
+
+const fetchRecentReviews = async () => {
+  try {
+    const res = await apiClient.get("/v1/dashboard/stats/reviews");
+    recentReviews.value = res.data;
+  } catch (err) {
+    console.error("최근 리뷰 불러오기 실패:", err);
+  }
+};
+
 
 // Mounted
 onMounted(() => {
