@@ -38,10 +38,24 @@
                 체크인 {{ stats.todayCheckIn }}건 • 체크아웃
                 {{ stats.todayCheckOut }}건
               </p>
-              <div class="mt-4 flex items-center text-green-600 text-sm">
-                <i class="pi pi-arrow-up text-xs mr-1"></i>
+              <div
+                class="mt-4 flex items-center text-sm"
+                :class="{
+    'text-green-600': stats.growthRate > 0,
+    'text-red-600': stats.growthRate < 0,
+    'text-gray-500': stats.growthRate === 0,
+  }"
+              >
+                <i
+                  class="pi text-xs mr-1"
+                  :class="{
+      'pi-arrow-up': stats.growthRate > 0,
+      'pi-arrow-down': stats.growthRate < 0,
+      'pi-minus': stats.growthRate === 0,
+    }"
+                ></i>
                 <span class="font-medium">{{ stats.growthRate.toFixed(1) }}%</span>
-                <span class="text-gray-500 ml-1">vs 어제</span>
+                <span class="ml-1 text-gray-500">vs 어제</span>
               </div>
             </div>
             <div
@@ -66,18 +80,26 @@
               <p class="text-3xl font-bold text-gray-900 mt-3">
                 {{ formatCurrency(revenueStats.thisMonthRevenue) }}
               </p>
-              <div class="mt-4 flex items-center text-green-600 text-sm">
+              <div
+                class="mt-4 flex items-center text-sm"
+                :class="{
+    'text-green-600': revenueStats.growthRate > 0,
+    'text-red-600': revenueStats.growthRate < 0,
+    'text-gray-500': revenueStats.growthRate === 0,
+  }"
+              >
                 <i
-                  :class="[
-              'pi',
-              revenueStats.growthRate >= 0 ? 'pi-arrow-up' : 'pi-arrow-down',
-              'text-xs mr-1',
-            ]"
+                  class="pi text-xs mr-1"
+                  :class="{
+      'pi-arrow-up': revenueStats.growthRate > 0,
+      'pi-arrow-down': revenueStats.growthRate < 0,
+      'pi-minus': revenueStats.growthRate === 0,
+    }"
                 ></i>
                 <span class="font-medium">
-            {{ revenueStats.growthRate.toFixed(1) }}%
-          </span>
-                <span class="text-gray-500 ml-1">vs 지난달</span>
+    {{ revenueStats.growthRate.toFixed(1) }}%
+  </span>
+                <span class="ml-1 text-gray-500">vs 지난달</span>
               </div>
             </div>
             <div
@@ -88,7 +110,6 @@
           </div>
         </template>
       </Card>
-
 
       <!-- 객실 점유율 -->
       <Card
@@ -135,12 +156,12 @@
                   :key="i"
                   class="pi"
                   :class="i <= Math.round(ratingStats.avgRating)
-              ? 'pi-star-fill text-yellow-400 text-sm'
-              : 'pi-star text-gray-300 text-sm'"
+                    ? 'pi-star-fill text-yellow-400 text-sm'
+                    : 'pi-star text-gray-300 text-sm'"
                 ></i>
                 <span class="text-xs text-gray-500 ml-2">
-            ({{ ratingStats.reviewCount }}개 리뷰)
-          </span>
+                  ({{ ratingStats.reviewCount }}개 리뷰)
+                </span>
               </div>
             </div>
             <div
@@ -149,6 +170,32 @@
               <i class="pi pi-star text-white text-xl"></i>
             </div>
           </div>
+        </template>
+      </Card>
+    </div>
+
+    <!-- 차트 -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="bar" :data="salesData" :options="chartOptions" class="h-80" />
+        </template>
+      </Card>
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-chart-line text-green-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">예약 현황</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="line" :data="reservationData" :options="chartOptions" class="h-80" />
         </template>
       </Card>
     </div>
@@ -259,34 +306,9 @@
         </template>
       </Card>
     </div>
-
-    <!-- 차트 -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-      <Card class="border-0 shadow-lg">
-        <template #title>
-          <div class="flex items-center space-x-3 p-2">
-            <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
-          </div>
-        </template>
-        <template #content>
-          <Chart type="bar" :data="salesData" :options="chartOptions" class="h-80" />
-        </template>
-      </Card>
-      <Card class="border-0 shadow-lg">
-        <template #title>
-          <div class="flex items-center space-x-3 p-2">
-            <i class="pi pi-chart-line text-green-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">예약 현황</span>
-          </div>
-        </template>
-        <template #content>
-          <Chart type="line" :data="reservationData" :options="chartOptions" class="h-80" />
-        </template>
-      </Card>
-    </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
