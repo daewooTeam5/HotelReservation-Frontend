@@ -110,13 +110,13 @@
           <div class="text-center p-4 bg-green-50 rounded-lg">
             <span class="text-green-600 text-sm font-medium">체크인</span>
             <p class="font-semibold text-lg text-green-700 mt-1">
-              {{ formatDateTime(reservation.resevStart) }}
+              {{ formatDate(reservation.resevStart) }}
             </p>
           </div>
           <div class="text-center p-4 bg-red-50 rounded-lg">
             <span class="text-red-600 text-sm font-medium">체크아웃</span>
             <p class="font-semibold text-lg text-red-700 mt-1">
-              {{ formatDateTime(reservation.resevEnd) }}
+              {{ formatDate(reservation.resevEnd) }}
             </p>
           </div>
         </div>
@@ -146,6 +146,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { apiClient } from "@/utils/axiosClient";
 import {
+  formatDate,
   formatDateTime,
   formatCurrency,
   translateStatus,
