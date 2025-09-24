@@ -1,6 +1,12 @@
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-6">내 숙소 관리</h1>
+    <h1 class="text-2xl font-bold mb-6">내 숙소 관리<Button
+      label="숙소 등록 요청"
+      icon="pi pi-plus"
+      style="margin: 10px;"
+      class="p-button-primary"
+      @click="$router.push('/hotelregister')"
+    /></h1>
 
     <!-- 숙소가 등록된 경우 -->
     <div v-if="hasPlace" class="bg-white rounded shadow p-6 flex flex-col md:flex-row gap-6">
@@ -8,7 +14,6 @@
       <div class="w-full md:w-1/3 flex flex-col items-center">
         <img
           :src="place.image || 'https://via.placeholder.com/300x200'"
-          alt="숙소 이미지"
           class="rounded-lg shadow mb-4"
         />
         <Button
@@ -44,15 +49,9 @@
       </div>
     </div>
 
-    <!-- 숙소가 없는 경우 -->
+    <!-- 숙소가 없는 경우 v-else사용 -->
     <div v-else class="bg-white rounded shadow p-6 text-center">
       <p class="text-gray-600 mb-4">등록된 숙소가 없습니다.</p>
-      <Button
-        label="숙소 등록 요청"
-        icon="pi pi-plus"
-        class="p-button-primary"
-        @click="$router.push('/owner/place/request')"
-      />
     </div>
   </div>
 </template>
@@ -61,7 +60,7 @@
 import { ref } from "vue";
 import Button from "primevue/button";
 
-const hasPlace = ref(true); // 더미: 숙소 등록 여부 (false로 바꿔 테스트 가능)
+const hasPlace = ref(false); // 더미: 숙소 등록 여부 (false로 바꿔 테스트 가능)
 const place = ref({
   name: "Seoil Hotel",
   address: "서울특별시 강남구 역삼동 ...",

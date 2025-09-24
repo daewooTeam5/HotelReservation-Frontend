@@ -46,13 +46,15 @@ const goToStep = (step: string) => {
 </script>
 
 <template>
-  <div class="space-y-8 px-2 pt-2 max-w-4xl mx-auto">
+
+  <div class="flex justify-center m-6 px-2 pt-2 w-full">
+    <div class="flex flex-col space-y-8 w-full max-w-[700px]">
     <Stepper v-model:value="activeStep" @update:value="goToStep" :readonly="true">
       <StepList>
         <Step value="1" disabled>기본정보</Step>
         <Step value="2" disabled>객실</Step>
-        <Step value="3" disabled>이미지</Step>
-        <Step value="4" disabled>편의/언어</Step>
+        <Step value="3" disabled>이미지 등록</Step>
+        <Step value="4" disabled>편의</Step>
         <Step value="5" disabled>이용수칙</Step>
         <Step value="6" disabled>요금</Step>
         <Step value="7" disabled>주소</Step>
@@ -61,6 +63,7 @@ const goToStep = (step: string) => {
     </Stepper>
 
     <router-view />
+    </div>
   </div>
 </template>
 
@@ -69,6 +72,9 @@ const goToStep = (step: string) => {
   pointer-events: none;
   cursor: default;
   opacity: 0.6;
+  justify-content: center;
+
+
 }
 </style>
 
