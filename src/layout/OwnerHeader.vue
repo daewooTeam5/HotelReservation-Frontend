@@ -143,7 +143,7 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(async () => {
   window.addEventListener('click', handleClickOutside);
 
-  if (!authStore.getAccessToken.value) { // ✅ computed는 .value
+  if (!authStore.getAccessToken) { // ✅ computed는 .value
     const data = await apiClient.post('../auth/token');
     authStore.setAccessToken(data.data.data.accessToken);
   }
