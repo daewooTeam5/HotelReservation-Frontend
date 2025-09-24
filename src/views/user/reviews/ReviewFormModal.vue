@@ -1,74 +1,129 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Rating from 'primevue/rating';
 import Textarea from 'primevue/textarea';
+import FileUpload, { type FileUploadUploaderEvent } from 'primevue/fileupload';
+import Dropdown from 'primevue/dropdown';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient';
 import { useToast } from 'primevue/usetoast';
+import type { ReviewableReservation } from '@/types/reservation';
+import type { ApiResult } from '@/types/ApiResult';
 
-// 주석: 부모 컴포넌트로부터 받을 props 정의 (보일지 여부, 숙소 ID, 예약 ID)
 const props = defineProps<{
   visible: boolean;
   placeId: number;
+  reservations: ReviewableReservation[];
 }>();
 
-// 주석: 부모 컴포넌트로 보낼 이벤트를 정의합니다. (모달 닫기, 리뷰 제출 완료)
 const emit = defineEmits(['update:visible', 'review-submitted']);
 
 const rating = ref(0);
 const comment = ref('');
 const toast = useToast();
 const queryClient = useQueryClient();
+const uploadedImageUrls = ref<string[]>([]);
+const isUploading = ref(false);
+const selectedReservationId = ref<number | null>(null);
 
-// 주석: 리뷰 생성을 위한 useMutation 훅 설정
+// ✅ [수정] 실제 이미지 업로드 핸들러
+const handleImageUpload = async (event: FileUploadUploaderEvent) => {
+  const files = Array.isArray(event.files) ? event.files : [event.files];
+  isUploading.value = true;
+
+  const formData = new FormData();
+  files.forEach(file => {
+    formData.append('files', file);
+  });
+
+  try {
+    const response = await apiClient.post<ApiResult<string[]>>('/v1/files/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.data.success && response.data.data) {
+      const serverBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+      const fullUrls = response.data.data.map(url => serverBaseUrl + url);
+      uploadedImageUrls.value.push(...fullUrls);
+      toast.add({ severity: 'success', summary: '성공', detail: `${files.length}개의 이미지가 업로드되었습니다.`, life: 2000 });
+    }
+  } catch (error) {
+    toast.add({ severity: 'error', summary: '오류', detail: '이미지 업로드에 실패했습니다.', life: 3000 });
+  } finally {
+    isUploading.value = false;
+  }
+};
+
 const { mutate: submitReview, isPending } = useMutation({
-  mutationFn: (newReview: {rating: number; comment: string }) => {
-    // 백엔드의 리뷰 생성 API 엔드포인트로 요청을 보냅니다.
+  mutationFn: (newReview: { reservationId: number; rating: number; comment: string; imageUrls: string[] }) => {
     return apiClient.post(`/v1/places/${props.placeId}/reviews`, newReview);
   },
   onSuccess: () => {
     toast.add({ severity: 'success', summary: '성공', detail: '리뷰가 등록되었습니다.', life: 3000 });
-    // 주석: 리뷰 목록 쿼리를 무효화하여 최신 데이터로 갱신합니다.
-    queryClient.invalidateQueries({ queryKey: ['reviews', props.placeId] });
     closeModal();
     emit('review-submitted');
   },
-  onError: (error) => {
-    toast.add({ severity: 'error', summary: '오류', detail: error.message, life: 3000 });
+  onError: (error: any) => {
+    toast.add({ severity: 'error', summary: '오류', detail: error.response?.data?.error?.detail || '리뷰 등록에 실패했습니다.', life: 3000 });
   }
 });
 
-// 주석: 모달을 닫는 함수
 const closeModal = () => {
   emit('update:visible', false);
-  rating.value = 0;
-  comment.value = '';
 };
 
-// 주석: 폼 제출 핸들러
+watch(() => props.visible, (newValue) => {
+  if (!newValue) {
+    rating.value = 0;
+    comment.value = '';
+    uploadedImageUrls.value = [];
+    selectedReservationId.value = null;
+  }
+});
+
 const handleSubmit = () => {
+  if (!selectedReservationId.value) {
+    toast.add({ severity: 'warn', summary: '알림', detail: '리뷰할 예약을 선택해주세요.', life: 3000 });
+    return;
+  }
   if (rating.value > 0 && comment.value.trim() !== '') {
     submitReview({
+      reservationId: selectedReservationId.value,
       rating: rating.value,
-      comment: comment.value
+      comment: comment.value,
+      imageUrls: uploadedImageUrls.value,
     });
   } else {
     toast.add({ severity: 'warn', summary: '알림', detail: '별점과 리뷰 내용을 모두 입력해주세요.', life: 3000 });
   }
 };
+
+const removeImage = (index: number) => {
+  uploadedImageUrls.value.splice(index, 1);
+}
 </script>
 
 <template>
-  <Dialog
-    :visible="visible"
-    @update:visible="closeModal"
-    modal
-    header="리뷰 작성"
-    :style="{ width: '30rem' }"
-  >
-    <div class="flex flex-col gap-4">
+  <Dialog :visible="visible" @update:visible="closeModal" modal header="리뷰 작성" :style="{ width: '35rem' }">
+    <div class="flex flex-col gap-6 p-2">
+      <div class="flex flex-col gap-2">
+        <label for="reservation" class="font-semibold">리뷰할 예약 선택</label>
+        <Dropdown
+          v-model="selectedReservationId"
+          :options="props.reservations"
+          optionLabel="roomType"
+          optionValue="reservationId"
+          placeholder="어떤 숙박에 대한 리뷰인가요?"
+          class="w-full"
+        >
+          <template #option="slotProps">
+            <div>{{ slotProps.option.roomType }} ({{ slotProps.option.resevStart }} 체크인)</div>
+          </template>
+        </Dropdown>
+      </div>
+
       <div class="flex flex-col items-center gap-2">
         <label for="rating" class="font-semibold">별점</label>
         <Rating v-model="rating" :cancel="false" />
@@ -77,10 +132,41 @@ const handleSubmit = () => {
         <label for="comment" class="font-semibold">리뷰 내용</label>
         <Textarea id="comment" v-model="comment" rows="5" class="w-full" />
       </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="images" class="font-semibold">사진 첨부 (선택)</label>
+        <FileUpload
+          name="files"
+          :multiple="true"
+          accept="image/*"
+          :maxFileSize="5000000"
+          customUpload
+          @uploader="handleImageUpload"
+          :disabled="isUploading"
+        >
+          <template #empty>
+            <div class="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+              <i class="pi pi-upload text-4xl text-gray-400"></i>
+              <p class="mt-2">사진을 여기에 드래그하거나 선택하세요.</p>
+            </div>
+          </template>
+        </FileUpload>
+
+        <div v-if="uploadedImageUrls.length > 0" class="mt-4 grid grid-cols-4 gap-2">
+          <div v-for="(url, index) in uploadedImageUrls" :key="index" class="relative">
+            <img :src="url" class="w-full h-24 object-cover rounded" />
+            <Button icon="pi pi-times" class="absolute top-1 right-1 p-button-danger p-button-rounded p-button-sm" @click="removeImage(index)" />
+          </div>
+        </div>
+        <div v-if="isUploading" class="text-center mt-2">
+          <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
+          <p>이미지 업로드 중...</p>
+        </div>
+      </div>
     </div>
     <template #footer>
       <Button label="취소" icon="pi pi-times" @click="closeModal" text />
-      <Button label="등록" icon="pi pi-check" @click="handleSubmit" :loading="isPending" />
+      <Button label="등록" icon="pi pi-check" @click="handleSubmit" :loading="isPending || isUploading" />
     </template>
   </Dialog>
 </template>

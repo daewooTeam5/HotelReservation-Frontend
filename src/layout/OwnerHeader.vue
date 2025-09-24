@@ -1,3 +1,5 @@
+
+
 <template>
   <header
     class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center justify-between px-6 relative"
