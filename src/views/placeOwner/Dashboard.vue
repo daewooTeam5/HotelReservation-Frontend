@@ -41,18 +41,18 @@
               <div
                 class="mt-4 flex items-center text-sm"
                 :class="{
-    'text-green-600': stats.growthRate > 0,
-    'text-red-600': stats.growthRate < 0,
-    'text-gray-500': stats.growthRate === 0,
-  }"
+                  'text-green-600': stats.growthRate > 0,
+                  'text-red-600': stats.growthRate < 0,
+                  'text-gray-500': stats.growthRate === 0,
+                }"
               >
                 <i
                   class="pi text-xs mr-1"
                   :class="{
-      'pi-arrow-up': stats.growthRate > 0,
-      'pi-arrow-down': stats.growthRate < 0,
-      'pi-minus': stats.growthRate === 0,
-    }"
+                    'pi-arrow-up': stats.growthRate > 0,
+                    'pi-arrow-down': stats.growthRate < 0,
+                    'pi-minus': stats.growthRate === 0,
+                  }"
                 ></i>
                 <span class="font-medium">{{ stats.growthRate.toFixed(1) }}%</span>
                 <span class="ml-1 text-gray-500">vs 어제</span>
@@ -83,22 +83,22 @@
               <div
                 class="mt-4 flex items-center text-sm"
                 :class="{
-    'text-green-600': revenueStats.growthRate > 0,
-    'text-red-600': revenueStats.growthRate < 0,
-    'text-gray-500': revenueStats.growthRate === 0,
-  }"
+                  'text-green-600': revenueStats.growthRate > 0,
+                  'text-red-600': revenueStats.growthRate < 0,
+                  'text-gray-500': revenueStats.growthRate === 0,
+                }"
               >
                 <i
                   class="pi text-xs mr-1"
                   :class="{
-      'pi-arrow-up': revenueStats.growthRate > 0,
-      'pi-arrow-down': revenueStats.growthRate < 0,
-      'pi-minus': revenueStats.growthRate === 0,
-    }"
+                    'pi-arrow-up': revenueStats.growthRate > 0,
+                    'pi-arrow-down': revenueStats.growthRate < 0,
+                    'pi-minus': revenueStats.growthRate === 0,
+                  }"
                 ></i>
                 <span class="font-medium">
-    {{ revenueStats.growthRate.toFixed(1) }}%
-  </span>
+                  {{ revenueStats.growthRate.toFixed(1) }}%
+                </span>
                 <span class="ml-1 text-gray-500">vs 지난달</span>
               </div>
             </div>
@@ -345,6 +345,7 @@ const refreshData = async () => {
   await fetchOccupancyRate();
   await fetchRatingStats();
   await fetchRevenueStats();
+  await fetchSalesData(); // ✅ 매출 추이 추가
   lastUpdated.value = Date.now();
   updateTimeAgo();
   isRefreshing.value = false;
@@ -354,15 +355,6 @@ const refreshData = async () => {
 const occupancy = ref({ usedRooms: 0, totalRooms: 0, rate: 0 });
 const fetchOccupancyRate = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/occupancy");
     occupancy.value = res.data;
   } catch (err) {
@@ -374,15 +366,6 @@ const fetchOccupancyRate = async () => {
 const recentReservations = ref<any[]>([]);
 const fetchRecentReservations = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.post(
       `/v1/reservations/search?page=0&size=3&sort=createdAt,desc`,
       {}
@@ -414,18 +397,29 @@ const getStatusClass = (status: string) => {
 
 // 📌 차트 데이터
 const salesData = ref({
-  labels: ["8월", "9월", "10월", "11월", "12월", "1월"],
+  labels: [],
   datasets: [
     {
-      label: "매출액 (만원)",
+      label: "매출액 (원)",
       backgroundColor: "rgba(59, 130, 246, 0.8)",
       borderColor: "#3b82f6",
-      data: [320, 280, 420, 380, 450, 420],
+      data: [],
       borderRadius: 8,
       borderSkipped: false,
     },
   ],
 });
+
+// 📌 월별 매출 추이 API
+const fetchSalesData = async (months = 6) => {
+  try {
+    const res = await apiClient.get(`/v1/dashboard/stats/revenue/monthly?months=${months}`);
+    salesData.value.labels = res.data.map((item: any) => item.month);
+    salesData.value.datasets[0].data = res.data.map((item: any) => item.revenue);
+  } catch (err) {
+    console.error("월별 매출 추이 불러오기 실패:", err);
+  }
+};
 
 const reservationData = ref({
   labels: [],
@@ -496,15 +490,6 @@ const fetchTodayStats = async () => {
 // 📌 월별 예약 현황
 const fetchMonthlyStats = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/monthly");
     reservationData.value.labels = res.data.map((item: any) => item.month);
     reservationData.value.datasets[0].data = res.data.map((item: any) => item.count);
@@ -512,21 +497,13 @@ const fetchMonthlyStats = async () => {
     console.error("예약 현황 차트 불러오기 실패:", err);
   }
 };
+
 const ratingStats = ref({
   avgRating: 0,
   reviewCount: 0,
 });
 const fetchRatingStats = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/rating");
     ratingStats.value = res.data;
   } catch (err) {
@@ -540,18 +517,8 @@ const revenueStats = ref({
   lastMonthRevenue: 0,
   growthRate: 0,
 });
-
 const fetchRevenueStats = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/revenue");
     revenueStats.value = {
       thisMonthRevenue: res.data.currentRevenue,
