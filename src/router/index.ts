@@ -307,32 +307,29 @@ const router = createRouter({
       meta: { layout: 'admin' },
       children: [
         {
-          path: '',
-          name: 'admin-dashboard',
-          component: () => import('@/views/admin/Dashboard.vue'),
-          meta: { layout: 'admin' }
+          path: "",
+          name: "admin-dashboard",
+          component: () => import('@/views/admin/AdminDashboard.vue'),
+          meta: { layout: "admin" },
         },
         {
-          path: 'hotels',
-          name: 'admin-hotels',
-          component: () => import('@/views/admin/Hotels.vue'),
-          meta: { layout: 'admin' }
+          path: "place",
+          name: "admin-place",
+          component: () => import('@/views/admin/AdminPlace.vue'),
+          meta: { layout: "admin" },
         },
-        {
-          path: 'hotels/:id',
-          name: 'admin-hotel-detail',
-          component: () => import('@/views/admin/HotelDetail.vue'),
-          props: true,
-          meta: { layout: 'admin' }
-        },
-        {
-          path: 'requests',
-          name: 'admin-requests',
-          component: () => import('@/views/admin/Requests.vue'),
-          meta: { layout: 'admin' }
-        }
       ]
-    }
+    },
+    {
+      path: '/login1',
+      name: 'admin-login',
+      component: () => import('@/views/admin/AdminLogin.vue'),
+    },
+    {
+      path: '/signup1',
+      name: 'admin-signup',
+      component: () => import('@/views/admin/AdminSignUp.vue'),
+    },
   ],
 });
 

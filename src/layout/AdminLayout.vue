@@ -5,9 +5,12 @@
     <AdminSidebar :isOpen="isSidebarOpen" @close="isSidebarOpen = false" />
 
     <!-- Main content -->
-    <main class="flex-1 bg-gray-50 flex flex-col transition-all duration-300">
+    <main
+      class="flex-1 bg-gray-50 flex flex-col transition-all duration-300"
+      :class="isSidebarOpen ? 'ml-0' : ''"
+    >
       <!-- Header -->
-      <AdminHeader />
+      <AdminHeader @toggleSidebar="toggleSidebar" />
 
       <!-- Content -->
       <section class="p-6 overflow-y-auto flex-1">
@@ -27,5 +30,8 @@ import AdminSidebar from './AdminSidebar.vue';
 import AdminFooter from './AdminFooter.vue';
 
 const isSidebarOpen = ref(true);
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 </script>
 
