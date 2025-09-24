@@ -24,9 +24,14 @@
           class="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+            ></path>
           </svg>
-          {{ showAdvanced ? "간단히 보기" : "고급 검색" }}
+          {{ showAdvanced ? '간단히 보기' : '고급 검색' }}
         </button>
       </div>
 
@@ -73,8 +78,6 @@
             <option value="unpaid">미결제</option>
             <option value="paid">결제완료</option>
             <option value="refunded">환불</option>
-            <option value="rejected">실패</option>
-            <option value="cancelled">취소</option>
           </select>
         </div>
       </div>
@@ -129,36 +132,36 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- 날짜 범위 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <!-- 체크인 ~ 체크아웃 -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">체크인 ~ 체크아웃</label>
+          <Calendar
+            v-model="dateRange"
+            selectionMode="range"
+            dateFormat="yy-mm-dd"
+            showIcon
+            placeholder="날짜 선택"
+            class="w-full"
+          />
         </div>
 
-        <!-- 날짜 범위 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <!-- 체크인 ~ 체크아웃 -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">체크인 ~ 체크아웃</label>
-            <Calendar
-              v-model="dateRange"
-              selectionMode="range"
-              dateFormat="yy-mm-dd"
-              showIcon
-              placeholder="날짜 선택"
-              class="w-full"
-            />
-          </div>
-
-          <!-- 예약 생성일 -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">예약 생성일</label>
-            <Calendar
-              v-model="createdRange"
-              selectionMode="range"
-              dateFormat="yy-mm-dd"
-              showIcon
-              placeholder="날짜 선택"
-              class="w-full"
-            />
-          </div>
+        <!-- 예약 생성일 -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">예약 생성일</label>
+          <Calendar
+            v-model="createdRange"
+            selectionMode="range"
+            dateFormat="yy-mm-dd"
+            showIcon
+            placeholder="날짜 선택"
+            class="w-full"
+          />
         </div>
+      </div>
 
       <!-- 버튼 영역 -->
       <div class="flex flex-wrap items-center gap-3 pt-4 border-t">
@@ -189,21 +192,49 @@
             :disabled="loading"
             class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg v-if="!loading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1" />
+            <svg
+              v-if="!loading"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1"
+              />
             </svg>
             <!-- 로딩 중일 때 스피너 -->
-            <svg v-else class="animate-spin h-4 w-4 mr-1 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            <svg
+              v-else
+              class="animate-spin h-4 w-4 mr-1 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
             </svg>
             새로고침
           </button>
 
           <!-- 마지막 업데이트 시간 -->
           <span class="text-xs text-gray-500">
-            {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : "아직 업데이트 기록 없음" }}
+            {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : '아직 업데이트 기록 없음' }}
           </span>
 
           <label class="text-sm font-medium text-gray-700">정렬:</label>
@@ -226,90 +257,144 @@
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">예약 정보</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">예약자</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">일정</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">금액</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
-          </tr>
+            <tr>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                예약 정보
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                예약자
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                상태
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                일정
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                금액
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                액션
+              </th>
+            </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="r in reservations" :key="r.reservationId" class="hover:bg-gray-50 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div>
-                <div class="text-sm font-medium text-gray-900">#{{ r.reservationId }}</div>
-                <div class="text-sm text-gray-500">{{ r.roomType }}</div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div>
-                <div class="text-sm font-medium text-gray-900">{{ r.guestName }}</div>
-                <div class="flex items-center mt-1">
-                    <span v-if="r.member" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <tr
+              v-for="r in reservations"
+              :key="r.reservationId"
+              class="hover:bg-gray-50 transition-colors"
+            >
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <div class="text-sm font-medium text-gray-900">#{{ r.reservationId }}</div>
+                  <div class="text-sm text-gray-500">{{ r.roomType }}</div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ r.guestName }}</div>
+                  <div class="flex items-center mt-1">
+                    <span
+                      v-if="r.member"
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
                       회원
                     </span>
-                  <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    <span
+                      v-else
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+                    >
                       비회원
                     </span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="space-y-1">
-                  <span :class="getStatusClass(r.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="space-y-1">
+                  <span
+                    :class="getStatusClass(r.status)"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  >
                     {{ translateStatus(r.status) }}
                   </span>
-                <div>
-                    <span :class="getPaymentStatusClass(r.paymentStatus)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <div>
+                    <span
+                      :class="getPaymentStatusClass(r.paymentStatus)"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    >
                       {{ translatePaymentStatus(r.paymentStatus) }}
                     </span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <div>
-                <div>체크인: {{ formatDateTime(r.resevStart) }}</div>
-                <div>체크아웃: {{ formatDateTime(r.resevEnd) }}</div>
-                <div class="text-xs text-gray-400 mt-1">예약일: {{ formatDateTime(r.createdAt) }}</div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900">{{ formatCurrency(r.finalAmount) }}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <div class="flex items-center gap-3">
-                <router-link
-                  :to="`/owner/reservations/${r.reservationId}`"
-                  class="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                >
-                  상세
-                </router-link>
-                <button
-                  @click="openEdit(r)"
-                  class="text-green-600 hover:text-green-700 font-medium transition-colors"
-                >
-                  수정
-                </button>
-                <button
-                  @click="cancelReservation(r.reservationId)"
-                  class="text-red-600 hover:text-red-700 font-medium transition-colors"
-                  :disabled="r.status === 'cancelled'"
-                >
-                  취소
-                </button>
-              </div>
-            </td>
-          </tr>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div>
+                  <div>체크인: {{ formatDate(r.resevStart) }}</div>
+                  <div>체크아웃: {{ formatDate(r.resevEnd) }}</div>
+                  <div class="text-xs text-gray-400 mt-1">
+                    예약일: {{ formatDateTime(r.createdAt) }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">
+                  {{ formatCurrency(r.finalAmount) }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex items-center gap-3">
+                  <router-link
+                    :to="`/owner/reservations/${r.reservationId}`"
+                    class="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  >
+                    상세
+                  </router-link>
+                  <button
+                    @click="openEdit(r)"
+                    class="text-green-600 hover:text-green-700 font-medium transition-colors"
+                  >
+                    수정
+                  </button>
+                  <button
+                    @click="cancelReservation(r.reservationId)"
+                    class="text-red-600 hover:text-red-700 font-medium transition-colors"
+                    :disabled="r.status === 'cancelled'"
+                  >
+                    취소
+                  </button>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <!-- 빈 상태 -->
       <div v-if="reservations.length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+          ></path>
         </svg>
         <h3 class="mt-2 text-sm font-medium text-gray-900">예약 데이터가 없습니다</h3>
         <p class="mt-1 text-sm text-gray-500">검색 조건을 변경해보세요.</p>
@@ -320,7 +405,10 @@
     <ReservationEditDialog
       v-if="selectedReservation"
       :reservation="selectedReservation"
-      @close="selectedReservation = null; fetchReservations()"
+      @close="
+        selectedReservation = null;
+        fetchReservations();
+      "
     />
   </div>
 
@@ -331,7 +419,9 @@
       @click="goToPage(page - 1)"
       :disabled="page === 0"
       class="px-3 py-1 rounded border text-sm"
-      :class="page === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100'"
+      :class="
+        page === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100'
+      "
     >
       이전
     </button>
@@ -352,7 +442,11 @@
       @click="goToPage(page + 1)"
       :disabled="page === totalPages - 1"
       class="px-3 py-1 rounded border text-sm"
-      :class="page === totalPages - 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100'"
+      :class="
+        page === totalPages - 1
+          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          : 'bg-white hover:bg-gray-100'
+      "
     >
       다음
     </button>
@@ -360,40 +454,40 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted, computed } from "vue";
-import { apiClient } from "@/utils/axiosClient";
-import ReservationEditDialog from "./ReservationEditDialog.vue";
-import { useAuthStore } from "@/stores/authStore.js";
-import axios from "axios";
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
+import { apiClient } from '@/utils/axiosClient';
+import ReservationEditDialog from './ReservationEditDialog.vue';
+import { useAuthStore } from '@/stores/authStore.js';
+import axios from 'axios';
 
 import {
   formatDateTime,
   formatCurrency,
   translateStatus,
   translatePaymentStatus,
-} from "@/utils/placeOwner/formatters.js";
+} from '@/utils/placeOwner/formatters.js';
 
-import Calendar from "primevue/calendar";
+import Calendar from 'primevue/calendar';
 
 const reservations = ref([]);
 const search = ref({
-  reservationId: "",
-  userName: "",
-  email: "",
-  phone: "",
-  roomType: "",
-  hotelName: "",
-  status: "",
-  paymentStatus: "",
-  startDate: "",
-  endDate: "",
-  minAmount: "",
-  maxAmount: "",
-  createdStartDate: "",
-  createdEndDate: "",
+  reservationId: '',
+  userName: '',
+  email: '',
+  phone: '',
+  roomType: '',
+  hotelName: '',
+  status: '',
+  paymentStatus: '',
+  startDate: '',
+  endDate: '',
+  minAmount: '',
+  maxAmount: '',
+  createdStartDate: '',
+  createdEndDate: '',
 });
 
-const sort = ref("createdAt,desc");
+const sort = ref('createdAt,desc');
 const selectedReservation = ref(null);
 const showAdvanced = ref(false);
 
@@ -403,14 +497,14 @@ const createdRange = ref(null);
 
 // 검색 값 확인
 const hasSearchValues = computed(() => {
-  return Object.values(search.value).some(v => v !== "") || dateRange.value || createdRange.value;
+  return Object.values(search.value).some((v) => v !== '') || dateRange.value || createdRange.value;
 });
 
 // 날짜 포맷
 const formatDate = (date) => {
-  if (!date) return "";
+  if (!date) return '';
   const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 // 날짜 범위 watch
@@ -419,8 +513,8 @@ watch(dateRange, (val) => {
     search.value.startDate = formatDate(val[0]);
     search.value.endDate = formatDate(val[1]);
   } else {
-    search.value.startDate = "";
-    search.value.endDate = "";
+    search.value.startDate = '';
+    search.value.endDate = '';
   }
 });
 
@@ -429,8 +523,8 @@ watch(createdRange, (val) => {
     search.value.createdStartDate = formatDate(val[0]);
     search.value.createdEndDate = formatDate(val[1]);
   } else {
-    search.value.createdStartDate = "";
-    search.value.createdEndDate = "";
+    search.value.createdStartDate = '';
+    search.value.createdEndDate = '';
   }
 });
 
@@ -441,16 +535,16 @@ const totalPages = ref(0);
 
 const lastUpdated = ref(null);
 const loading = ref(false);
-const timeAgo = ref("");
+const timeAgo = ref('');
 
 // 시간차 계산
 const updateTimeAgo = () => {
   if (!lastUpdated.value) {
-    timeAgo.value = "";
+    timeAgo.value = '';
     return;
   }
   const diff = Math.floor((Date.now() - lastUpdated.value) / 1000);
-  if (diff < 5) timeAgo.value = "방금";
+  if (diff < 5) timeAgo.value = '방금';
   else if (diff < 60) timeAgo.value = `${diff}초`;
   else if (diff < 3600) timeAgo.value = `${Math.floor(diff / 60)}분`;
   else timeAgo.value = `${Math.floor(diff / 3600)}시간`;
@@ -463,7 +557,7 @@ const fetchReservations = async () => {
       baseURL: apiClient.defaults.baseURL,
       withCredentials: true,
     });
-    const res1 = await refreshClient.post("../auth/token");
+    const res1 = await refreshClient.post('../auth/token');
     const newAccessToken = res1.data.data.accessToken;
 
     const { setAccessToken } = useAuthStore();
@@ -471,7 +565,7 @@ const fetchReservations = async () => {
 
     const res = await apiClient.post(
       `/v1/reservations/search?page=${page.value}&size=${size.value}&sort=${sort.value}`,
-      search.value
+      search.value,
     );
 
     reservations.value = res.data.content;
@@ -481,7 +575,7 @@ const fetchReservations = async () => {
     lastUpdated.value = Date.now();
     updateTimeAgo();
   } catch (error) {
-    console.error("예약 데이터를 불러오는 중 오류:", error);
+    console.error('예약 데이터를 불러오는 중 오류:', error);
   }
 };
 
@@ -511,37 +605,37 @@ const visiblePages = computed(() => {
 
 // 예약 취소
 const cancelReservation = async (id) => {
-  if (!confirm("정말 이 예약을 취소하시겠습니까?")) return;
+  if (!confirm('정말 이 예약을 취소하시겠습니까?')) return;
   try {
     await apiClient.put(`/v1/reservations/${id}/cancel`);
     await fetchReservations();
   } catch (error) {
-    console.error("예약 취소 중 오류:", error);
-    alert("예약 취소에 실패했습니다. 다시 시도해주세요.");
+    console.error('예약 취소 중 오류:', error);
+    alert('예약 취소에 실패했습니다. 다시 시도해주세요.');
   }
 };
 
 // 상태 클래스
 const getStatusClass = (status) => {
   const statusClasses = {
-    pending: "bg-yellow-100 text-yellow-800",
-    confirmed: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
-    checked_in: "bg-blue-100 text-blue-800",
-    checked_out: "bg-gray-100 text-gray-800",
+    pending: 'bg-yellow-100 text-yellow-800',
+    confirmed: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800',
+    checked_in: 'bg-blue-100 text-blue-800',
+    checked_out: 'bg-gray-100 text-gray-800',
   };
-  return statusClasses[status] || "bg-gray-100 text-gray-800";
+  return statusClasses[status] || 'bg-gray-100 text-gray-800';
 };
 
 const getPaymentStatusClass = (paymentStatus) => {
   const paymentClasses = {
-    unpaid: "bg-red-100 text-red-800",
-    paid: "bg-green-100 text-green-800",
-    refunded: "bg-orange-100 text-orange-800",
-    rejected: "bg-red-100 text-red-800",
-    cancelled: "bg-gray-100 text-gray-800",
+    unpaid: 'bg-red-100 text-red-800',
+    paid: 'bg-green-100 text-green-800',
+    refunded: 'bg-orange-100 text-orange-800',
+    rejected: 'bg-red-100 text-red-800',
+    cancelled: 'bg-gray-100 text-gray-800',
   };
-  return paymentClasses[paymentStatus] || "bg-gray-100 text-gray-800";
+  return paymentClasses[paymentStatus] || 'bg-gray-100 text-gray-800';
 };
 
 // 수정 다이얼로그 열기
@@ -552,24 +646,24 @@ const openEdit = (r) => {
 // 검색 초기화
 const resetSearch = () => {
   search.value = {
-    reservationId: "",
-    userName: "",
-    email: "",
-    phone: "",
-    roomType: "",
-    hotelName: "",
-    status: "",
-    paymentStatus: "",
-    startDate: "",
-    endDate: "",
-    minAmount: "",
-    maxAmount: "",
-    createdStartDate: "",
-    createdEndDate: "",
+    reservationId: '',
+    userName: '',
+    email: '',
+    phone: '',
+    roomType: '',
+    hotelName: '',
+    status: '',
+    paymentStatus: '',
+    startDate: '',
+    endDate: '',
+    minAmount: '',
+    maxAmount: '',
+    createdStartDate: '',
+    createdEndDate: '',
   };
   dateRange.value = null;
   createdRange.value = null;
-  sort.value = "createdAt,desc";
+  sort.value = 'createdAt,desc';
   showAdvanced.value = false;
   fetchReservations();
 };
@@ -581,11 +675,14 @@ onMounted(() => {
   fetchReservations();
 
   // 5초마다 자동 새로고침
-  intervalId = setInterval(() => {
-    if (!hasSearchValues.value) {
-      fetchReservations();
-    }
-  }, 5 * 60 * 1000);
+  intervalId = setInterval(
+    () => {
+      if (!hasSearchValues.value) {
+        fetchReservations();
+      }
+    },
+    5 * 60 * 1000,
+  );
 
   // 1초마다 "몇 초 전" 갱신
   timerId = setInterval(() => {

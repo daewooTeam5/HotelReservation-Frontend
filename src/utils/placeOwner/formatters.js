@@ -41,9 +41,7 @@ export const translatePaymentStatus = (status) => {
   const map = {
     unpaid: "미결제",
     paid: "결제완료",
-    refunded: "환불",
-    rejected: "실패",
-    cancelled: "취소",
+    refunded: "환불"
   };
   return map[status] || status;
 };

@@ -38,10 +38,24 @@
                 체크인 {{ stats.todayCheckIn }}건 • 체크아웃
                 {{ stats.todayCheckOut }}건
               </p>
-              <div class="mt-4 flex items-center text-green-600 text-sm">
-                <i class="pi pi-arrow-up text-xs mr-1"></i>
+              <div
+                class="mt-4 flex items-center text-sm"
+                :class="{
+                  'text-green-600': stats.growthRate > 0,
+                  'text-red-600': stats.growthRate < 0,
+                  'text-gray-500': stats.growthRate === 0,
+                }"
+              >
+                <i
+                  class="pi text-xs mr-1"
+                  :class="{
+                    'pi-arrow-up': stats.growthRate > 0,
+                    'pi-arrow-down': stats.growthRate < 0,
+                    'pi-minus': stats.growthRate === 0,
+                  }"
+                ></i>
                 <span class="font-medium">{{ stats.growthRate.toFixed(1) }}%</span>
-                <span class="text-gray-500 ml-1">vs 어제</span>
+                <span class="ml-1 text-gray-500">vs 어제</span>
               </div>
             </div>
             <div
@@ -66,18 +80,26 @@
               <p class="text-3xl font-bold text-gray-900 mt-3">
                 {{ formatCurrency(revenueStats.thisMonthRevenue) }}
               </p>
-              <div class="mt-4 flex items-center text-green-600 text-sm">
+              <div
+                class="mt-4 flex items-center text-sm"
+                :class="{
+                  'text-green-600': revenueStats.growthRate > 0,
+                  'text-red-600': revenueStats.growthRate < 0,
+                  'text-gray-500': revenueStats.growthRate === 0,
+                }"
+              >
                 <i
-                  :class="[
-              'pi',
-              revenueStats.growthRate >= 0 ? 'pi-arrow-up' : 'pi-arrow-down',
-              'text-xs mr-1',
-            ]"
+                  class="pi text-xs mr-1"
+                  :class="{
+                    'pi-arrow-up': revenueStats.growthRate > 0,
+                    'pi-arrow-down': revenueStats.growthRate < 0,
+                    'pi-minus': revenueStats.growthRate === 0,
+                  }"
                 ></i>
                 <span class="font-medium">
-            {{ revenueStats.growthRate.toFixed(1) }}%
-          </span>
-                <span class="text-gray-500 ml-1">vs 지난달</span>
+                  {{ revenueStats.growthRate.toFixed(1) }}%
+                </span>
+                <span class="ml-1 text-gray-500">vs 지난달</span>
               </div>
             </div>
             <div
@@ -88,7 +110,6 @@
           </div>
         </template>
       </Card>
-
 
       <!-- 객실 점유율 -->
       <Card
@@ -135,12 +156,12 @@
                   :key="i"
                   class="pi"
                   :class="i <= Math.round(ratingStats.avgRating)
-              ? 'pi-star-fill text-yellow-400 text-sm'
-              : 'pi-star text-gray-300 text-sm'"
+                    ? 'pi-star-fill text-yellow-400 text-sm'
+                    : 'pi-star text-gray-300 text-sm'"
                 ></i>
                 <span class="text-xs text-gray-500 ml-2">
-            ({{ ratingStats.reviewCount }}개 리뷰)
-          </span>
+                  ({{ ratingStats.reviewCount }}개 리뷰)
+                </span>
               </div>
             </div>
             <div
@@ -149,6 +170,32 @@
               <i class="pi pi-star text-white text-xl"></i>
             </div>
           </div>
+        </template>
+      </Card>
+    </div>
+
+    <!-- 차트 -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="bar" :data="salesData" :options="chartOptions" class="h-80" />
+        </template>
+      </Card>
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-chart-line text-green-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">예약 현황</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="line" :data="reservationData" :options="chartOptions" class="h-80" />
         </template>
       </Card>
     </div>
@@ -212,81 +259,66 @@
       <!-- 최근 리뷰 -->
       <Card class="border-0 shadow-lg">
         <template #title>
-          <div class="flex items-center space-x-3 p-2">
-            <i class="pi pi-star text-yellow-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">최근 리뷰</span>
+          <div class="flex items-center justify-between p-2">
+            <div class="flex items-center space-x-3">
+              <i class="pi pi-star text-yellow-600 text-lg"></i>
+              <span class="text-xl font-semibold text-gray-900">최근 리뷰</span>
+            </div>
+            <router-link
+              to="/owner/reviews"
+              class="p-button p-button-text p-button-sm text-yellow-600"
+            >
+              전체 보기
+            </router-link>
           </div>
         </template>
         <template #content>
           <div class="space-y-4 px-2">
-            <div class="p-5 bg-yellow-50/70 rounded-xl border border-yellow-100">
+            <div
+              v-for="review in recentReviews"
+              :key="review.reviewId"
+              class="p-5 rounded-xl border"
+              :class="review.rating >= 4
+          ? 'bg-yellow-50/70 border-yellow-100'
+          : 'bg-gray-50/70 border-gray-200'"
+            >
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center space-x-3">
-                  <span class="font-semibold text-gray-900">홍길동</span>
+                  <span class="font-semibold text-gray-900">{{ review.userName }}</span>
                   <div class="flex space-x-1">
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
+                    <i
+                      v-for="i in 5"
+                      :key="i"
+                      class="pi"
+                      :class="i <= review.rating
+                  ? 'pi-star-fill text-yellow-400 text-sm'
+                  : 'pi-star text-gray-300 text-sm'"
+                    ></i>
                   </div>
                 </div>
-                <span class="text-xs text-gray-500 font-medium">2시간 전</span>
+                <span class="text-xs text-gray-500 font-medium">
+            {{ formatDate(review.createdAt) }}
+          </span>
               </div>
               <p class="text-sm text-gray-700 leading-relaxed">
-                "객실이 매우 깨끗하고 직원분들이 친절했습니다. 다시 오고 싶네요!"
+                "{{ review.comment }}"
               </p>
             </div>
-            <div class="p-5 bg-green-50/70 rounded-xl border border-green-100">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-3">
-                  <span class="font-semibold text-gray-900">김영희</span>
-                  <div class="flex space-x-1">
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
-                    <i class="pi pi-star text-gray-300 text-sm"></i>
-                  </div>
-                </div>
-                <span class="text-xs text-gray-500 font-medium">1일 전</span>
-              </div>
-              <p class="text-sm text-gray-700 leading-relaxed">
-                "위치가 좋고 조식이 맛있었어요. 다음에도 이용하겠습니다."
-              </p>
-            </div>
-          </div>
-        </template>
-      </Card>
-    </div>
 
-    <!-- 차트 -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-      <Card class="border-0 shadow-lg">
-        <template #title>
-          <div class="flex items-center space-x-3 p-2">
-            <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
+            <div
+              v-if="recentReviews.length === 0"
+              class="text-center py-6 text-sm text-gray-500"
+            >
+              최근 리뷰가 없습니다.
+            </div>
           </div>
         </template>
-        <template #content>
-          <Chart type="bar" :data="salesData" :options="chartOptions" class="h-80" />
-        </template>
       </Card>
-      <Card class="border-0 shadow-lg">
-        <template #title>
-          <div class="flex items-center space-x-3 p-2">
-            <i class="pi pi-chart-line text-green-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">예약 현황</span>
-          </div>
-        </template>
-        <template #content>
-          <Chart type="line" :data="reservationData" :options="chartOptions" class="h-80" />
-        </template>
-      </Card>
+
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
@@ -323,6 +355,8 @@ const refreshData = async () => {
   await fetchOccupancyRate();
   await fetchRatingStats();
   await fetchRevenueStats();
+  await fetchSalesData();
+  await fetchRecentReviews();   // ✅ 최근 리뷰 추가
   lastUpdated.value = Date.now();
   updateTimeAgo();
   isRefreshing.value = false;
@@ -332,15 +366,6 @@ const refreshData = async () => {
 const occupancy = ref({ usedRooms: 0, totalRooms: 0, rate: 0 });
 const fetchOccupancyRate = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/occupancy");
     occupancy.value = res.data;
   } catch (err) {
@@ -352,15 +377,6 @@ const fetchOccupancyRate = async () => {
 const recentReservations = ref<any[]>([]);
 const fetchRecentReservations = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.post(
       `/v1/reservations/search?page=0&size=3&sort=createdAt,desc`,
       {}
@@ -392,18 +408,29 @@ const getStatusClass = (status: string) => {
 
 // 📌 차트 데이터
 const salesData = ref({
-  labels: ["8월", "9월", "10월", "11월", "12월", "1월"],
+  labels: [],
   datasets: [
     {
-      label: "매출액 (만원)",
+      label: "매출액 (원)",
       backgroundColor: "rgba(59, 130, 246, 0.8)",
       borderColor: "#3b82f6",
-      data: [320, 280, 420, 380, 450, 420],
+      data: [],
       borderRadius: 8,
       borderSkipped: false,
     },
   ],
 });
+
+// 📌 월별 매출 추이 API
+const fetchSalesData = async (months = 6) => {
+  try {
+    const res = await apiClient.get(`/v1/dashboard/stats/revenue/monthly?months=${months}`);
+    salesData.value.labels = res.data.map((item: any) => item.month);
+    salesData.value.datasets[0].data = res.data.map((item: any) => item.revenue);
+  } catch (err) {
+    console.error("월별 매출 추이 불러오기 실패:", err);
+  }
+};
 
 const reservationData = ref({
   labels: [],
@@ -474,15 +501,6 @@ const fetchTodayStats = async () => {
 // 📌 월별 예약 현황
 const fetchMonthlyStats = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/monthly");
     reservationData.value.labels = res.data.map((item: any) => item.month);
     reservationData.value.datasets[0].data = res.data.map((item: any) => item.count);
@@ -490,21 +508,13 @@ const fetchMonthlyStats = async () => {
     console.error("예약 현황 차트 불러오기 실패:", err);
   }
 };
+
 const ratingStats = ref({
   avgRating: 0,
   reviewCount: 0,
 });
 const fetchRatingStats = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/rating");
     ratingStats.value = res.data;
   } catch (err) {
@@ -518,18 +528,8 @@ const revenueStats = ref({
   lastMonthRevenue: 0,
   growthRate: 0,
 });
-
 const fetchRevenueStats = async () => {
   try {
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("../auth/token");
-    const newAccessToken = res1.data.data.accessToken;
-    const { setAccessToken } = useAuthStore();
-    setAccessToken(newAccessToken);
-
     const res = await apiClient.get("/v1/dashboard/stats/revenue");
     revenueStats.value = {
       thisMonthRevenue: res.data.currentRevenue,
@@ -540,6 +540,19 @@ const fetchRevenueStats = async () => {
     console.error("이번 달 매출 불러오기 실패:", err);
   }
 };
+
+// 📌 최근 리뷰
+const recentReviews = ref<any[]>([]);
+
+const fetchRecentReviews = async () => {
+  try {
+    const res = await apiClient.get("/v1/dashboard/stats/reviews");
+    recentReviews.value = res.data;
+  } catch (err) {
+    console.error("최근 리뷰 불러오기 실패:", err);
+  }
+};
+
 
 // Mounted
 onMounted(() => {

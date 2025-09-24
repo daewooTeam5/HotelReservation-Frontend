@@ -5,27 +5,25 @@
       <form @submit.prevent="save">
         <label class="block mb-2">상태</label>
         <select v-model="form.status" class="border w-full p-2 mb-4">
-          <option value="pending">pending</option>
-          <option value="confirmed">confirmed</option>
-          <option value="cancelled">cancelled</option>
-          <option value="checked_in">checked_in</option>
-          <option value="checked_out">checked_out</option>
+          <option value="pending">대기</option>
+          <option value="confirmed">확정</option>
+          <option value="cancelled">취소</option>
+          <option value="checked_in">체크인</option>
+          <option value="checked_out">체크아웃</option>
         </select>
 
         <label class="block mb-2">결제 상태</label>
         <select v-model="form.paymentStatus" class="border w-full p-2 mb-4">
-          <option value="unpaid">unpaid</option>
-          <option value="paid">paid</option>
-          <option value="refunded">refunded</option>
-          <option value="rejected">rejected</option>
-          <option value="cancelled">cancelled</option>
+          <option value="unpaid">미결제</option>
+          <option value="paid">결제완료</option>
+          <option value="refunded">환불</option>
         </select>
 
         <label class="block mb-2">체크인</label>
-        <input type="datetime-local" v-model="form.resevStart" class="border w-full p-2 mb-4" />
+        <input type="date" v-model="form.resevStart" class="border w-full p-2 mb-4" />
 
         <label class="block mb-2">체크아웃</label>
-        <input type="datetime-local" v-model="form.resevEnd" class="border w-full p-2 mb-4" />
+        <input type="date" v-model="form.resevEnd" class="border w-full p-2 mb-4" />
 
         <div class="flex justify-end gap-2">
           <button type="button" @click="$emit('close')" class="px-4 py-2 border">닫기</button>

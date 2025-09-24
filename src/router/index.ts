@@ -299,6 +299,12 @@ const router = createRouter({
           props: true,
           meta: { layout: "owner" },
         },
+        {
+          path: "/owner/statistics",
+          name: "statistics",
+          component: () => import("@/views/placeOwner/Statistics.vue"),
+          meta: { layout: "owner" },
+        }
       ],
     },
     // 관리자 영역
