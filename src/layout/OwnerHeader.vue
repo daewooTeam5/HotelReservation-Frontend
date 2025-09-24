@@ -1,3 +1,5 @@
+
+
 <template>
   <header
     class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center justify-between px-6 relative"
@@ -31,12 +33,12 @@
           <!-- 동적 아바타 -->
           <Gravatar
             class="rounded-full w-8 h-8"
-            :email="userAuth?.email || 'default@example.com'"
+            :email="authStore.userAuth?.email || 'default@example.com'"
             :size="80"
             default="identicon"
           />
           <span class="text-sm font-medium text-gray-700 hidden md:inline">
-            {{ user?.name || '관리자' }}
+            {{ authStore.userAuth?.name || '관리자' }}
           </span>
           <i class="pi pi-angle-down text-gray-500 text-xs"></i>
         </Button>
@@ -92,17 +94,9 @@ import Button from 'primevue/button';
 import { Gravatar } from '@sauromates/vue-gravatar';
 import { apiClient } from '@/utils/axiosClient.ts';
 import { useAuthStore } from '@/stores/authStore';
-import type { UserDto } from '@/types/users';
-import { parseJwt } from '@/utils/jwtUtils';
 
 const router = useRouter();
-const { setAccessToken, accessToken, userAuth, getAccessToken } = useAuthStore();
-
-// 사용자 정보 추출
-const user = ref<UserDto | null>(null);
-if (accessToken) {
-  user.value = parseJwt<UserDto>(accessToken);
-}
+const authStore = useAuthStore(); // ✅ 구조분해 할당 ❌
 
 // 상태
 const isProfileMenuOpen = ref(false);
@@ -128,7 +122,7 @@ const navigateToSettings = () => {
 const logout = async () => {
   try {
     await apiClient.post('../auth/logout', null, { withCredentials: true });
-    setAccessToken(null);
+    authStore.setAccessToken(null); // ✅ 스토어 직접 사용
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('placeId');
@@ -151,12 +145,12 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(async () => {
   window.addEventListener('click', handleClickOutside);
 
-  console.log(getAccessToken);
-  if (!getAccessToken) {
+  if (!authStore.getAccessToken) { // ✅ computed는 .value
     const data = await apiClient.post('../auth/token');
-    console.log(data.data.data.accessToken);
-    setAccessToken(data.data.data.accessToken);
+    authStore.setAccessToken(data.data.data.accessToken);
   }
+
+  console.log(authStore.userAuth); // ✅ 반응형으로 잘 찍힘
 });
 
 onBeforeUnmount(() => {
