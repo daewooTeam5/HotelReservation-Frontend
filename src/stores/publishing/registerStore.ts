@@ -7,6 +7,8 @@ export type BedOption = {
   count: number;
 };
 
+
+
 export type DiscountOption = {
   person: number; // 인원수
   discount: number; // %
@@ -21,14 +23,18 @@ export type RoomForm = {
   bedType: BedOption[];
   checkIn: string;
   checkOut: string;
+  isPublic: boolean;  //방 공개 여부
+  selectedBed: string; //고른 침대 종류를 담을 곳
 };
 
 export type Address = {
   sigungu: string;
   sido: string;
+  town: string;
   roadName: string;
   postalCode: string;
   detailAddress: string;
+
 };
 
 export type Amenity = { name: string; checked: boolean };
@@ -42,9 +48,9 @@ export type RegisterState = {
   addedRooms: RoomForm[]; // 추가된 룸 목록
   discounts: DiscountOption[];
   amenities: Amenity[];
-  languages: Language[];
   images: string[]; // data URL (base64)
   address: Address;
+
 };
 
 export const defaultBeds: BedOption[] = [
@@ -54,11 +60,13 @@ export const defaultBeds: BedOption[] = [
   { type: '초대형 더블침대(수퍼킹사이즈)', width: '181~210cm', count: 0 }
 ];
 
+
 export const useRegisterStore = defineStore('registerStore', {
   state: (): RegisterState => ({
     name: '',
     hotelType: '',
     description: '',
+
     rooms: {
       capacityPeople: 1,
       price: 0,
@@ -67,7 +75,9 @@ export const useRegisterStore = defineStore('registerStore', {
       roomType: '',
       bedType: defaultBeds.map(b => ({ ...b })),
       checkIn: '',
-      checkOut: ''
+      checkOut: '',
+      isPublic: true,
+      selectedBed: ''
     },
     addedRooms: [],
     discounts: [],
@@ -77,18 +87,18 @@ export const useRegisterStore = defineStore('registerStore', {
       { name: '조식 제공', checked: false },
       { name: '수영장', checked: false },
       { name: '피트니스', checked: false },
-      { name: '금연실', checked: false }
+      { name: '금연실', checked: false },
+      { name: '바비큐 그릴', checked: false },
+      { name: '테라스', checked: false },
+      { name: '정원', checked: false },
+      { name: '룸서비스', checked: false },
     ],
-    languages: [
-      { types: '한국어', checked: true },
-      { types: '영어', checked: false },
-      { types: '중국어', checked: false },
-      { types: '일본어', checked: false }
-    ],
+
     images: [],
     address: {
       sigungu: '',
       sido: '',
+      town:'',
       roadName: '',
       postalCode: '',
       detailAddress: ''
@@ -105,10 +115,7 @@ export const useRegisterStore = defineStore('registerStore', {
     removeAddedRoom(index: number) {
       this.addedRooms.splice(index, 1);
     },
-    addLanguage(name: string) {
-      if (!name.trim()) return;
-      this.languages.push({ types: name.trim(), checked: false });
-    },
+
     addImage(dataUrl: string) {
       this.images.push(dataUrl);
     },

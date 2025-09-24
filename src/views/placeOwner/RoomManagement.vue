@@ -182,9 +182,7 @@ onUnmounted(() => {
       <Column field="capacityRoom" header="총 객실 수" />
       <Column field="availableRoom" header="남은 객실 수">
         <template #body="slotProps">
-          <span
-            class="text-blue-600 font-semibold text-center block"
-          >
+          <span class="text-blue-600 font-semibold text-center block">
             {{ slotProps.data.availableRoom ?? '-' }}
           </span>
         </template>

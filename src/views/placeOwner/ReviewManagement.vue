@@ -2,189 +2,164 @@
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-6">리뷰 관리</h1>
 
-    <!-- 검색/필터/정렬 바 -->
     <div class="flex flex-wrap gap-4 mb-6 items-end">
-      <!-- 검색 -->
-      <div>
-        <label class="block text-sm font-medium mb-1">검색</label>
-        <InputText v-model="searchQuery" placeholder="고객명 / 리뷰 내용" />
-      </div>
-
-      <!-- 평점 필터 -->
-      <div>
-        <label class="block text-sm font-medium mb-1">평점 필터</label>
-        <Dropdown v-model="ratingFilter" :options="ratingOptions" placeholder="전체" />
-      </div>
-
-      <!-- 정렬 -->
       <div>
         <label class="block text-sm font-medium mb-1">정렬</label>
-        <Dropdown v-model="sortOption" :options="sortOptions" placeholder="선택" />
+        <Dropdown v-model="sortOption" :options="sortOptions" optionLabel="name" placeholder="선택" class="w-full md:w-48" />
       </div>
     </div>
 
-    <!-- 리뷰 목록 테이블 -->
-    <div class="bg-white rounded shadow p-4">
-      <h2 class="text-lg font-semibold mb-4">리뷰 목록</h2>
-      <table class="w-full border-collapse">
-        <thead>
-        <tr class="bg-gray-100 text-left">
-          <th class="p-2 border">리뷰 ID</th>
-          <th class="p-2 border">고객명</th>
-          <th class="p-2 border">객실</th>
-          <th class="p-2 border">평점</th>
-          <th class="p-2 border">내용</th>
-          <th class="p-2 border">작성일</th>
-          <th class="p-2 border text-center">액션</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="review in filteredReviews" :key="review.id">
-          <td class="p-2 border">{{ review.id }}</td>
-          <td class="p-2 border">{{ review.customer }}</td>
-          <td class="p-2 border">{{ review.room }}</td>
-          <td class="p-2 border">{{ "★".repeat(review.rating) }}</td>
-          <td class="p-2 border">{{ review.content }}</td>
-          <td class="p-2 border">{{ review.date }}</td>
-          <td class="p-2 border text-center space-x-2">
+    <div v-if="isLoading" class="space-y-4">
+      <Skeleton height="6rem" v-for="i in 3" :key="i" />
+    </div>
+    <div v-else-if="isError" class="text-center py-10 bg-red-50 text-red-700 rounded-lg">
+      <p>리뷰를 불러오는 데 실패했습니다.</p>
+      <p class="text-sm mt-2">{{ error?.message }}</p>
+    </div>
+    <div v-else class="bg-white rounded shadow overflow-x-auto">
+      <DataTable :value="reviews" :paginator="reviews.length > 10" :rows="10" stripedRows>
+        <Column field="reviewId" header="ID" style="width: 5%" />
+        <Column field="userName" header="고객명" style="width: 10%" />
+        <Column field="rating" header="평점" style="width: 10%">
+          <template #body="slotProps">
+            <Rating :model-value="slotProps.data.rating" readonly :cancel="false" />
+          </template>
+        </Column>
+        <Column field="comment" header="내용" style="min-width: 25rem" />
+        <Column field="createdAt" header="작성일" style="width: 10%">
+          <template #body="slotProps">
+            {{ new Date(slotProps.data.createdAt).toLocaleDateString() }}
+          </template>
+        </Column>
+        <Column header="답글" style="width: 10%">
+          <template #body="slotProps">
+            <span v-if="slotProps.data.commentByOwner" class="text-green-600 font-semibold">답변 완료</span>
+            <span v-else class="text-gray-500">대기중</span>
+          </template>
+        </Column>
+        <Column header="액션" style="width: 10%">
+          <template #body="slotProps">
             <Button
+              :label="slotProps.data.commentByOwner ? '답글 수정' : '답글 달기'"
               icon="pi pi-comment"
               class="p-button-text p-button-sm"
-              @click="openReplyDialog(review)"
+              @click="openReplyDialog(slotProps.data)"
             />
-            <Button
-              icon="pi pi-trash"
-              class="p-button-text p-button-danger p-button-sm"
-              @click="deleteReview(review.id)"
-            />
-          </td>
-        </tr>
-        </tbody>
-      </table>
+          </template>
+        </Column>
+      </DataTable>
     </div>
 
-    <!-- 답글 다이얼로그 -->
-    <Dialog
-      v-model:visible="isReplyDialogOpen"
-      modal
-      header="리뷰 답글"
-      :style="{ width: '500px' }"
-    >
+    <Dialog v-model:visible="isReplyDialogOpen" modal header="리뷰 답글 작성" :style="{ width: '500px' }">
       <div>
-        <p class="mb-2 text-gray-600">고객: {{ currentReview?.customer }}</p>
-        <p class="mb-4 text-gray-600">리뷰: "{{ currentReview?.content }}"</p>
+        <p class="mb-2 text-gray-600"><b>고객:</b> {{ currentReview?.userName }}</p>
+        <p class="mb-4 text-gray-600 p-2 bg-gray-100 rounded">"{{ currentReview?.comment }}"</p>
         <Textarea v-model="replyText" rows="4" class="w-full" placeholder="답글을 입력하세요..." />
       </div>
-
       <template #footer>
         <Button label="취소" class="p-button-text" @click="isReplyDialogOpen = false" />
-        <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="saveReply" />
+        <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="saveReply" :loading="isSubmittingComment" />
       </template>
     </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import Button from "primevue/button";
-import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
 import Dialog from "primevue/dialog";
 import Textarea from "primevue/textarea";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Rating from "primevue/rating";
+import Skeleton from 'primevue/skeleton';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import { apiClient } from '@/utils/axiosClient';
+import { useToast } from "primevue/usetoast";
+import type { ReviewResponse } from '@/types/review';
+import type { ApiResult } from '@/types/ApiResult';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
-// 상태
-const searchQuery = ref("");
-const ratingFilter = ref("");
-const sortOption = ref("");
+// --- 상태 ---
+const queryClient = useQueryClient();
+const toast = useToast();
+const authStore = useAuthStore();
 
-// 더미 리뷰 데이터
-const reviews = ref([
-  {
-    id: "RV-001",
-    customer: "홍길동",
-    room: "101",
-    rating: 5,
-    content: "아주 만족스러운 숙박이었습니다.",
-    date: "2025-09-16",
-  },
-  {
-    id: "RV-002",
-    customer: "김철수",
-    room: "202",
-    rating: 3,
-    content: "시설은 좋았지만 소음이 있었습니다.",
-    date: "2025-09-15",
-  },
-  {
-    id: "RV-003",
-    customer: "이영희",
-    room: "301",
-    rating: 4,
-    content: "서비스가 친절했어요.",
-    date: "2025-09-14",
-  },
+const sortOption = ref({ name: '최신순', value: 'createdAt,desc' });
+const sortOptions = ref([
+  { name: '최신순', value: 'createdAt,desc' },
+  { name: '평점 높은순', value: 'rating,desc' },
+  { name: '평점 낮은순', value: 'rating,asc' },
 ]);
 
-// 필터 + 검색 + 정렬
-const filteredReviews = computed(() => {
-  let result = [...reviews.value];
+const placeId = ref(1);
 
-  // 검색
-  if (searchQuery.value) {
-    result = result.filter(
-      (r) =>
-        r.customer.includes(searchQuery.value) ||
-        r.content.includes(searchQuery.value)
-    );
-  }
+// --- 데이터 가져오기 ---
+const fetchOwnerReviews = async (sortBy: string) => {
+  // ===== ✅ 친구가 알려준 토큰 갱신 로직 적용 =====
+  const refreshClient = axios.create({
+    baseURL: apiClient.defaults.baseURL,
+    withCredentials: true,
+  });
+  const res1 = await refreshClient.post("../auth/token");
+  const newAccessToken = res1.data.data.accessToken;
+  authStore.setAccessToken(newAccessToken);
+  // ===============================================
 
-  // 평점 필터
-  if (ratingFilter.value === "5점") {
-    result = result.filter((r) => r.rating === 5);
-  } else if (ratingFilter.value === "4점 이상") {
-    result = result.filter((r) => r.rating >= 4);
-  } else if (ratingFilter.value === "3점 이하") {
-    result = result.filter((r) => r.rating <= 3);
-  }
+  const response = await apiClient.get<ApiResult<ReviewResponse[]>>(`/v1/places/${placeId.value}/reviews?sortBy=${sortBy}`);
+  return response.data;
+};
 
-  // 정렬
-  if (sortOption.value === "평점↑") {
-    result.sort((a, b) => a.rating - b.rating);
-  } else if (sortOption.value === "평점↓") {
-    result.sort((a, b) => b.rating - a.rating);
-  } else if (sortOption.value === "작성일") {
-    result.sort((a, b) => b.date.localeCompare(a.date));
-  }
-
-  return result;
+const { data: reviewsData, isLoading, isError, error, refetch } = useQuery<ApiResult<ReviewResponse[]>>({
+  queryKey: ['ownerReviews', placeId, sortOption],
+  queryFn: () => fetchOwnerReviews(sortOption.value.value),
 });
 
-// 옵션
-const ratingOptions = ["5점", "4점 이상", "3점 이하"];
-const sortOptions = ["평점↑", "평점↓", "작성일"];
+const reviews = computed(() => reviewsData.value?.data || []);
 
-// 답글 상태
+// --- 답글 관리 ---
 const isReplyDialogOpen = ref(false);
-const currentReview = ref<any>(null);
+const currentReview = ref<ReviewResponse | null>(null);
 const replyText = ref("");
 
-// 답글 열기
-const openReplyDialog = (review: any) => {
+const { mutate: submitComment, isPending: isSubmittingComment } = useMutation({
+  mutationFn: async (payload: { reviewId: number, comment: string }) => {
+    // ===== ✅ 여기에도 토큰 갱신 로직 추가 =====
+    const refreshClient = axios.create({
+      baseURL: apiClient.defaults.baseURL,
+      withCredentials: true,
+    });
+    const res1 = await refreshClient.post("../auth/token");
+    authStore.setAccessToken(res1.data.data.accessToken);
+    // ===============================================
+
+    return apiClient.post(`/v1/owner/reviews/${payload.reviewId}/comments`, { comment: payload.comment });
+  },
+  onSuccess: () => {
+    toast.add({ severity: 'success', summary: '성공', detail: '답글이 등록되었습니다.', life: 3000 });
+    isReplyDialogOpen.value = false;
+    queryClient.invalidateQueries({ queryKey: ['ownerReviews'] });
+  },
+  onError: (err: any) => {
+    toast.add({ severity: 'error', summary: '오류', detail: err.response?.data?.error?.detail || '답글 등록에 실패했습니다.', life: 3000 });
+  }
+});
+
+const openReplyDialog = (review: ReviewResponse) => {
   currentReview.value = review;
-  replyText.value = "";
+  replyText.value = review.commentByOwner?.comment || "";
   isReplyDialogOpen.value = true;
 };
 
-// 답글 저장
 const saveReply = () => {
-  alert(`답글 저장됨: ${replyText.value}`);
-  isReplyDialogOpen.value = false;
-};
-
-// 리뷰 삭제
-const deleteReview = (id: string) => {
-  if (confirm("정말 이 리뷰를 삭제 요청하시겠습니까?")) {
-    reviews.value = reviews.value.filter((r) => r.id !== id);
+  if (currentReview.value && replyText.value.trim()) {
+    submitComment({ reviewId: currentReview.value.reviewId, comment: replyText.value });
   }
 };
+
+watch(sortOption, () => {
+  refetch();
+});
 </script>

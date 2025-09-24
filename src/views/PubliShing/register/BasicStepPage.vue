@@ -15,23 +15,23 @@ const goNext = () => router.push('/publishing/register/rooms');
   <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-4">
     <div>
       <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 이름</p>
-      <InputText v-model="store.name" placeholder="숙소 이름" class="w-full" />
+      <InputText v-model="store.name" placeholder="숙소 이름" class="w-[50%]" />
     </div>
 
     <div>
-      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 유형</p>
-      <select v-model="store.hotelType" class="w-full border rounded p-2">
+      <p style="margin-bottom:8px;margin-top: 8px;" class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 유형</p>
+      <select v-model="store.hotelType" class="w-[65%] border rounded p-2">
         <option value="">선택</option>
-        <option value="풀빌라">풀빌라</option>
-        <option value="아파트">아파트</option>
-        <option value="단독주택">단독주택</option>
-        <option value="여관">여관</option>
         <option value="호텔">호텔</option>
+        <option value="리조트">리조트</option>
+        <option value="게스트하우스">게스트하우스/비앤비</option>
+        <option value="아파트">아파트/펜션</option>
+        <option value="모텔">모텔</option>
       </select>
     </div>
 
     <div>
-      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">설명</p>
+      <p style="margin-bottom:8px;margin-top: 8px;" class="font-semibold mb-2 text-gray-700 dark:text-gray-200">설명</p>
       <textarea v-model="store.description" placeholder="설명" class="w-full h-40 border rounded p-2 resize-none" />
     </div>
 

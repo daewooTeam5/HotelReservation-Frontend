@@ -46,7 +46,7 @@
           </div>
           <div>
             <span class="text-gray-500">최종 결제 금액</span>
-            <p class="font-semibold text-lg text-blue-600">{{ formatCurrency(reservation.finalAmount) }}</p>
+            <p class="text-semibold text-lg text-blue-600">{{ formatCurrency(reservation.finalAmount) }}</p>
           </div>
         </div>
       </div>
@@ -87,7 +87,7 @@
       <!-- 객실 정보 카드 -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">객실 정보</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <span class="text-gray-500 text-sm">객실 유형</span>
             <p class="font-semibold text-lg">{{ reservation.roomType }}</p>
@@ -95,6 +95,10 @@
           <div>
             <span class="text-gray-500 text-sm">수용 인원</span>
             <p class="font-medium">{{ reservation.capacityPeople }}명</p>
+          </div>
+          <div>
+            <span class="text-gray-500 text-sm">예약 인원</span>
+            <p class="font-medium text-blue-600">{{ reservation.resevAmount }}명</p>
           </div>
           <div>
             <span class="text-gray-500 text-sm">1박 가격</span>
@@ -110,13 +114,13 @@
           <div class="text-center p-4 bg-green-50 rounded-lg">
             <span class="text-green-600 text-sm font-medium">체크인</span>
             <p class="font-semibold text-lg text-green-700 mt-1">
-              {{ formatDateTime(reservation.resevStart) }}
+              {{ formatDate(reservation.resevStart) }}
             </p>
           </div>
           <div class="text-center p-4 bg-red-50 rounded-lg">
             <span class="text-red-600 text-sm font-medium">체크아웃</span>
             <p class="font-semibold text-lg text-red-700 mt-1">
-              {{ formatDateTime(reservation.resevEnd) }}
+              {{ formatDate(reservation.resevEnd) }}
             </p>
           </div>
         </div>
@@ -146,6 +150,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { apiClient } from "@/utils/axiosClient";
 import {
+  formatDate,
   formatDateTime,
   formatCurrency,
   translateStatus,
