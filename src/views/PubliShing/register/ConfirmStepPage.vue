@@ -20,8 +20,9 @@ const submit = async () => {
       addressList: [store.address],
       images: store.images,
       categoryId: store.categoryId,
-      capacityRoom: store.capacityRoom,
-      amenities: store.amenities.filter(a => a.checked).map(a => a.name),
+      amenities: store.amenities
+        .filter(a => a.checked)
+        .map(a => a.id),
       discounts: store.discounts,
       rooms: [store.rooms, ...store.addedRooms].map(r => ({
         roomNumber: r.roomNumber,
@@ -70,11 +71,6 @@ const back = () => router.push('/publishing/register/address');
           <span> (호텔/리조트&비앤비/게스트하우스&아파트/펜션/모텔)</span>
         </span>
         <span>{{ store.categoryId }}</span>
-      </div>
-
-      <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-2 pb-2">
-        <span class="font-semibold flex items-center">최대 방 개수</span>
-        <span>{{ store.capacityRoom }}</span>
       </div>
 
       <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-2 pb-2">

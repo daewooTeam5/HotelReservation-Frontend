@@ -1,25 +1,15 @@
 // filepath: /Users/kotlinandnode/seungho/daewoo/hotelReservation/frontend/src/views/PubliShing/register/AmenitiesStepPage.vue
 <script lang="ts" setup>
 import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import { ref } from 'vue';
+
 import { useRegisterStore } from '@/stores/publishing/registerStore';
 import { useRouter } from 'vue-router';
 
 const store = useRegisterStore();
 const router = useRouter();
 
-const newLanguage = ref('');
-const showInput = ref(false);
 
-const addLanguage = () => {
-  if (!newLanguage.value.trim()) return;
-  store.addLanguage(newLanguage.value);
-  newLanguage.value = '';
-  showInput.value = false;
-};
-
-const goPrev = () => router.push('/publishing/register/images');
+const goPrev = () => router.push('/publishing/register/rooms');
 const goNext = () => router.push('/publishing/register/policy');
 </script>
 

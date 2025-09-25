@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { useRegisterStore } from '@/stores/publishing/registerStore';
 import { useRouter } from 'vue-router';
 
+//여기 사용 안 함
 const store = useRegisterStore();
 const router = useRouter();
 const fileInput = ref<HTMLInputElement | null>(null);
