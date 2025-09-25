@@ -104,5 +104,6 @@ defineEmits<{
 const menuItems = computed(() => [
   { name: "대시보드", path: "/admin", icon: "pi pi-th-large" },
   { name: "숙소 관리", path: "/admin/place", icon: "pi pi-building" },
+  { name: "유저 관리", path: "/admin/user", icon: "pi pi-user" },
 ]);
 </script>
