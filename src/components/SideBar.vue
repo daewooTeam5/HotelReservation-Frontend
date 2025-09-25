@@ -40,6 +40,11 @@ const items = ref([
         icon: "pi pi-sign-out",
         command: () => router.push("/auth/signin")
       },
+      {
+        label:"쿠폰",
+        icon: "pi pi-ticket",
+        command: () => router.push("/auth/coupon")
+      }
     ],
   },
 ]);

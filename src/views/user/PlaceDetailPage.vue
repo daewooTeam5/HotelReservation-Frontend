@@ -165,7 +165,7 @@
                     <PrimeButton
                       v-if="room.status === 'AVAILABLE'"
                       class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                      @click="handleReservation(room.id)"
+                      @click="handleReservation(room.roomId)"
                     >
                       예약하기
                     </PrimeButton>

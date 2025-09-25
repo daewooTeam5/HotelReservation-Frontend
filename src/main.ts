@@ -42,6 +42,7 @@ import Textarea from 'primevue/textarea';
 import Dialog from 'primevue/dialog';
 import { DatePicker } from 'primevue';
 import { useTheme } from '@primeuix/themes';
+import Divider from 'primevue/divider';
 
 const app = createApp(App);
 
@@ -98,6 +99,7 @@ app.component('PrimePopover', Popover);
 app.component('PrimeBadge', OverlayBadge);
 app.component('PrimeLabel', IftaLabel);
 app.component('PrimeTab', Tab);
+app.component('Divider',Divider)
 app.component('PrimeTabs', Tabs);
 app.component('PrimeTabList', TabList);
 app.component('PrimeTabPanels', TabPanels);

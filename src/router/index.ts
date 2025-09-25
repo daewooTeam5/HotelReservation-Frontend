@@ -29,6 +29,11 @@ const router = createRouter({
           name: "settings",
           component: () => import("@/views/profile/SettingsPage.vue"),
         },
+        {
+          path:"/auth/coupon",
+          name:"coupon",
+          component:()=>import("@/views/auth/MyCouponView.vue"),
+        },
       ],
     },
     // 예약 스텝 라우트 (레이아웃 + 자식 페이지)
@@ -144,13 +149,6 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('@/views/user/MainPage.vue'),
-      meta: { layout: 'user' }
-    },
-    {
-      path: '/places/:id',
-      name: 'place-detail',
-      component: () => import('@/views/user/PlaceDetailPage.vue'),
-      props: true,
       meta: { layout: 'user' }
     },
     {
