@@ -29,11 +29,15 @@ const router = createRouter({
           name: "settings",
           component: () => import("@/views/profile/SettingsPage.vue"),
         },
+
+
+
         {
           path:"/auth/coupon",
           name:"coupon",
           component:()=>import("@/views/auth/MyCouponView.vue"),
         },
+
       ],
     },
     // 예약 스텝 라우트 (레이아웃 + 자식 페이지)
@@ -89,41 +93,31 @@ const router = createRouter({
           component: () => import('@/views/PubliShing/register/RoomsStepPage.vue'),
           meta: { step: '2' }
         },
-        {
-          path: 'images',
-          name: 'RegisterImages',
-          component: () => import('@/views/PubliShing/register/ImagesStepPage.vue'),
-          meta: { step: '3' }
-        },
+
         {
           path: 'amenities',
           name: 'RegisterAmenities',
           component: () => import('@/views/PubliShing/register/AmenitiesStepPage.vue'),
-          meta: { step: '4' }
+          meta: { step: '3' }
         },
         {
           path: 'policy',
           name: 'RegisterPolicy',
           component: () => import('@/views/PubliShing/register/PolicyStepPage.vue'),
-          meta: { step: '5' }
+          meta: { step: '4' }
         },
-        {
-          path: 'pricing',
-          name: 'RegisterPricing',
-          component: () => import('@/views/PubliShing/register/PricingStepPage.vue'),
-          meta: { step: '6' }
-        },
+
         {
           path: 'address',
           name: 'RegisterAddress',
           component: () => import('@/views/PubliShing/register/AddressStepPage.vue'),
-          meta: { step: '7' }
+          meta: { step: '5' }
         },
         {
           path: 'confirm',
           name: 'RegisterConfirm',
           component: () => import('../views/PubliShing/register/ConfirmStepPage.vue'),
-          meta: { step: '8' }
+          meta: { step: '6' }
         },
         {
           path: 'error',

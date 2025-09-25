@@ -17,7 +17,7 @@ const calcPrice = (d: DiscountOption) => {
   const before = base + extra * Math.max(0, persons - 1);
   return Math.round(before * (1 - discount / 100));
 };
-
+//여기 사용 안 함
 const goPrev = () => router.push('/publishing/register/policy');
 const goNext = () => router.push('/publishing/register/address');
 </script>

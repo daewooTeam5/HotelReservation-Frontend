@@ -13,7 +13,7 @@ let map: google.maps.Map;
 let marker: google.maps.Marker;
 let infoWindow: google.maps.InfoWindow;
 
-const goPrev = () => router.push('/publishing/register/pricing');
+const goPrev = () => router.push('/publishing/register/policy');
 const goNext = () => router.push('/publishing/register/confirm');
 
 const addressData = {
