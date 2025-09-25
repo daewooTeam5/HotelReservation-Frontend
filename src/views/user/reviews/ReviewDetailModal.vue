@@ -248,4 +248,5 @@ const onReviewSubmitted = () => {
 .review-list-container {
   scroll-behavior: smooth;
 }
+
 </style>
