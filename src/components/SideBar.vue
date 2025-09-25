@@ -50,8 +50,7 @@ const items = ref([
         icon: "pi pi-comments",
         command: () => router.push("/profile/comment")
       },
-
-
+      {
         label:"쿠폰",
         icon: "pi pi-ticket",
         command: () => router.push("/auth/coupon")
