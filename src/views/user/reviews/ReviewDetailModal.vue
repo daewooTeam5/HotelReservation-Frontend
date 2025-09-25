@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient';
 import { useAuthStore } from '@/stores/authStore';
@@ -14,14 +14,14 @@ import { Gravatar } from '@sauromates/vue-gravatar';
 import ReviewFormModal from './ReviewFormModal.vue';
 import { useToast } from 'primevue/usetoast';
 import { useRouter, useRoute } from 'vue-router';
+import type { ReviewableReservation } from '@/types/reservation';
 
 // --- Props & Emits ---
 const props = defineProps<{
   visible: boolean;
   placeId: number;
-  initialReviewId?: number | null; // 특정 리뷰로 스크롤하기 위한 prop
+  initialReviewId?: number | null;
 }>();
-
 const emit = defineEmits(['update:visible']);
 
 // --- 상태 관리 ---
@@ -35,6 +35,7 @@ const isReviewFormModalVisible = ref(false);
 const isReviewGuidanceModalVisible = ref(false);
 const canWriteReview = ref(false);
 const isCheckingPermission = ref(true);
+const reviewableReservations = ref<ReviewableReservation[]>([]); // 리뷰 작성 폼으로 넘겨줄 데이터
 
 // --- 정렬 옵션 ---
 const sortOption = ref({ name: '최신순', value: 'createdAt,desc' });
@@ -53,7 +54,7 @@ const fetchReviews = async (sortBy: string) => {
 const { isLoading: isLoadingReviews, data: reviewsData, refetch } = useQuery<ApiResult<ReviewResponse[]>>({
   queryKey: ['reviews', props.placeId, sortOption],
   queryFn: () => fetchReviews(sortOption.value.value),
-  enabled: computed(() => props.visible && !!props.placeId), // 모달이 보일 때만 쿼리 실행
+  enabled: computed(() => props.visible && !!props.placeId),
 });
 
 // --- 리뷰 삭제 ---
@@ -74,18 +75,22 @@ const confirmDelete = (reviewId: number) => {
   }
 };
 
+// [수정] 리뷰 작성 권한 확인 API 통일
 const checkReviewPermission = async () => {
   isCheckingPermission.value = true;
   try {
     if (!authStore.accessToken) {
       canWriteReview.value = false;
+      reviewableReservations.value = [];
       return;
     }
-    const response = await apiClient.get<{ data: { canReview: boolean } }>(`/v1/reservations/can-review?placeId=${props.placeId}`);
-    canWriteReview.value = response.data.data.canReview;
+    const response = await apiClient.get<ApiResult<ReviewableReservation[]>>(`/v1/reservations/reviewable?placeId=${props.placeId}`);
+    reviewableReservations.value = response.data.data || [];
+    canWriteReview.value = reviewableReservations.value.length > 0;
   } catch (error) {
     console.error('리뷰 작성 권한 확인 실패:', error);
     canWriteReview.value = false;
+    reviewableReservations.value = [];
   } finally {
     isCheckingPermission.value = false;
   }
@@ -121,7 +126,7 @@ const closeModal = () => {
 watch(() => props.visible, (newValue) => {
   if (newValue) {
     checkReviewPermission();
-    refetch(); // 모달이 열릴 때마다 데이터를 새로고침
+    refetch();
     if (props.initialReviewId) {
       nextTick(() => {
         const modalContent = document.querySelector('.review-list-container');
@@ -136,7 +141,7 @@ watch(() => props.visible, (newValue) => {
 
 
 const handleWriteReviewClick = () => {
-  closeModal(); // 상세 모달 먼저 닫기
+  closeModal();
 
   if (canWriteReview.value) {
     isReviewFormModalVisible.value = true;
@@ -205,7 +210,7 @@ const onReviewSubmitted = () => {
                 <div class="flex items-center">
                   <span class="font-semibold">{{ review.userName }}</span>
                   <span class="text-xs text-gray-500 ml-2">{{ new Date(review.createdAt).toLocaleDateString() }}</span>
-                  <Button v-if="authStore.userAuth?.name === review.userName" icon="pi pi-trash" text severity="danger" @click.stop="confirmDelete(review.reviewId)" class="ml-auto w-8 h-8" />
+                  <Button v-if="authStore.userAuth?.id === review.userId" icon="pi pi-trash" text severity="danger" @click.stop="confirmDelete(review.reviewId)" class="ml-auto w-8 h-8" />
                 </div>
                 <div class="text-xs text-gray-500">{{ review.nights }}박 · {{ review.roomType }}</div>
                 <Rating :model-value="review.rating" readonly :cancel="false" class="mt-1" />
@@ -231,6 +236,7 @@ const onReviewSubmitted = () => {
   <ReviewFormModal
     v-if="placeId"
     :place-id="props.placeId"
+    :reservations="reviewableReservations"
     v-model:visible="isReviewFormModalVisible"
     @review-submitted="onReviewSubmitted"
   />

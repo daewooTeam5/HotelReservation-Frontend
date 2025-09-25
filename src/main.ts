@@ -16,7 +16,8 @@ import Step from 'primevue/step';
 import StepList from 'primevue/steplist';
 import StepPanel from 'primevue/steppanel';
 import Stepper from 'primevue/stepper';
-import Toast from 'primevue/toast';;
+import Toast from 'primevue/toast';
+import FileUpload from 'primevue/fileupload';
 
 import Card from 'primevue/card';
 import Popover from 'primevue/popover';
@@ -102,5 +103,5 @@ app.component('PrimeTabList', TabList);
 app.component('PrimeTabPanels', TabPanels);
 app.component('PrimeTabPanel', TabPanel);
 app.component('PrimeGalleria', Galleria);
-
+app.component('FileUpload', FileUpload);
 app.mount('#app');
