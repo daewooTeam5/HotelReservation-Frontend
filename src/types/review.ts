@@ -1,4 +1,4 @@
-// src/types/review.ts
+// daewooteam5/hotelreservation-frontend/HotelReservation-Frontend-feature-review3/src/types/review.ts
 export interface ReviewComment {
   comment: string;
   managerName: string;
@@ -8,6 +8,7 @@ export interface ReviewComment {
 export interface ReviewResponse {
   reviewId: number;
   userName: string;
+  userId: number; // <-- [추가] userId 타입
   rating: number;
   comment: string;
   createdAt: string;

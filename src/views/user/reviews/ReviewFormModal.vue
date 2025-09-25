@@ -27,11 +27,13 @@ const queryClient = useQueryClient();
 const uploadedImageUrls = ref<string[]>([]);
 const isUploading = ref(false);
 const selectedReservationId = ref<number | null>(null);
+const fileUploadRef = ref<any>(null); // [추가] FileUpload 컴포넌트 참조
 
-// ✅ [수정] 실제 이미지 업로드 핸들러
+// ✅ [수정] 이미지 업로드 핸들러
 const handleImageUpload = async (event: FileUploadUploaderEvent) => {
   const files = Array.isArray(event.files) ? event.files : [event.files];
   isUploading.value = true;
+  console.log("======="+files);
 
   const formData = new FormData();
   files.forEach(file => {
@@ -44,15 +46,19 @@ const handleImageUpload = async (event: FileUploadUploaderEvent) => {
     });
 
     if (response.data.success && response.data.data) {
-      const serverBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-      const fullUrls = response.data.data.map(url => serverBaseUrl + url);
-      uploadedImageUrls.value.push(...fullUrls);
+      uploadedImageUrls.value.push(...response.data.data);
       toast.add({ severity: 'success', summary: '성공', detail: `${files.length}개의 이미지가 업로드되었습니다.`, life: 2000 });
     }
-  } catch (error) {
-    toast.add({ severity: 'error', summary: '오류', detail: '이미지 업로드에 실패했습니다.', life: 3000 });
+  } catch (error: any) {
+    // [개선] 서버에서 보낸 구체적인 오류 메시지를 사용자에게 표시
+    const detail = error.response?.data?.error?.detail || '이미지 업로드에 실패했습니다.';
+    toast.add({ severity: 'error', summary: '오류', detail: detail, life: 3000 });
   } finally {
     isUploading.value = false;
+    // [개선] 업로드 성공/실패와 관계없이 파일 목록을 초기화하여 "pending" 상태 제거
+    if (fileUploadRef.value) {
+      fileUploadRef.value.clear();
+    }
   }
 };
 
@@ -136,18 +142,26 @@ const removeImage = (index: number) => {
       <div class="flex flex-col gap-2">
         <label for="images" class="font-semibold">사진 첨부 (선택)</label>
         <FileUpload
+          ref="fileUploadRef"
           name="files"
           :multiple="true"
           accept="image/*"
           :maxFileSize="5000000"
           customUpload
-          @uploader="handleImageUpload"
+          @select="handleImageUpload"
+          :auto="true"
+          :showUploadButton="false"
+          :showCancelButton="false"
           :disabled="isUploading"
         >
+          <template #header></template>
+          <template #content></template>
           <template #empty>
-            <div class="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+            <div @click="() => fileUploadRef.choose()" class="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
               <i class="pi pi-upload text-4xl text-gray-400"></i>
-              <p class="mt-2">사진을 여기에 드래그하거나 선택하세요.</p>
+              <p class="mt-2 text-center">
+                소중한 경험을 사진으로 공유해주세요.<br>여기를 클릭하거나 파일을 드래그하여 업로드할 수 있습니다.
+              </p>
             </div>
           </template>
         </FileUpload>
@@ -170,3 +184,5 @@ const removeImage = (index: number) => {
     </template>
   </Dialog>
 </template>
+
+

@@ -44,17 +44,17 @@ const stepForPath = (path: string) => {
 activeStep.value = stepForPath(route.path);
 reservationId.value = (route.query.reservationId as string) || null;
 orderId.value = (route.query.orderId as string) || null;
-
 // vue-query 호출
 const { isLoading, data, isError, error } = useQuery<ApiResult<RoomInfo>>({
   queryKey: [
     'v1',
     'rooms',
-    queryParams.value.rooms +
+    queryParams.value.roomId +
     `?checkIn=${queryParams.value.checkIn}&checkOut=${queryParams.value.checkOut}`
   ],
   queryFn: httpFetcher
 });
+
 
 // 스텝 변경 시 라우팅 (URL 동기화)
 watch(activeStep, (newStep) => {

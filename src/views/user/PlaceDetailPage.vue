@@ -165,7 +165,7 @@
                     <PrimeButton
                       v-if="room.status === 'AVAILABLE'"
                       class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                      @click="handleReservation(room.id)"
+                      @click="handleReservation(room.roomId)"
                     >
                       예약하기
                     </PrimeButton>
@@ -222,6 +222,9 @@
     <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl!">
       <ReviewSection :place-id="parseInt(id)"/>
     </section>
+    <section id="questions" ref="questionsSection" class="w-full max-w-7xl!">
+      <QuestionSection :place-id="parseInt(id)" />
+    </section>
   </div>
 
   <div
@@ -256,6 +259,7 @@ import { apiClient } from '@/utils/axiosClient.ts';
 import WishSearchBox from '@/components/WishSearchBox.vue';
 
 import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
+import QuestionSection from './questions/QuestionSection.vue'; // 👈 [추가]
 import { useAuthStore } from '@/stores/authStore.ts';
 
 
@@ -275,6 +279,7 @@ const tabs = [
   { id: 'info', label: '정보' },
   { id: 'map', label: '지도' },
   { id: 'reviews', label: '리뷰' },
+  { id: 'questions', label: '문의' },
 ];
 const activeTab = ref('rooms');
 const isSticky = ref(false);
@@ -328,6 +333,7 @@ const roomsSection = ref<HTMLElement | null>(null);
 const infoSection = ref<HTMLElement | null>(null);
 const mapSection = ref<HTMLElement | null>(null);
 const reviewsSection = ref<HTMLElement | null>(null);
+const questionsSection = ref<HTMLElement | null>(null);
 
 const openModal = () => {
   isModalOpen.value = true;
@@ -476,6 +482,7 @@ onMounted(async () => {
         if (infoSection.value) observer.observe(infoSection.value);
         if (mapSection.value) observer.observe(mapSection.value);
         if (reviewsSection.value) observer.observe(reviewsSection.value);
+        if (questionsSection.value) observer.observe(questionsSection.value);
       }
     }
     // --- 지도 초기화 로직 (DOM이 준비되어야 하므로 이 위치가 적절합니다) ---

@@ -16,14 +16,15 @@ import Step from 'primevue/step';
 import StepList from 'primevue/steplist';
 import StepPanel from 'primevue/steppanel';
 import Stepper from 'primevue/stepper';
-import Toast from 'primevue/toast';;
+import Toast from 'primevue/toast';
+import FileUpload from 'primevue/fileupload';
 
 import Card from 'primevue/card';
 import Popover from 'primevue/popover';
 
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-
+import Select from 'primevue/select';
 import Menu from 'primevue/menu';
 import OverlayBadge from 'primevue/overlaybadge';
 import IconField from 'primevue/iconfield';
@@ -41,6 +42,7 @@ import Textarea from 'primevue/textarea';
 import Dialog from 'primevue/dialog';
 import { DatePicker } from 'primevue';
 import { useTheme } from '@primeuix/themes';
+import Divider from 'primevue/divider';
 
 const app = createApp(App);
 
@@ -97,10 +99,13 @@ app.component('PrimePopover', Popover);
 app.component('PrimeBadge', OverlayBadge);
 app.component('PrimeLabel', IftaLabel);
 app.component('PrimeTab', Tab);
+app.component('Divider',Divider)
 app.component('PrimeTabs', Tabs);
 app.component('PrimeTabList', TabList);
 app.component('PrimeTabPanels', TabPanels);
 app.component('PrimeTabPanel', TabPanel);
 app.component('PrimeGalleria', Galleria);
+app.component('FileUpload', FileUpload);
+app.component('PrimeSelect', Select);
 
 app.mount('#app');

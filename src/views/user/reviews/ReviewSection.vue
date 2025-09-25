@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// ... 기존 script 로직은 변경 없음
 import { ref, computed } from 'vue';
 import { useQuery, useQueryClient } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient';
@@ -12,6 +13,8 @@ import ReviewDetailModal from './ReviewDetailModal.vue';
 import ReviewFormModal from './ReviewFormModal.vue';
 import { useToast } from 'primevue/usetoast';
 import type { ReviewableReservation } from '@/types/reservation';
+import ProgressBar from 'primevue/progressbar';
+import Rating from 'primevue/rating';
 
 // --- 상태 관리 ---
 const props = defineProps<{
@@ -33,6 +36,25 @@ const { isLoading: isLoadingReviews, data: reviewsData } = useQuery<ApiResult<Re
 });
 
 const reviews = computed(() => reviewsData.value?.data || []);
+
+// [추가] 평점 통계 계산
+const ratingStats = computed(() => {
+  const stats = {
+    total: reviews.value.length,
+    average: 0,
+    counts: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  };
+  if (stats.total === 0) return stats;
+
+  let totalRating = 0;
+  reviews.value.forEach(review => {
+    stats.counts[review.rating as keyof typeof stats.counts]++;
+    totalRating += review.rating;
+  });
+  stats.average = totalRating / stats.total;
+  return stats;
+});
+
 
 // --- 함수 ---
 const openDetailModal = () => {
@@ -75,7 +97,30 @@ const responsiveOptions = ref([
 
 <template>
   <section class="mt-10 p-4">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">실제 투숙객이 꼽은 이 숙소의 장점</h2>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-gray-800">실제 투숙객 리뷰</h2>
+      <Button
+        v-if="reviews.length > 0"
+        label="리뷰 작성하기"
+        icon="pi pi-pencil"
+        @click="handleWriteReviewClick"
+        :loading="isCheckingPermission"
+      />
+    </div>
+
+    <div v-if="!isLoadingReviews && reviews.length > 0" class="flex items-center gap-8 mb-6 p-4 bg-gray-50 rounded-lg">
+      <div class="text-center">
+        <p class="text-5xl font-bold text-blue-600">{{ ratingStats.average.toFixed(1) }}</p>
+        <Rating :model-value="ratingStats.average" readonly :cancel="false" />
+        <p class="text-sm text-gray-600 mt-1">{{ ratingStats.total }}개 리뷰</p>
+      </div>
+      <div class="flex-1 space-y-1">
+        <div v-for="i in 5" :key="i" class="flex items-center gap-2">
+          <span class="text-sm text-gray-600 w-8">{{ 6 - i }}점</span>
+          <ProgressBar :value="(ratingStats.counts[6-i] / ratingStats.total) * 100" :showValue="false" class="h-2 flex-1" />
+        </div>
+      </div>
+    </div>
 
     <div v-if="isLoadingReviews" class="text-center"><Skeleton height="12rem" /></div>
     <div v-else-if="reviews.length === 0" class="text-center text-gray-500 py-8">
@@ -101,7 +146,7 @@ const responsiveOptions = ref([
       </Carousel>
     </div>
 
-    <div class="mt-6">
+    <div v-if="reviews.length > 0" class="mt-6">
       <Button label="이용후기 모두 보기" @click="openDetailModal" outlined />
     </div>
 
