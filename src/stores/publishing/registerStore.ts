@@ -25,6 +25,7 @@ export type RoomForm = {
   checkOut: string;
   isPublic: boolean;  //방 공개 여부
   selectedBed: string; //고른 침대 종류를 담을 곳
+  capacityRoom: number;
 };
 
 export type Address = {
@@ -42,8 +43,9 @@ export type Language = { types: string; checked: boolean };
 
 export type RegisterState = {
   name: string;
-  hotelType: string;
+  categoryId: number;
   description: string;
+  capacityRoom: number;
   rooms: RoomForm; // 현재 편집중인 룸
   addedRooms: RoomForm[]; // 추가된 룸 목록
   discounts: DiscountOption[];
@@ -61,12 +63,13 @@ export const defaultBeds: BedOption[] = [
 ];
 
 
+
 export const useRegisterStore = defineStore('registerStore', {
   state: (): RegisterState => ({
     name: '',
-    hotelType: '',
+    categoryId: 0,
     description: '',
-
+    capacityRoom: 0,
     rooms: {
       capacityPeople: 1,
       price: 0,

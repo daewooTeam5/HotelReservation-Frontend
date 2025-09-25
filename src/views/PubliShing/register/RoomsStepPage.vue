@@ -22,7 +22,7 @@ const goNext = () => router.push('/publishing/register/images');
     </div>
 
     <div class="m-5">
-      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">룸 유형</p>
+      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200 required">룸 유형</p>
       <select v-model="store.rooms.roomType" class="w-full border rounded p-2">
         <option value="">선택</option>
         <option value="single">싱글룸</option>

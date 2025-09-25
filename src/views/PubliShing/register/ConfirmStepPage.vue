@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import Button from 'primevue/button';
 import { useRegisterStore } from '@/stores/publishing/registerStore';
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter, useRoute } from 'vue-router';
@@ -8,50 +7,48 @@ const store = useRegisterStore();
 const router = useRouter();
 const route = useRoute();
 
-const submit = async () => {
-  const getCategoryIdByType = (type: string): number => {
-    const categoryMap: { [key: string]: number } = {
-      '호텔': 1,
-      '리조트': 2,
-      '게스트하우스/비앤비': 3,
-      '아파트': 4,
-      '펜션': 4,
-      '모텔': 5
-    };
-    return categoryMap[type] || 1;
-  };
+// 예: 로그인 후 발급받은 토큰을 로컬스토리지에 저장했다고 가정
+const token = localStorage.getItem('accessToken');
 
+const submit = async () => {
   try {
     const payload = {
       hotelName: store.name,
-      hotelType: store.hotelType,
       description: store.description,
       checkIn: store.rooms.checkIn,
       checkOut: store.rooms.checkOut,
       addressList: [store.address],
       images: store.images,
-      // amenities는 `checked: true`인 것만 이름(name)을 보내는 것이 효율적입니다.
+      categoryId: store.categoryId,
+      capacityRoom: store.capacityRoom,
       amenities: store.amenities.filter(a => a.checked).map(a => a.name),
       discounts: store.discounts,
       rooms: [store.rooms, ...store.addedRooms].map(r => ({
         roomNumber: r.roomNumber,
-        roomType: r.roomType,
+        roomType: r.roomType || 'STANDARD',
         capacityPeople: r.capacityPeople,
         minPrice: r.price,
         extraPrice: r.extraPrice,
         isPublic: r.isPublic,
-
         bedType: r.selectedBed,
+
       }))
     };
-    // Keep same endpoint used in legacy HotelRegister.vue
-    await apiClient.post('../hotel/publishing/register', payload);
-    await router.push({ name: 'owner-dashboard' });
+
+    await apiClient.post('/hotel/publishing/register', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
     alert('등록 완료');
+    router.push({ name: 'owner-dashboard' });
+
   } catch (e: any) {
     const title = e?.response?.data?.error?.title || '등록 중 오류가 발생했어요';
     const detail = e?.response?.data?.error?.detail || e?.message || '잠시 후 다시 시도해 주세요.';
-    await router.replace({
+    router.replace({
       name: 'RegisterError',
       query: { ...route.query, title, detail }
     });
@@ -69,8 +66,15 @@ const back = () => router.push('/publishing/register/address');
       </div>
 
       <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-2 pb-2">
-        <span class="font-semibold flex items-center">숙소 유형</span>
-        <span>{{ store.hotelType }}</span>
+        <span class="font-semibold flex items-center">숙소 유형
+          <span> (호텔/리조트&비앤비/게스트하우스&아파트/펜션/모텔)</span>
+        </span>
+        <span>{{ store.categoryId }}</span>
+      </div>
+
+      <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-2 pb-2">
+        <span class="font-semibold flex items-center">최대 방 개수</span>
+        <span>{{ store.capacityRoom }}</span>
       </div>
 
       <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 mb-2 pb-2">

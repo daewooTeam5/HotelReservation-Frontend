@@ -19,14 +19,19 @@ const goNext = () => router.push('/publishing/register/rooms');
     </div>
 
     <div>
+      <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">방의 개수</p>
+      <InputText v-model="store.capacityRoom" placeholder="최대 방 수(숫자만)" class="w-[50%]" />
+    </div>
+
+    <div>
       <p style="margin-bottom:8px;margin-top: 8px;" class="font-semibold mb-2 text-gray-700 dark:text-gray-200">숙소 유형</p>
-      <select v-model="store.hotelType" class="w-[65%] border rounded p-2">
+      <select v-model="store.categoryId" class="w-[65%] border rounded p-2">
         <option value="">선택</option>
-        <option value="호텔">호텔</option>
-        <option value="리조트">리조트</option>
-        <option value="게스트하우스">게스트하우스/비앤비</option>
-        <option value="아파트">아파트/펜션</option>
-        <option value="모텔">모텔</option>
+        <option value="1">호텔</option>
+        <option value="2">리조트</option>
+        <option value="3">게스트하우스/비앤비</option>
+        <option value="4">아파트/펜션</option>
+        <option value="5">모텔</option>
       </select>
     </div>
 
