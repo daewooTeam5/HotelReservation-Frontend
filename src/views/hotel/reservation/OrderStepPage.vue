@@ -19,12 +19,13 @@ const adults = computed(() => (route.query.adults as string) || '');
 const children = computed(() => (route.query.children as string) || '');
 const rooms = computed(() => (route.query.rooms as string) || '');
 
+console.log(roomId.value);
 // fetch room info for step1
 const { isLoading, isError, error, data } = useQuery<ApiResult<RoomInfo>>({
   queryKey: [
     'v1',
     'rooms',
-    rooms.value + `?checkIn=${checkIn.value}&checkOut=${checkOut.value}`
+    roomId.value + `?checkIn=${checkIn.value}&checkOut=${checkOut.value}`
   ],
   queryFn: httpFetcher,
   enabled: computed(() => !!rooms.value && !!checkIn.value && !!checkOut.value).value
