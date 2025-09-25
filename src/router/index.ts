@@ -324,6 +324,12 @@ const router = createRouter({
           component: () => import('@/views/admin/AdminPlace.vue'),
           meta: { layout: "admin" },
         },
+        {
+          path: "user",
+          name: "admin-user",
+          component: () => import('@/views/admin/AdminUser.vue'),
+          meta: { layout: "admin" },
+        },
       ]
     },
     {

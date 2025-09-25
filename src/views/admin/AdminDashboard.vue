@@ -1,100 +1,234 @@
 <template>
   <div class="flex flex-col gap-6">
-    <!-- 페이지 헤더 -->
-    <div class="flex items-center justify-between">
-      <h1 class="text-3xl font-bold text-gray-900">숙소 관리</h1>
+    <!-- 헤더 -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">대시보드</h1>
+        <p class="text-gray-600 mt-1">숙소 운영 현황을 한눈에 확인하세요</p>
+      </div>
     </div>
 
-    <!-- 검색 필터 -->
-    <div class="flex flex-wrap gap-4">
-      <InputText v-model="filters.placeId" placeholder="숙소 ID" />
-      <InputText v-model="filters.approvalStatus" placeholder="상태" />
-      <InputText v-model="filters.ownerName" placeholder="숙소 관리자 이름" />
-      <InputText v-model="filters.placeName" placeholder="숙소 이름" />
-      <Button label="검색" @click="fetchPlaces" />
-    </div>
-
-    <!-- 숙소 리스트 -->
-    <DataTable :value="places" responsiveLayout="scroll" class="mt-4">
-      <!-- 상태 -->
-      <Column header="상태">
-        <template #body="slotProps">
-      <span
-        class="px-3 py-1 rounded-full text-xs font-medium"
-        :class="getApprovalClass(slotProps.data.status)"
-      >
-        {{ translateApproval(slotProps.data.status) }}
-      </span>
+    <!-- 핵심 지표 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <!-- 오늘 예약 -->
+      <Card class="group border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50">
+        <template #content>
+          <div class="flex items-start justify-between p-4">
+            <div>
+              <p class="text-sm font-medium text-blue-600">오늘 예약</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">
+                {{ summary.todayReservations.value }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                어제 대비 {{ summary.todayReservations.diff }}건
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+              <i class="pi pi-calendar-plus text-white text-lg"></i>
+            </div>
+          </div>
         </template>
-      </Column>
+      </Card>
 
-      <Column field="id" header="숙소 ID"></Column>
-      <Column field="name" header="숙소 이름"></Column>
-      <Column header="주소" :body="addrTemplate"></Column>
-      <Column field="ownerId" header="주인 ID"></Column>
-      <Column field="ownerName" header="주인 이름"></Column>
-    </DataTable>
+      <!-- 총 유저 수 -->
+      <Card class="group border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100/50">
+        <template #content>
+          <div class="flex items-start justify-between p-4">
+            <div>
+              <p class="text-sm font-medium text-purple-600">총 유저 수</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">
+                {{ summary.totalUsers.value }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                어제 대비 {{ summary.totalUsers.diff }}명
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+              <i class="pi pi-users text-white text-lg"></i>
+            </div>
+          </div>
+        </template>
+      </Card>
+
+      <!-- 이번 달 매출 -->
+      <Card class="group border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100/50">
+        <template #content>
+          <div class="flex items-start justify-between p-4">
+            <div>
+              <p class="text-sm font-medium text-green-600">이번 달 매출</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">
+                {{ formatCurrency(summary.monthlyRevenue.value) }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                지난달 대비 {{ formatCurrency(summary.monthlyRevenue.diff) }}원
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+              <i class="pi pi-chart-line text-white text-lg"></i>
+            </div>
+          </div>
+        </template>
+      </Card>
+
+      <!-- 총 매출 -->
+      <Card class="group border-0 shadow-lg bg-gradient-to-br from-yellow-50 to-yellow-100/50">
+        <template #content>
+          <div class="flex items-start justify-between p-4">
+            <div>
+              <p class="text-sm font-medium text-yellow-600">총 매출</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">
+                {{ formatCurrency(summary.totalRevenue.value) }}
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center">
+              <i class="pi pi-wallet text-white text-lg"></i>
+            </div>
+          </div>
+        </template>
+      </Card>
+    </div>
+
+    <!-- 차트 영역 -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+      <!-- 월별 매출 추이 -->
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="line" :data="monthlyRevenueChart" :options="chartOptions" class="h-80" />
+        </template>
+      </Card>
+
+      <!-- 지역별 점유율 -->
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-chart-pie text-purple-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">지역별 점유율</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="pie" :data="occupancyChart" :options="chartOptions" class="h-80" />
+        </template>
+      </Card>
+    </div>
+
+    <!-- 호텔 TOP5 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+      <!-- 매출 TOP5 -->
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-building text-green-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">호텔 매출 TOP 5</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="bar" :data="topRevenueChart" :options="chartOptions" class="h-80" />
+        </template>
+      </Card>
+
+      <!-- 예약 TOP5 -->
+      <Card class="border-0 shadow-lg">
+        <template #title>
+          <div class="flex items-center space-x-3 p-2">
+            <i class="pi pi-ticket text-orange-600 text-lg"></i>
+            <span class="text-xl font-semibold text-gray-900">호텔 예약 TOP 5</span>
+          </div>
+        </template>
+        <template #content>
+          <Chart type="bar" :data="topReservationChart" :options="chartOptions" class="h-80" />
+        </template>
+      </Card>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import Card from "primevue/card";
+import Chart from "primevue/chart";
 import { apiClient } from "@/utils/axiosClient";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import InputText from "primevue/inputtext";
-import Button from "primevue/button";
+import { formatCurrency } from "@/utils/placeOwner/formatters.js";
 
-const places = ref<any[]>([]);
-const filters = ref({
-  placeId: "",
-  approvalStatus: "",
-  ownerName: "",
-  placeName: "",
+const summary = ref<any>({
+  todayReservations: { value: 0, diff: 0 },
+  totalUsers: { value: 0, diff: 0 },
+  monthlyRevenue: { value: 0, diff: 0 },
+  totalRevenue: { value: 0, diff: 0 }
 });
+const monthlyRevenueChart = ref({});
+const occupancyChart = ref({});
+const topRevenueChart = ref({});
+const topReservationChart = ref({});
 
-const fetchPlaces = async () => {
+const chartOptions = {
+  responsive: true,
+  plugins: { legend: { position: "bottom" } }
+};
+
+const fetchDashboard = async () => {
   try {
-    const res = await apiClient.get("/v1/places/admin", {
-      params: {
-        start: 0,
-        placeId: filters.value.placeId || null,
-        approvalStatus: filters.value.approvalStatus || null,
-        ownerName: filters.value.ownerName || null,
-        placeName: filters.value.placeName || null,
-      },
-    });
-    places.value = res.data.data.content;
+    const res = await apiClient.get("/v1/payment/dashboard");
+    const data = res.data.data;
+
+    summary.value = data.summary;
+
+    // 월별 매출
+    monthlyRevenueChart.value = {
+      labels: data.monthlyRevenue.map((r: any) => `${r.year}-${r.month}`),
+      datasets: [
+        {
+          label: "매출액",
+          data: data.monthlyRevenue.map((r: any) => r.amount),
+          borderColor: "#3b82f6",
+          fill: false
+        }
+      ]
+    };
+
+    // 지역별 점유율
+    occupancyChart.value = {
+      labels: data.occupancyRates.map((o: any) => o.placeName),
+      datasets: [
+        {
+          data: data.occupancyRates.map((o: any) => o.occupancyRate),
+          backgroundColor: ["#42A5F5", "#66BB6A", "#FFA726", "#AB47BC", "#EC407A"]
+        }
+      ]
+    };
+
+    // 호텔 매출 TOP5
+    topRevenueChart.value = {
+      labels: data.topRevenueHotels.map((h: any) => h.hotelName),
+      datasets: [
+        {
+          label: "매출액",
+          data: data.topRevenueHotels.map((h: any) => h.value),
+          backgroundColor: "#4CAF50"
+        }
+      ]
+    };
+
+    // 호텔 예약 TOP5
+    topReservationChart.value = {
+      labels: data.topReservationHotels.map((h: any) => h.hotelName),
+      datasets: [
+        {
+          label: "예약 건수",
+          data: data.topReservationHotels.map((h: any) => h.value),
+          backgroundColor: "#FF9800"
+        }
+      ]
+    };
   } catch (err) {
-    console.error("숙소 리스트 불러오기 실패:", err);
+    console.error("대시보드 불러오기 실패:", err);
   }
 };
 
-const getApprovalClass = (status: string) => {
-  const map: Record<string, string> = {
-    APPROVED: "bg-green-100 text-green-800",
-    PENDING: "bg-yellow-100 text-yellow-800",
-    REJECTED: "bg-red-100 text-red-800",
-    INACTIVE: "bg-gray-100 text-gray-800",
-  };
-  return map[status] || "bg-gray-100 text-gray-800";
-};
-
-const translateApproval = (status: string) => {
-  const map: Record<string, string> = {
-    APPROVED: "승인",
-    PENDING: "대기",
-    REJECTED: "거절",
-    INACTIVE: "리폿",
-  };
-  return map[status] || status;
-};
-
-// 주소 합치기
-const addrTemplate = (rowData: any) => {
-  return `${rowData.sido} ${rowData.sigungu}`;
-};
-
-// 페이지 로드 시 자동 실행
-fetchPlaces();
+onMounted(fetchDashboard);
 </script>

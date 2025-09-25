@@ -24,7 +24,7 @@ import Popover from 'primevue/popover';
 
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-
+import Select from 'primevue/select';
 import Menu from 'primevue/menu';
 import OverlayBadge from 'primevue/overlaybadge';
 import IconField from 'primevue/iconfield';
@@ -104,4 +104,6 @@ app.component('PrimeTabPanels', TabPanels);
 app.component('PrimeTabPanel', TabPanel);
 app.component('PrimeGalleria', Galleria);
 app.component('FileUpload', FileUpload);
+app.component('PrimeSelect', Select);
+
 app.mount('#app');
