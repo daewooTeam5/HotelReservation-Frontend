@@ -17,7 +17,7 @@
     <!-- 타이틀 (클릭 시 대시보드 이동) -->
     <h1
       class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-      @click="$router.push('/owner')"
+      @click="$router.push('/')"
     >
       Hotel Reservation
     </h1>

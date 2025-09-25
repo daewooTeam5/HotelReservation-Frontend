@@ -1,13 +1,12 @@
 <template>
   <div class="sidebar">
-    <PrimeMenu :model="items" />
+    <PrimeMenu :model="items" class="gap-y-8" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import Menu from "primevue/menu";
 
 const router = useRouter();
 
@@ -40,6 +39,18 @@ const items = ref([
         icon: "pi pi-sign-out",
         command: () => router.push("/auth/signin")
       },
+      {
+        label: "쿠폰함",
+        icon: "pi pi-sign-out",
+        command: () => router.push("/profile/coupon")
+      },
+      {
+        label: "문의",
+        icon: "pi pi-comments",
+        command: () => router.push("/profile/comment")
+      },
+
+
     ],
   },
 ]);

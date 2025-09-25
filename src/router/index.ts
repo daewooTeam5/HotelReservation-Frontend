@@ -29,6 +29,7 @@ const router = createRouter({
           name: "settings",
           component: () => import("@/views/profile/SettingsPage.vue"),
         },
+
       ],
     },
     // 예약 스텝 라우트 (레이아웃 + 자식 페이지)
