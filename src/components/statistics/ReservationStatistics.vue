@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { apiClient } from "@/utils/axiosClient";
 import Calendar from "primevue/calendar";
 import Chart from "primevue/chart";
@@ -126,7 +126,9 @@ import KpiCard from "./KpiCard.vue";
 // 📌 기간 초기화
 function resetDateRange() {
   const today = new Date();
-  dateRange.value = [today, today];
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  dateRange.value = [firstDay, lastDay];
 }
 
 // 🔹 필터 상태
@@ -140,13 +142,10 @@ const monthlyGrowthRate = ref(0);
 const cancelRate = ref(0);
 const cancelGrowthRate = ref(0);
 
-// 🔹 차트 데이터 (예시)
-const roomRevenueData = ref({
-  labels: ["싱글룸", "더블룸", "스위트룸", "패밀리룸"],
-  datasets: [
-    { label: "예약 건수", data: [120, 80, 40, 25], backgroundColor: "rgba(59,130,246,0.8)" },
-    { label: "매출액 (만원)", data: [800, 600, 400, 300], backgroundColor: "rgba(16,185,129,0.8)" },
-  ],
+// 🔹 차트 데이터
+const roomRevenueData = ref<any>({
+  labels: [],
+  datasets: []
 });
 
 const cancelRefundData = ref({
@@ -177,10 +176,48 @@ const doughnutOptions = { responsive: true, maintainAspectRatio: false };
 const pieOptions = { responsive: true, maintainAspectRatio: false };
 const barOptions = { responsive: true, maintainAspectRatio: false };
 
-// ✅ 백엔드 API 호출
+// ✅ 객실 타입별 예약·매출 API 호출
+async function fetchRoomRevenue() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split("T")[0];
+  const endDate = end.toISOString().split("T")[0];
+
+  try {
+    const res = await apiClient.get("/v1/statistics/reservation/room-revenue", {
+      params: { startDate, endDate }
+    });
+
+    const data = res.data;
+
+    roomRevenueData.value = {
+      labels: data.map((d: any) => d.roomType),
+      datasets: [
+        {
+          label: "예약 건수",
+          data: data.map((d: any) => d.reservationCount),
+          backgroundColor: "rgba(59,130,246,0.8)"
+        },
+        {
+          label: "매출액",
+          data: data.map((d: any) => d.totalRevenue),
+          backgroundColor: "rgba(16,185,129,0.8)"
+        }
+      ]
+    };
+  } catch (err) {
+    console.error("📌 객실 타입별 매출 데이터 불러오기 실패:", err);
+  }
+}
+
+// ✅ 백엔드 API 호출 (KPI + 예약·매출)
 onMounted(async () => {
   const today = new Date();
-  dateRange.value = [today, today];
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  dateRange.value = [firstDay, lastDay];
+  await fetchRoomRevenue();
 
   try {
     // 오늘 예약 현황
@@ -195,11 +232,18 @@ onMounted(async () => {
 
     // 취소율
     const { data: cancelData } = await apiClient.get("/v1/statistics/reservation/cancel-rate");
-    cancelRate.value = cancelData.cancelRate; // 숫자 유지
-    cancelGrowthRate.value = cancelData.growthRate;
+    cancelRate.value = parseFloat(cancelData.cancelRate.toFixed(2));
+    cancelGrowthRate.value = parseFloat(cancelData.growthRate.toFixed(2));
   } catch (err) {
     console.error("📌 통계 데이터 불러오기 실패:", err);
   }
 });
+
+// 🔹 기간이 변경될 때마다 자동으로 객실 매출 차트 새로고침
+watch(dateRange, () => {
+  fetchRoomRevenue();
+});
 </script>
+
+
 
