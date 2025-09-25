@@ -10,9 +10,9 @@ export const apiClient = axios.create({
 
 // Request interceptor
 apiClient.interceptors.request.use(config => {
-  const { accessToken } = useAuthStore();
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  const authStore = useAuthStore();
+  if (authStore.getAccessToken) {
+    config.headers.Authorization = `Bearer ${authStore.getAccessToken}`;
   }
   return config;
 });

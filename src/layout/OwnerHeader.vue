@@ -17,7 +17,7 @@
     <!-- 타이틀 (클릭 시 대시보드 이동) -->
     <h1
       class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-      @click="$router.push('/')"
+      @click="router.push('/')"
     >
       Hotel Reservation
     </h1>
@@ -121,12 +121,12 @@ const navigateToSettings = () => {
 // 로그아웃
 const logout = async () => {
   try {
-    await apiClient.post('../auth/logout', null, { withCredentials: true });
+    await apiClient.post('../logout', null, { withCredentials: true });
     authStore.setAccessToken(null); // ✅ 스토어 직접 사용
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('placeId');
-    router.push('/auth/signin');
+    await router.push('/auth/signin');
   } catch (e) {
     console.error('로그아웃 실패:', e);
   } finally {
@@ -144,16 +144,11 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(async () => {
   window.addEventListener('click', handleClickOutside);
-
-  if (!authStore.getAccessToken) { // ✅ computed는 .value
-    const data = await apiClient.post('../auth/token');
-    authStore.setAccessToken(data.data.data.accessToken);
-  }
-
-  console.log(authStore.userAuth); // ✅ 반응형으로 잘 찍힘
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside);
 });
+
+console.log(authStore.getAccessToken);
 </script>

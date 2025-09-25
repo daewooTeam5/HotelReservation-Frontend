@@ -150,13 +150,6 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(async () => {
   window.addEventListener('click', handleClickOutside);
-
-  console.log(getAccessToken);
-  if (!getAccessToken) {
-    const data = await apiClient.post('../auth/token');
-    console.log(data.data.data.accessToken);
-    setAccessToken(data.data.data.accessToken);
-  }
 });
 
 onBeforeUnmount(() => {

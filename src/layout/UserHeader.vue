@@ -140,14 +140,6 @@ const toggleMenu = (event: MouseEvent) => {
   menu.value.toggle(event);
 };
 
-onMounted(async ()=>{
-  console.log(getAccessToken);
-  if(!getAccessToken){
-    const data = await apiClient.post("../auth/token")
-    console.log(data.data.data.accessToken);
-    setAccessToken(data.data.data.accessToken);
-  }
-})
 </script>
 
 <style scoped>

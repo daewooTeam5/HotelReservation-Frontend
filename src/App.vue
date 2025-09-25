@@ -6,12 +6,18 @@ import OwnerLayout from "@/layout/OwnerLayout.vue";
 import UserLayout from "@/layout/UserLayout.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
 import ProfileLayout from '@/layout/ProfileLayout.vue';
+import { onBeforeMount, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/authStore.ts';
 
 const route = useRoute();
+const authStore = useAuthStore();
+onMounted(async ()=>{
+  await authStore.issueToken();
+})
 </script>
 
 <template>
-  <div class="flex flex-col h-screen overflow-hidden">
+  <div v-if="authStore.isTokenReady" class="flex flex-col h-screen overflow-hidden">
     <!-- Owner Layout -->
     <OwnerLayout v-if="route.meta.layout === 'owner'">
       <router-view />
@@ -35,5 +41,8 @@ const route = useRoute();
     <DefaultLayout v-else>
       <router-view />
     </DefaultLayout>
+  </div>
+  <div v-else>
+    loading
   </div>
 </template>
