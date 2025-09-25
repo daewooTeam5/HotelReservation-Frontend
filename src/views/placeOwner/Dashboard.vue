@@ -227,7 +227,7 @@
             >
               <div class="flex items-center space-x-4">
                 <div>
-                  <p class="font-semibold text-gray-900">{{ r.email || "이메일 없음" }}</p>
+                  <p class="font-semibold text-gray-900">{{ r.guestName || "이름 없음" }}</p>
                   <p class="text-sm text-gray-600">
                     {{ r.roomType || "객실 정보 없음" }} •
                     {{ formatDate(r.resevStart) }} - {{ formatDate(r.resevEnd) }}
