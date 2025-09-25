@@ -41,7 +41,7 @@ const handleImageUpload = async (event: FileUploadUploaderEvent) => {
   });
 
   try {
-      const response = await apiClient.post<ApiResult<string[]>>('/v1/files/upload', formData, {
+    const response = await apiClient.post<ApiResult<string[]>>('/v1/files/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 
@@ -148,13 +148,20 @@ const removeImage = (index: number) => {
           accept="image/*"
           :maxFileSize="5000000"
           customUpload
-          @select ="handleImageUpload"
+          @select="handleImageUpload"
+          :auto="true"
+          :showUploadButton="false"
+          :showCancelButton="false"
           :disabled="isUploading"
         >
+          <template #header></template>
+          <template #content></template>
           <template #empty>
-            <div class="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+            <div @click="() => fileUploadRef.choose()" class="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
               <i class="pi pi-upload text-4xl text-gray-400"></i>
-              <p class="mt-2">사진을 여기에 드래그하거나 선택하세요.</p>
+              <p class="mt-2 text-center">
+                소중한 경험을 사진으로 공유해주세요.<br>여기를 클릭하거나 파일을 드래그하여 업로드할 수 있습니다.
+              </p>
             </div>
           </template>
         </FileUpload>
@@ -177,3 +184,5 @@ const removeImage = (index: number) => {
     </template>
   </Dialog>
 </template>
+
+
