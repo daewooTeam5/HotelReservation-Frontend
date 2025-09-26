@@ -148,10 +148,11 @@ const roomRevenueData = ref<any>({
   datasets: []
 });
 
-const cancelRefundData = ref({
+// 🔹 차트 데이터
+const cancelRefundData = ref<any>({
   labels: ["정상 예약", "취소", "환불"],
   datasets: [
-    { data: [300, 20, 10], backgroundColor: ["#10b981", "#ef4444", "#f59e0b"] },
+    { data: [0, 0, 0], backgroundColor: ["#10b981", "#ef4444", "#f59e0b"] },
   ],
 });
 
@@ -172,7 +173,54 @@ const checkinCheckoutData = ref({
 
 // 🔹 차트 옵션
 const enhancedChartOptions = { responsive: true, maintainAspectRatio: false };
-const doughnutOptions = { responsive: true, maintainAspectRatio: false };
+const doughnutOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "bottom",
+      labels: {
+        generateLabels: function (chart: any) {
+          const data = chart.data;
+          if (!data.datasets.length) return [];
+
+          const dataset = data.datasets[0];
+          const total = dataset.data.reduce((sum: number, val: number) => sum + val, 0);
+
+          return data.labels.map((label: string, i: number) => {
+            const value = dataset.data[i];
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            return {
+              text: `${label} (${percentage}%)`,
+              fillStyle: dataset.backgroundColor[i],
+              hidden: !chart.getDataVisibility(i), // 클릭 상태 반영
+              index: i
+            };
+          });
+        }
+      },
+      // ✅ 기본 토글 기능 유지
+      onClick: (e: any, legendItem: any, legend: any) => {
+        const index = legendItem.index;
+        const ci = legend.chart;
+        ci.toggleDataVisibility(index);
+        ci.update();
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context: any) {
+          const dataset = context.dataset;
+          const total = dataset.data.reduce((sum: number, val: number) => sum + val, 0);
+          const value = dataset.data[context.dataIndex];
+          const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+          return `${context.label}: ${value} (${percentage}%)`;
+        }
+      }
+    }
+  }
+};
+
 const pieOptions = { responsive: true, maintainAspectRatio: false };
 const barOptions = { responsive: true, maintainAspectRatio: false };
 
@@ -211,13 +259,41 @@ async function fetchRoomRevenue() {
   }
 }
 
-// ✅ 백엔드 API 호출 (KPI + 예약·매출)
+// ✅ 취소·환불율 API 호출
+async function fetchCancelBreakdown() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split("T")[0];
+  const endDate = end.toISOString().split("T")[0];
+
+  try {
+    const { data } = await apiClient.get("/v1/statistics/reservation/cancel-rate/breakdown", {
+      params: { startDate, endDate }
+    });
+
+    cancelRefundData.value = {
+      labels: ["정상 예약", "취소", "환불"],
+      datasets: [
+        {
+          data: [data.normalCount, data.cancelledCount, data.refundedCount],
+          backgroundColor: ["#10b981", "#ef4444", "#f59e0b"]
+        }
+      ]
+    };
+  } catch (err) {
+    console.error("📌 취소/환불 데이터 불러오기 실패:", err);
+  }
+}
+
 onMounted(async () => {
   const today = new Date();
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   dateRange.value = [firstDay, lastDay];
+
   await fetchRoomRevenue();
+  await fetchCancelBreakdown(); // ✅ 도넛 차트 데이터 로드
 
   try {
     // 오늘 예약 현황
@@ -230,7 +306,7 @@ onMounted(async () => {
     monthlyReservations.value = monthData.thisMonthReservations;
     monthlyGrowthRate.value = monthData.growthRate;
 
-    // 취소율
+    // 취소율 KPI 카드
     const { data: cancelData } = await apiClient.get("/v1/statistics/reservation/cancel-rate");
     cancelRate.value = parseFloat(cancelData.cancelRate.toFixed(2));
     cancelGrowthRate.value = parseFloat(cancelData.growthRate.toFixed(2));
@@ -239,10 +315,12 @@ onMounted(async () => {
   }
 });
 
-// 🔹 기간이 변경될 때마다 자동으로 객실 매출 차트 새로고침
+// 🔹 기간이 변경될 때마다 자동으로 API 새로 호출
 watch(dateRange, () => {
   fetchRoomRevenue();
+  fetchCancelBreakdown(); // ✅ 기간 바뀌면 도넛 차트도 다시 로드
 });
+
 </script>
 
 
