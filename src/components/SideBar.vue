@@ -1,6 +1,10 @@
 <template>
-  <div class="sidebar">
-    <PrimeMenu :model="items" class="gap-y-8" />
+
+
+  <div class=" sidebar">
+
+
+    <PrimeMenu :model="items" class="gap-y-8 justify-center items-center w-full" />
   </div>
 </template>
 
@@ -39,12 +43,7 @@ const items = ref([
         icon: "pi pi-sign-out",
         command: () => router.push("/auth/signin")
       },
-      {
 
-        label: "쿠폰함",
-        icon: "pi pi-sign-out",
-        command: () => router.push("/profile/coupon")
-      },
       {
         label: "문의",
         icon: "pi pi-comments",

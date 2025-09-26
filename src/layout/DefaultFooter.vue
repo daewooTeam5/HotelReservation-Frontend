@@ -7,7 +7,7 @@ export default defineComponent({
 </script>
 
 <template>
-
+<div class="w-full bg-green-400:10"></div>
 </template>
 
 <style scoped>
