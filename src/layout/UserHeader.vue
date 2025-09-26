@@ -124,6 +124,17 @@ const profileItems = [
     icon: "pi pi-cog",
     command: () => router.push("/profile/settings"),
   },
+  {
+    label: "쿠폰",
+    icon: "pi pi-ticket",
+    command: () => router.push("/auth/coupon?type=all"),
+  },
+
+  {
+    label: "문의",
+    icon: "pi pi-comments",
+    command: () => router.push("/profile/comments"),
+  },
   { separator: true },
   {
     label: "로그아웃",
