@@ -31,7 +31,7 @@
           <!-- 동적 아바타 -->
           <Gravatar
             class="rounded-full w-8 h-8"
-            :email="userAuth?.email || 'default@example.com'"
+            :email="userAuth?.name +'@gmail.com'"
             :size="80"
             default="identicon"
           />

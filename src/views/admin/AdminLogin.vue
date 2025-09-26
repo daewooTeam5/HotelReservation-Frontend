@@ -31,13 +31,16 @@ export default {
 
     // 마운트 시 로그인 상태면 바로 리다이렉트
     onMounted(async () => {
-      try{
-        apiClient.post("../auth/token")
-        router.push("/admin")
-      }catch (e){
-        console.log(e);
+      try {
+        const res = await apiClient.post("../auth/token", {}, { withCredentials: true })
+        if (res.data?.success) {   // 토큰이 유효할 때만
+          router.push("/admin")
+        }
+      } catch (e) {
+        console.log("토큰 없음 또는 만료됨:", e)
       }
     })
+
 
     const form = reactive({
       adminId: "",

@@ -55,7 +55,6 @@ const items = ref([
         icon: "pi pi-ticket",
         command: () => router.push("/auth/coupon")
       }
-
     ],
   },
 ]);
