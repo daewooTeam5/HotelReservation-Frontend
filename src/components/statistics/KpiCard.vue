@@ -24,7 +24,7 @@
       </p>
 
       <!-- 변화율 표시 (옵션) -->
-      <div v-if="change" class="flex items-center text-sm" :class="changeColor">
+      <div v-if="change !== undefined && change !== null" class="flex items-center text-sm" :class="changeColor">
         <i :class="changeIcon" class="pi mr-1"></i>
         <span>{{ Math.abs(change) }}%</span>
       </div>
@@ -47,6 +47,7 @@ interface Props {
   color?: 'blue' | 'green' | 'yellow' | 'purple' | 'red';
   reverseColor?: boolean;
 }
+const normalizedChange = computed(() => (Object.is(props.change, -0) ? 0 : props.change));
 
 const props = withDefaults(defineProps<Props>(), {
   color: 'blue'
@@ -82,17 +83,19 @@ const iconColor = computed(() => {
 });
 
 const changeColor = computed(() => {
-  if (props.change == null) return "";
+  if (normalizedChange.value == null) return "";
+  if (normalizedChange.value === 0) return "text-gray-500";
   if (props.reverseColor) {
-    // 🔹 반대로 적용
-    return props.change > 0 ? "text-red-600" : "text-green-600";
+    return normalizedChange.value > 0 ? "text-red-600" : "text-green-600";
   }
-  return props.change > 0 ? "text-green-600" : "text-red-600";
+  return normalizedChange.value > 0 ? "text-green-600" : "text-red-600";
 });
 
 
 const changeIcon = computed(() => {
-  if (!props.change) return '';
-  return props.change > 0 ? 'pi-arrow-up' : 'pi-arrow-down';
+  if (normalizedChange.value == null) return '';
+  if (normalizedChange.value > 0) return 'pi-arrow-up';
+  if (normalizedChange.value < 0) return 'pi-arrow-down';
+  return 'pi-minus';
 });
 </script>
