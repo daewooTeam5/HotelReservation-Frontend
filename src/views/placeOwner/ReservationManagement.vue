@@ -298,7 +298,7 @@
             >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div>
-                  <div class="text-sm font-medium text-gray-900">#{{ r.reservationId }}</div>
+                  <div class="text-sm font-medium text-gray-900">#{{ r.orderId }}</div>
                   <div class="text-sm text-gray-500">{{ r.roomType }}</div>
                 </div>
               </td>
