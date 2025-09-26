@@ -1,220 +1,127 @@
-<template>
-  <div class="w-full bg-gray-50 min-h-screen p-4 sm:p-8 flex justify-center">
-    <div class="w-full max-w-4xl bg-white rounded-lg shadow-md p-6 sm:p-10">
-
-      <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold text-gray-800">결제 내역 확인</h1>
-      </div>
-
-      <div class="flex border-b">
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          @click="handleTabClick(tab.id)"
-          class="py-2 px-4 text-sm sm:text-base font-semibold transition-colors duration-200"
-          :class="activeTab === tab.id
-            ? 'border-b-2 border-blue-500 text-blue-500'
-            : 'text-gray-500 hover:text-blue-500'"
-        >
-          {{ tab.name }}
-        </button>
-      </div>
-
-      <div v-if="activeTab === 'creditCard'" class="mt-6">
-        <div class="border-t border-b border-gray-200">
-          <div class="grid grid-cols-[120px_1fr]">
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-r">카드번호</div>
-            <div class="p-2 sm:p-4">
-              <InputText v-model="formData.cardNumber" placeholder="-없이 숫자만 입력하세요" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r row-span-2">결제구분</div>
-            <div class="p-4 border-t row-span-2">
-              <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-                <div class="flex items-center">
-                  <RadioButton v-model="paymentType" inputId="typeCard" name="paymentType" value="card" />
-                  <label style="margin-left:4px;" for="typeCard" class="ml-2">카드 결제</label>
-                </div>
-                <div class="flex items-center">
-                  <RadioButton v-model="paymentType" inputId="typeEasy" name="paymentType" value="easy" />
-                  <label style="margin-left:4px;" for="typeEasy" class="ml-2">간편결제</label>
-                </div>
-                <div class="flex items-center">
-                  <RadioButton v-model="paymentType" inputId="typeAll" name="paymentType" value="all" />
-                  <label style="margin-left:4px;" for="typeAll" class="ml-2">포인트 결제</label>
-                </div>
-                <div class="flex items-center">
-                  <RadioButton v-model="paymentType" inputId="typeEtc" name="paymentType" value="etc" />
-                  <label style="margin-left:4px;" for="typeEtc" class="ml-2">기타(쿠폰 등)</label>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">이메일</div>
-            <div class="p-2 sm:p-4 border-t">
-              <InputText v-model="formData.email" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">거래일자</div>
-            <div class="p-2 sm:p-4 border-t">
-              <Calendar v-model="formData.date" showIcon iconDisplay="input" placeholder="기간 선택" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">할부개월</div>
-            <div class="p-2 sm:p-4 border-t">
-              <InputText v-model="formData.installments" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">주문자명</div>
-            <div class="p-2 sm:p-4 border-t">
-              <InputText v-model="formData.customerName" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">호텔명</div>
-            <div class="p-2 sm:p-4 border-t">
-              <InputText v-model="formData.hotelName" class="w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div v-else-if="activeTab === 'bankTransfer'" class="mt-6">
-        <div class="border-t border-b border-gray-200">
-          <div class="grid grid-cols-[120px_1fr]">
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-r">은행</div>
-            <div class="p-2 sm:p-4">
-              <Dropdown v-model="formData.bank" :options="banks" optionLabel="name" placeholder="은행을 선택하세요" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">계좌번호</div>
-            <div class="p-2 sm:p-4 border-t">
-              <InputText v-model="formData.accountNumber" placeholder="-없이 숫자만 입력하세요" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">입금자명</div>
-            <div class="p-2 sm:p-4 border-t">
-              <InputText v-model="formData.depositorName" class="w-full" />
-            </div>
-            <div class="bg-gray-50 p-4 font-semibold text-gray-700 flex items-center border-t border-r">거래일자</div>
-            <div class="p-2 sm:p-4 border-t">
-              <Calendar v-model="formData.date" showIcon iconDisplay="input" placeholder="기간 선택" class="w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="isSearching" class="text-center py-10 text-gray-500">
-        조회 중입니다...
-      </div>
-
-      <div v-if="searchResults" class="mt-8 border-t-2 border-dashed pt-6">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">✔️ 조회 결과</h2>
-        <pre class="bg-gray-100 p-4 rounded-md text-sm overflow-x-auto">{{ JSON.stringify(searchResults, null, 2) }}</pre>
-      </div>
-
-      <div style="margin-top: 8px;" class="flex flex-col sm:flex-row justify-center sm:justify-end items-center mt-8 gap-4">
-        <div class="flex items-center">
-          <Checkbox v-model="formData.consent" binary inputId="consent" />
-          <label style="margin-left: 4px;" for="consent" class="ml-2 text-sm text-gray-700">개인정보수집이용 동의</label>
-        </div>
-        <Button @click="submit" label="조회하기" class="w-full sm:w-auto" />
-      </div>
-
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref } from 'vue';
-import InputText from 'primevue/inputtext';
-import Checkbox from 'primevue/checkbox';
-import Button from 'primevue/button';
-import Calendar from 'primevue/calendar';
-import RadioButton from 'primevue/radiobutton';
-import Dropdown from 'primevue/dropdown';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import { computed, ref, watch, onMounted } from 'vue';
+import { httpFetcher } from '@/utils/httpFetcher.ts';
+import type { ApiResult } from '@/types/ApiResult';
+import type { Page } from '@/types/Page.ts';
+import type { ReservationPayment } from '@/types/reservation.ts';
+import PaymentCard from '@/components/payment/PaymentCard.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { apiClient } from '@/utils/axiosClient';
+import { useToast } from 'primevue/usetoast';
 
-const tabs = ref([
-  { id: 'creditCard', name: '신용카드' },
-  { id: 'bankTransfer', name: '계좌이체' }
-]);
+const route = useRoute();
+const router = useRouter();
+const toast = useToast();
+const queryClient = useQueryClient();
 
-const activeTab = ref('creditCard');
-const paymentType = ref('all');
+// URL ?page= 과 동기화되는 페이지 상태 (1-based)
+const page = ref<number>(Number(route.query.page) > 0 ? Number(route.query.page) : 1);
 
-const banks = ref([
-  { name: 'KB국민은행', code: '004' },
-  { name: '신한은행', code: '088' },
-  { name: '우리은행', code: '020' },
-  { name: '하나은행', code: '081' },
-  { name: 'IBK기업은행', code: '003' },
-  { name: '카카오뱅크', code: '090' },
-  { name: '농협', code: '094' },
-  { name: '토스', code: '141' },
-  { name: '케이뱅크', code: '521' },
-  { name: '현대은행', code: '142' },
-]);
-
-const formData = ref({
-  cardNumber: '',
-  installments: '',
-  customerName: '',
-  hotelName: '',
-  bank: null,
-  accountNumber: '',
-  depositorName: '',
-  email: '',
-  date: null,
-  consent: false,
+watch(page, (p) => {
+  if (Number(route.query.page) !== p) {
+    router.replace({ query: { ...route.query, page: String(p) } });
+  }
 });
 
-const searchResults = ref<object | null>(null);
-const isSearching = ref(false);
+watch(
+  () => route.query.page,
+  (qp) => {
+    const n = Number(qp);
+    if (!Number.isNaN(n) && n > 0 && n !== page.value) page.value = n;
+  }
+);
 
-const handleTabClick = (tabId: string) => {
-  activeTab.value = tabId;
-  searchResults.value = null;
-  isSearching.value = false;
+const { isLoading, isError, error, data } = useQuery<ApiResult<Page<ReservationPayment>>>({
+  queryKey: computed(() => ['v1', 'users', 'my', `payments?page=${page.value}`]),
+  queryFn: httpFetcher
+});
+
+const pageData = computed(() => data.value?.data);
+const items = computed(() => pageData.value?.content ?? []);
+const isFirst = computed(() => pageData.value?.first ?? page.value === 1);
+const isLast = computed(() => pageData.value?.last ?? false);
+const totalPages = computed(() => pageData.value?.totalPages ?? 1);
+
+const prev = () => { if (!isFirst.value) page.value -= 1; };
+const next = () => { if (!isLast.value) page.value += 1; };
+
+onMounted(() => {
+  // normalize invalid page
+  if (page.value < 1) page.value = 1;
+});
+
+// 상세 이동
+const goDetails = (id: number) => {
+  router.push({ name: 'profile-payment-detail', params: { paymentId: String(id) } });
 };
 
-const submit = async () => {
-  if (!formData.value.consent) {
-    alert('개인정보 수집 및 이용에 동의해주세요.');
-    return;
-  }
-
-  searchResults.value = null;
-  isSearching.value = true;
-
-  let payload = {};
-
-  if (activeTab.value === 'creditCard') {
-    payload = {
-      searchType: '신용카드',
-      paymentType: paymentType.value,
-      cardNumber: formData.value.cardNumber,
-      email: formData.value.email,
-      date: formData.value.date,
-      customerName: formData.value.customerName,
-      hotelName: formData.value.hotelName,
-      installments: formData.value.installments,
-    };
-  } else if (activeTab.value === 'bankTransfer') {
-    payload = {
-      searchType: '계좌이체',
-      bank: formData.value.bank,
-      accountNumber: formData.value.accountNumber,
-      depositorName: formData.value.depositorName,
-      date: formData.value.date,
-    };
-  }
-
-  console.log('서버로 전송될 조회 데이터:', payload);
-
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  isSearching.value = false;
-
-  searchResults.value = {
-    status: 'SUCCESS',
-    message: '1건의 결제 내역을 찾았습니다.',
-    transaction: {
-      amount: '123,456원',
-      orderId: `ORD-${Date.now()}`,
-      paymentDate: '2025-09-26 20:52:04',
-      details: payload
+// 취소 뮤테이션
+const cancelMutation = useMutation({
+  mutationKey: ['v1', 'payment', 'cancel'],
+  mutationFn: async (id: number) => {
+    const res = await apiClient.post<ApiResult<unknown>>(`/v1/payment/${id}/cancel`);
+    return res.data;
+  },
+  onSuccess: async (res) => {
+    if (!res?.success) {
+      const title = res?.error?.title || '취소 실패';
+      const detail = res?.error?.detail || res?.message || '알 수 없는 오류가 발생했습니다.';
+      toast.add({ severity: 'error', summary: title, detail, life: 3000 });
+      return;
     }
-  };
-}
+    toast.add({ severity: 'success', summary: '취소 완료', detail: '결제가 취소되었습니다.', life: 2500 });
+    await queryClient.invalidateQueries({ queryKey: ['v1', 'users', 'my'] });
+  },
+  onError: (err: any) => {
+    const title = err?.response?.data?.error?.title || '취소 실패';
+    const detail = err?.response?.data?.error?.detail || err?.response?.data?.message || err?.message || '요청에 실패했습니다.';
+    toast.add({ severity: 'error', summary: title, detail, life: 3500 });
+  }
+});
+
+const cancelPayment = (id: number) => {
+  if (!cancelMutation.isPending) return;
+  if (!window.confirm('해당 결제를 취소하시겠습니까?')) return;
+  cancelMutation.mutate(id);
+};
 </script>
+
+<template>
+  <section class="max-w-6xl mx-auto p-4">
+    <h2 class="text-xl font-semibold mb-4">결제 내역</h2>
+
+    <div v-if="isLoading" class="space-y-4">
+      <Skeleton v-for="i in 4" :key="i" height="8rem" class="w-full" />
+    </div>
+
+    <div v-else-if="isError" class="p-4 border rounded text-red-600 bg-red-50">
+      {{ (error as Error)?.message || '결제 내역을 불러오지 못했습니다.' }}
+    </div>
+
+    <div v-else>
+      <div v-if="items.length === 0" class="p-6 text-gray-500 border rounded">표시할 내역이 없습니다.</div>
+
+      <div v-else class="space-y-4 flex flex-col gap-3">
+        <PaymentCard
+          v-for="p in items"
+          :key="p.paymentId"
+          :payment="p"
+          :showActions="true"
+          @details="goDetails"
+          @cancel="cancelPayment"
+        />
+      </div>
+
+      <!-- Pager -->
+      <div class="mt-6 flex justify-between items-center">
+        <PrimeButton label="이전" icon="pi pi-chevron-left" severity="secondary" :disabled="isFirst" @click="prev" />
+        <div class="text-sm text-gray-600">{{ page }} / {{ totalPages }}</div>
+        <PrimeButton label="다음" iconPos="right" icon="pi pi-chevron-right" :disabled="isLast" @click="next" />
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+</style>

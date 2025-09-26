@@ -7,7 +7,7 @@ export type UserLegacy = {
 export type Role = 'customer' | 'hotel_owner' | 'admin';
 export type Status = 'active' | 'inactive' | 'banned';
 
-export type User =  {
+export type User = {
   id: number;
   userId: string;
   email: string;
@@ -18,11 +18,20 @@ export type User =  {
   updatedAt: string;
   createdAt: string;
 }
+
+export type Guest = {
+  email: string
+  firstName: string
+  id: number
+  lastName: string
+  phone: string,
+  users:User
+}
 export type UserDto = {
   id: number;
   userId: string;
   email: string;
-  name:string;
+  name: string;
   role: Role;
 
 }

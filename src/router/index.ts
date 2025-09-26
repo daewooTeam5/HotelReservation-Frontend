@@ -20,6 +20,13 @@ const router = createRouter({
           component: () => import("@/views/profile/PaymentsPage.vue"),
         },
         {
+          path: "payments/:paymentId",
+          name: "profile-payment-detail",
+          component: () => import("@/views/profile/PaymentDetailPage.vue"),
+          props: true,
+          meta: { layout: "profile" }
+        },
+        {
           path: "wishlist",
           name: "wishlist",
           component: () => import("@/views/profile/WishList.vue"),

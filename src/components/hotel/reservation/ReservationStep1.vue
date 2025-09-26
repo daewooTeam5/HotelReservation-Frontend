@@ -18,6 +18,7 @@
         <ReservationHotelCard :hotel-id="Number(hotelId) || 1" />
         <ReservationScheduleCard :check-in="checkIn" :check-out="checkOut" />
         <ReservationPaymentCard
+          :room-count="parseInt(rooms)"
           :price="roomInfo?.finalPrice"
           :check-in="checkIn"
           :check-out="checkOut"
@@ -171,7 +172,8 @@ const completeStep1 = async () => {
       checkOut: props.checkOut,
       paymentAmount: calculateAmount.value,
       request: specialRequest.value,
-      roomId: props.rooms
+      roomId: props.roomId,
+      roomCount: props.rooms
     });
 
     // 예약 ID를 부모 컴포넌트로 전달

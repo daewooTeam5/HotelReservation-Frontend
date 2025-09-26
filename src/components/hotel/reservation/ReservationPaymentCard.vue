@@ -5,6 +5,7 @@ import type { PlaceDetailResponse } from '@/types/place.ts';
 
 const props = defineProps<{
   price: number | undefined;
+  roomCount:number |undefined;
   checkIn: string;
   checkOut: string;
 }>();
@@ -53,7 +54,7 @@ const formatCurrency = (amount: number): string => {
 
           <div class="flex justify-between items-center text-sm">
             <span class="text-gray-600">숙박 일수</span>
-            <span class="font-medium">{{ nights }}박</span>
+            <span class="font-medium">{{ nights }}박 (객실수 {{props.roomCount}})</span>
           </div>
 
           <div class="border-t border-gray-200 my-2"></div>
@@ -61,7 +62,7 @@ const formatCurrency = (amount: number): string => {
           <!-- 총 결제 금액 -->
           <div class="flex justify-between items-center pt-2">
             <span class="font-semibold text-lg">총 결제 금액</span>
-            <span class="font-bold text-xl text-red-600">{{ formatCurrency(totalPrice) }}</span>
+            <span class="font-bold text-xl text-red-600">{{ formatCurrency(totalPrice * (roomCount??1))  }}</span>
           </div>
         </div>
 
