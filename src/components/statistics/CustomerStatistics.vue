@@ -91,10 +91,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import Calendar from "primevue/calendar";
-import Chart from "primevue/chart";
-import KpiCard from "./KpiCard.vue";
+import { ref, onMounted, watch } from 'vue';
+import Calendar from 'primevue/calendar';
+import Chart from 'primevue/chart';
+import KpiCard from './KpiCard.vue';
 import { apiClient } from '@/utils/axiosClient.ts';
 
 // 🔹 상태값
@@ -110,21 +110,27 @@ const returnGuestGrowthRate = ref(0);
 const avgStayDuration = ref(0);
 const stayDurationGrowthRate = ref(0);
 
-// 차트 데이터 (더미)
+// 신규 vs 재방문 고객 차트
 const guestRatioData = ref<any>({
-  labels: ["신규 고객", "재방문 고객"],
-  datasets: [{ data: [60, 40], backgroundColor: ["#3b82f6", "#10b981"] }]
-});
-
-const stayDurationData = ref<any>({
-  labels: ["1일", "2일", "3일", "4일", "5일", "6일+"],
+  labels: ['신규 고객', '재방문 고객'],
   datasets: [
     {
-      label: "체류 고객 수",
-      data: [20, 45, 30, 15, 10, 5],
-      backgroundColor: "rgba(59,130,246,0.8)"
-    }
-  ]
+      data: [0, 0], // 초기값
+      backgroundColor: ['#3b82f6', '#10b981'],
+    },
+  ],
+});
+
+// 체류 기간 분포 차트
+const stayDurationData = ref<any>({
+  labels: ['1일', '2일', '3일', '4일', '5일', '6일+'],
+  datasets: [
+    {
+      label: '체류 고객 수',
+      data: [0, 0, 0, 0, 0, 0], // 초기값
+      backgroundColor: 'rgba(59,130,246,0.8)',
+    },
+  ],
 });
 
 // 🔹 이번 달 기본값으로 세팅
@@ -146,7 +152,7 @@ const guestRatioOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: "bottom",
+      position: 'bottom',
       labels: {
         generateLabels: function (chart: any) {
           const data = chart.data;
@@ -162,17 +168,17 @@ const guestRatioOptions = {
               text: `${label} (${percentage}%)`,
               fillStyle: dataset.backgroundColor[i],
               hidden: !chart.getDataVisibility(i),
-              index: i
+              index: i,
             };
           });
-        }
+        },
       },
       onClick: (e: any, legendItem: any, legend: any) => {
         const index = legendItem.index;
         const ci = legend.chart;
         ci.toggleDataVisibility(index);
         ci.update();
-      }
+      },
     },
     tooltip: {
       callbacks: {
@@ -182,75 +188,150 @@ const guestRatioOptions = {
           const value = dataset.data[context.dataIndex];
           const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
           return `${context.label}: ${value} (${percentage}%)`;
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 };
 
 // 🔹 내보내기 CSV
 function exportToCSV() {
   const rows: any[] = [];
-  rows.push(["오늘 신규 고객 수", todayNewGuests.value, "전일 대비", newGuestGrowthRate.value + "%"]);
-  rows.push(["오늘 재방문 고객 수", todayReturnGuests.value, "전일 대비", returnGuestGrowthRate.value + "%"]);
-  rows.push(["이번 달 평균 체류 기간", avgStayDuration.value + "일", "전월 대비", stayDurationGrowthRate.value + "%"]);
+  rows.push([
+    '오늘 신규 고객 수',
+    todayNewGuests.value,
+    '전일 대비',
+    newGuestGrowthRate.value + '%',
+  ]);
+  rows.push([
+    '오늘 재방문 고객 수',
+    todayReturnGuests.value,
+    '전일 대비',
+    returnGuestGrowthRate.value + '%',
+  ]);
+  rows.push([
+    '이번 달 평균 체류 기간',
+    avgStayDuration.value + '일',
+    '전월 대비',
+    stayDurationGrowthRate.value + '%',
+  ]);
   rows.push([]);
-  rows.push(["고객 유형", "비율"]);
+  rows.push(['고객 유형', '비율']);
   guestRatioData.value.labels.forEach((label: string, idx: number) => {
     rows.push([label, guestRatioData.value.datasets[0].data[idx]]);
   });
   rows.push([]);
-  rows.push(["체류 일수", "고객 수"]);
+  rows.push(['체류 일수', '고객 수']);
   stayDurationData.value.labels.forEach((label: string, idx: number) => {
     rows.push([label, stayDurationData.value.datasets[0].data[idx]]);
   });
 
-  const csvContent = rows.map(e => e.join(",")).join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const csvContent = rows.map((e) => e.join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = url;
-  link.setAttribute("download", "customer_statistics.csv");
+  link.setAttribute('download', 'customer_statistics.csv');
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
+// 📌 API 연동 함수들
 async function fetchTodayNewGuests() {
   try {
-    const { data } = await apiClient.get("/v1/statistics/customers/new/today");
+    const { data } = await apiClient.get('/v1/statistics/customers/new/today');
     todayNewGuests.value = data.todayNewGuests;
     newGuestGrowthRate.value = data.growthRate;
   } catch (err) {
-    console.error("📌 신규 고객 수 데이터 불러오기 실패:", err);
+    console.error('📌 신규 고객 수 데이터 불러오기 실패:', err);
   }
 }
 
 async function fetchTodayReturnGuests() {
   try {
-    const { data } = await apiClient.get("/v1/statistics/customers/return/today");
+    const { data } = await apiClient.get('/v1/statistics/customers/return/today');
     todayReturnGuests.value = data.todayReturnGuests;
     returnGuestGrowthRate.value = data.growthRate;
   } catch (err) {
-    console.error("📌 재방문 고객 수 데이터 불러오기 실패:", err);
+    console.error('📌 재방문 고객 수 데이터 불러오기 실패:', err);
   }
 }
 
 async function fetchAvgStayDuration() {
   try {
-    const { data } = await apiClient.get("/v1/statistics/customers/stay-duration/monthly");
+    const { data } = await apiClient.get('/v1/statistics/customers/stay-duration/monthly');
     avgStayDuration.value = Number(data.avgStayDuration.toFixed(1));
-    stayDurationGrowthRate.value = Number(data.growthRate.toFixed(1)); // 🔹 문자열 → 숫자 변환
+    stayDurationGrowthRate.value = Number(data.growthRate.toFixed(1));
   } catch (err) {
-    console.error("📌 평균 체류 기간 데이터 불러오기 실패:", err);
+    console.error('📌 평균 체류 기간 데이터 불러오기 실패:', err);
   }
 }
 
+async function fetchGuestRatio() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split('T')[0];
+  const endDate = end.toISOString().split('T')[0];
+
+  try {
+    const { data } = await apiClient.get('/v1/statistics/customers/ratio', {
+      params: { startDate, endDate },
+    });
+
+    guestRatioData.value.datasets[0].data = [data.newGuests, data.returnGuests];
+  } catch (err) {
+    console.error('📌 신규 vs 재방문 고객 비율 불러오기 실패:', err);
+  }
+}
+
+async function fetchStayDurationDistribution() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split('T')[0];
+  const endDate = end.toISOString().split('T')[0];
+
+  try {
+    const { data } = await apiClient.get('/v1/statistics/customers/stay-duration/distribution', {
+      params: { startDate, endDate },
+    });
+
+    const allLabels = ['1일', '2일', '3일', '4일', '5일', '6일+'];
+    const counts: Record<string, number> = {};
+    data.forEach((d: any) => {
+      counts[d.label] = d.count;
+    });
+
+    stayDurationData.value = {
+      labels: allLabels,
+      datasets: [
+        {
+          label: '체류 고객 수',
+          data: allLabels.map((l) => counts[l] || 0),
+          backgroundColor: 'rgba(59,130,246,0.8)',
+        },
+      ],
+    };
+  } catch (err) {
+    console.error('📌 체류 기간 분포 데이터 불러오기 실패:', err);
+  }
+}
+
+// 📌 날짜 변경 감시
+watch(dateRange, async () => {
+  await fetchGuestRatio();
+  await fetchStayDurationDistribution();
+});
+
+// 📌 초기 로딩
 onMounted(async () => {
   setThisMonthRange();
   await fetchTodayNewGuests();
   await fetchTodayReturnGuests();
   await fetchAvgStayDuration();
+  await fetchGuestRatio();
+  await fetchStayDurationDistribution();
 });
 </script>
-
