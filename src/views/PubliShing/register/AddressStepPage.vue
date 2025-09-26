@@ -14,7 +14,22 @@ let marker: google.maps.Marker;
 let infoWindow: google.maps.InfoWindow;
 
 const goPrev = () => router.push('/publishing/register/policy');
-const goNext = () => router.push('/publishing/register/confirm');
+const goNext = () => {
+  if (!store.address.sido.trim()) {
+    alert('시/도를 선택해주세요.');
+    return;
+  }
+
+  if (!store.address.sigungu.trim()) {
+    alert('시/군/구를 선택해주세요.');
+    return;
+  }
+
+  router.push('/publishing/register/confirm');
+};
+
+
+
 
 const addressData = {
   "서울특별시": ["종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"],
@@ -116,13 +131,13 @@ onMounted(async () => {
       <div class="flex flex-col w-1/2 h-[400px] gap-2">
         <!-- 시/도 select -->
         <select v-model="store.address.sido" class="w-full h-[72px] border p-2 rounded">
-          <option value="" disabled>시/도 선택</option>
+          <option value="" disabled><span class="text-red-500">*</span>시/도 선택</option>
           <option v-for="sido in sidos" :key="sido" :value="sido">{{ sido }}</option>
         </select>
 
         <!-- 시/군/구 select -->
         <select v-model="store.address.sigungu" class="w-full h-[72px] border p-2 rounded" :disabled="!store.address.sido">
-          <option value="" disabled>시/군/구 선택</option>
+          <option value="" disabled><span class="text-red-500">*</span>시/군/구 선택</option>
           <option v-for="sigungu in sigungus" :key="sigungu" :value="sigungu">{{ sigungu }}</option>
         </select>
 

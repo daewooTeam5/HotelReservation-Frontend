@@ -127,6 +127,7 @@ export default defineComponent({
             icon="pi pi-sign-in"
             class="w-full"
             type="submit"
+            style="margin-top: 6px;"
           />
         </form>
 

@@ -120,6 +120,7 @@ export default defineComponent({
           root: { class: 'flex items-center justify-center gap-2' },
           input: { class: 'w-12 h-14 text-2xl font-bold text-center border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition' }
         }"
+        style="margin-top: 8px; margin-bottom: 8px;"
       />
 
       <Buttons
