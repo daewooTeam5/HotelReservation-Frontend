@@ -3,6 +3,8 @@ import { ref, onMounted } from "vue";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner"; // [개선] 로딩 스피너 import
 import axios from "axios";
+import { useAuthStore } from '@/stores/authStore.ts';
+import { apiClient } from '@/utils/axiosClient.ts';
 
 // --- 인터페이스 정의 (기존과 동일) ---
 interface AddressDTO {
@@ -34,16 +36,18 @@ interface Place {
 // --- 스크립트 로직 수정 ---
 const loading = ref(true);
 const places = ref<Place[]>([]);
+const authStore = useAuthStore();
 // [개선] hasPlace 변수 제거 -> places.length로 대체하여 코드 단순화
-
+console.log(authStore.userAuth.id);
 // 숙소 정보 가져오기
 const fetchPlaces = async () => {
   loading.value = true;
   try {
     // [참고] 현재는 ownerId 없이 모든 숙소를 가져오는 API로 보입니다.
     // 백엔드 API가 준비되면 '/api/hotel/publishing/my-list?ownerId=...' 와 같이 변경될 수 있습니다.
-    const onerid=6;
-    const response = await axios.get<Place[]>(` '/api/hotel/publishing/my-list?ownerId=${onerid}'`);
+    const onerid=authStore?.userAuth?.id;
+
+    const response = await apiClient.get<Place[]>(`/hotel/publishing/my-list?ownerId=${onerid}`);
 
     // API 응답이 ApiResult<{data: Place[]}> 형태일 경우:
     // places.value = response.data.data || [];
