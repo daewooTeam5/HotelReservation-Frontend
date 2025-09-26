@@ -69,6 +69,14 @@
 
       <!-- 고객 차트 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- 회원 vs 비회원 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">회원 vs 비회원 고객 비율</h3>
+          <div class="flex-1 h-72">
+            <Chart type="doughnut" :data="memberRatioData" :options="guestRatioOptions" />
+          </div>
+        </div>
+
         <!-- 신규 vs 재방문 -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
           <h3 class="text-lg font-bold text-gray-900 mb-4">신규 vs 재방문 고객 비율</h3>
@@ -129,6 +137,17 @@ const stayDurationData = ref<any>({
       label: '체류 고객 수',
       data: [0, 0, 0, 0, 0, 0], // 초기값
       backgroundColor: 'rgba(59,130,246,0.8)',
+    },
+  ],
+});
+
+// 회원 vs 비회원 고객 차트
+const memberRatioData = ref<any>({
+  labels: ['회원', '비회원'],
+  datasets: [
+    {
+      data: [0, 0],
+      backgroundColor: ['#6366f1', '#f59e0b'],
     },
   ],
 });
@@ -319,10 +338,29 @@ async function fetchStayDurationDistribution() {
   }
 }
 
+async function fetchMemberRatio() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split('T')[0];
+  const endDate = end.toISOString().split('T')[0];
+
+  try {
+    const { data } = await apiClient.get('/v1/statistics/customers/member-ratio', {
+      params: { startDate, endDate },
+    });
+    memberRatioData.value.datasets[0].data = [data.members, data.nonMembers];
+  } catch (err) {
+    console.error('📌 회원 vs 비회원 고객 비율 불러오기 실패:', err);
+  }
+}
+
+
 // 📌 날짜 변경 감시
 watch(dateRange, async () => {
   await fetchGuestRatio();
   await fetchStayDurationDistribution();
+  await fetchMemberRatio();
 });
 
 // 📌 초기 로딩
@@ -333,5 +371,6 @@ onMounted(async () => {
   await fetchAvgStayDuration();
   await fetchGuestRatio();
   await fetchStayDurationDistribution();
+  await fetchMemberRatio();
 });
 </script>
