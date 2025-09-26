@@ -135,9 +135,7 @@
               </PrimeGalleria>
             </div>
 
-            <!-- 오른쪽: 텍스트 + 가격/버튼 -->
             <div class="flex-1 flex flex-col justify-between">
-              <!-- 위: 방 정보 -->
               <div>
                 <h3 class="text-2xl font-semibold! text-gray-800 mb-2">{{ room.roomType }}</h3>
                 <p class="text-sm text-gray-500">
@@ -148,7 +146,6 @@
                   선택하신 날짜의 객실이 판매 완료되었습니다.
                 </p>
               </div>
-              <!-- 아래: 가격 + 버튼 (row) -->
               <div class="flex items-center justify-between mt-4">
                 <p v-if="room.price" class="text-2xl font-semibold! text-gray-700">
                   {{ Number(room.price).toLocaleString() }}원
@@ -178,51 +175,78 @@
       </PrimeCard>
     </section>
 
-    <section id="info" ref="infoSection" class="w-full max-w-7xl!">
-      <PrimeCard class="border-none! shadow-none! pt-4!">
-        <template #content>
-          <h2 class="text-2xl font-bold! mb-4!">숙박 시설 정보</h2>
-          <p class="text-gray-600 mb-6!">{{ place.description }}</p>
-
-          <div v-if="place.services && place.services.length > 0" class="pt-6 border-t">
-            <h3 class="text-lg font-semibold! mb-4!">편의시설</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
-              <div
-                v-for="service in place.services"
-                :key="service.id"
-                class="flex items-center gap-3"
-              >
-                <img :src="service.icon" :alt="service.name" class="w-6 h-6" />
-                <span class="text-gray-700">{{ service.name }}</span>
+    <div class="w-full max-w-7xl mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section
+        id="info"
+        ref="infoSection"
+        class="transition-all duration-500 ease-in-out"
+        :class="isMapExpanded ? 'md:col-span-2 order-1' : 'md:col-span-1 order-2 md:order-1'"
+      >
+        <PrimeCard class="border-none! shadow-none! pt-4!">
+          <template #content>
+            <h2 class="text-2xl font-bold! mb-4!">숙박 시설 정보</h2>
+            <p class="text-gray-600 mb-6!">{{ place.description }}</p>
+            <div v-if="place.services && place.services.length > 0" class="pt-6 border-t">
+              <h3 class="text-lg font-semibold! mb-4!">편의시설</h3>
+              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                <div
+                  v-for="service in place.services"
+                  :key="service.id"
+                  class="flex items-center gap-3"
+                >
+                  <img :src="service.icon" :alt="service.name" class="w-6 h-6" />
+                  <span class="text-gray-700">{{ service.name }}</span>
+                </div>
               </div>
             </div>
-          </div>
-        </template>
-      </PrimeCard>
-    </section>
+          </template>
+        </PrimeCard>
+      </section>
 
-    <section
-      id="map"
-      ref="mapSection"
-      v-show="place.sido"
-      class="w-full flex flex-col items-center"
-    >
-      <PrimeCard class="w-full max-w-7xl border-none! shadow-none!">
-        <template #content>
-          <h2 class="text-xl font-bold! mb-4">위치</h2>
-          <div ref="mapContainer" class="w-full h-96 rounded-lg shadow mb-2!"></div>
-          <p class="mt-2 text-gray-600 flex gap-1">
-            <i class="pi pi-map-marker"></i>
-            {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
-          </p>
-        </template>
-      </PrimeCard>
-    </section>
+      <section
+        id="map"
+        ref="mapSection"
+        v-if="place && place.sido"
+        class="relative transition-all duration-500 ease-in-out"
+        :class="isMapExpanded ? 'md:col-span-2 order-2 min-h-[60vh]' : 'md:col-span-1 order-1 md:order-2 min-h-[400px]'"
+      >
+        <PrimeCard class="w-full h-full border-none! shadow-none!">
+          <template #content>
+            <h2 class="text-xl font-bold! mb-4">위치</h2>
+            <button
+              @click="toggleMapExpansion"
+              class="absolute top-16 right-4 z-10 p-2 rounded-full bg-white shadow-md hover:bg-gray-100 transition-colors"
+              aria-label="지도 확장/축소"
+            >
+                        <span class="material-symbols-outlined text-xl text-gray-700">
+                            {{ isMapExpanded ? 'fullscreen_exit' : 'fullscreen' }}
+                        </span>
+            </button>
+            <KakaoMapPlaceDetailPage
+              ref="kakaoMap"
+              :is-ready="isDataReady"
+              :address="place.fullAddress"
+              :placeName="place.name"
+              :placeCategory="place.category"
+              :placeRating="place.avgRating"
+              @coords-updated="updateCoords"
+            />
+            <p class="mt-2 text-gray-600 flex gap-1">
+              <i class="pi pi-map-marker"></i>
+              {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <PrimeButton label="카카오맵에서 보기" icon="pi pi-directions" @click="openDirections" severity="secondary" />
+            </div>
+          </template>
+        </PrimeCard>
+      </section>
+    </div>
 
-    <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl!">
+    <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl mt-8">
       <ReviewSection :place-id="parseInt(id)"/>
     </section>
-    <section id="questions" ref="questionsSection" class="w-full max-w-7xl!">
+    <section id="questions" ref="questionsSection" class="w-full max-w-7xl mt-8">
       <QuestionSection :place-id="parseInt(id)" />
     </section>
   </div>
@@ -257,23 +281,25 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 import WishSearchBox from '@/components/WishSearchBox.vue';
-
 import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
-import QuestionSection from './questions/QuestionSection.vue'; // 👈 [추가]
+import QuestionSection from './questions/QuestionSection.vue';
 import { useAuthStore } from '@/stores/authStore.ts';
-
+import KakaoMapPlaceDetailPage from './KakaoMap/KakaoMapPlaceDetailPage.vue';
 
 // 기존 상태 변수
 const route = useRoute();
 const router = useRouter();
 const id = route.params.id as string;
-const place = ref<any>({});
+const place = ref<any>(null);
 const loading = ref(true);
 const error = ref('');
-const mapContainer = ref<HTMLDivElement | null>(null);
 const isModalOpen = ref(false);
 
-// 탭 및 스크롤 관련 상태 변수
+const isMapExpanded = ref(false);
+const kakaoMap = ref<InstanceType<typeof KakaoMapPlaceDetailPage> | null>(null);
+const placeCoords = ref<{lat: number, lng: number} | null>(null);
+const isDataReady = ref(false);
+
 const tabs = [
   { id: 'rooms', label: '객실' },
   { id: 'info', label: '정보' },
@@ -285,20 +311,17 @@ const activeTab = ref('rooms');
 const isSticky = ref(false);
 
 const responsiveOptions = [
-  {
-    breakpoint: '1024px',
-    numVisible: 3,
-  },
-  {
-    breakpoint: '768px',
-    numVisible: 2,
-  },
-  {
-    breakpoint: '560px',
-    numVisible: 1,
-  },
+  { breakpoint: '1024px', numVisible: 3 },
+  { breakpoint: '768px', numVisible: 2 },
+  { breakpoint: '560px', numVisible: 1 },
 ];
+
 const toggleWish = async () => {
+  if (!useAuthStore().isLoggedIn) {
+    alert('로그인이 필요합니다.');
+    router.push('/sign-in');
+    return;
+  }
   try {
     if (place.value.isLiked) {
       await apiClient.delete(`/v1/wishlist/${id}`);
@@ -327,7 +350,6 @@ const sharePlace = (place: any) => {
   }
 };
 
-// 각 섹션의 ref
 const tabContainer = ref<HTMLDivElement | null>(null);
 const roomsSection = ref<HTMLElement | null>(null);
 const infoSection = ref<HTMLElement | null>(null);
@@ -335,12 +357,8 @@ const mapSection = ref<HTMLElement | null>(null);
 const reviewsSection = ref<HTMLElement | null>(null);
 const questionsSection = ref<HTMLElement | null>(null);
 
-const openModal = () => {
-  isModalOpen.value = true;
-};
-const closeModal = () => {
-  isModalOpen.value = false;
-};
+const openModal = () => { isModalOpen.value = true; };
+const closeModal = () => { isModalOpen.value = false; };
 
 const addToCart = async (room: any) => {
   try {
@@ -358,10 +376,9 @@ const addToCart = async (room: any) => {
       alert('체크인/체크아웃 날짜를 선택해주세요.');
       return;
     }
-    const res = await apiClient.post(`http://localhost:8080/api/v1/cart/${room.roomId}`, null, {
+    await apiClient.post(`http://localhost:8080/api/v1/cart/${room.roomId}`, null, {
       params: { startDate, endDate, quantity: 1 },
     });
-    console.log('장바구니 추가 성공:', res.data);
   } catch (e) {
     console.error('장바구니 추가 실패:', e);
   }
@@ -380,15 +397,36 @@ const onSearch = (payload: {
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId);
   if (element) {
-    // 복잡한 로직 없이 이 한 줄만 남깁니다.
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   activeTab.value = sectionId;
 };
 
+const toggleMapExpansion = () => {
+  isMapExpanded.value = !isMapExpanded.value;
+  setTimeout(() => {
+    kakaoMap.value?.relayout();
+  }, 500);
+};
+
+const updateCoords = (coords: {lat: number, lng: number}) => {
+  placeCoords.value = coords;
+};
+
+
+const openDirections = () => {
+  if (placeCoords.value && place.value) {
+    const { lat, lng } = placeCoords.value;
+    const placeName = encodeURIComponent(place.value.name);
+    const url = `https://map.kakao.com/link/to/${placeName},${lat},${lng}`;
+    window.open(url, '_blank');
+  } else {
+    alert('지도 좌표를 가져오는 중입니다. 잠시 후 다시 시도해주세요.');
+  }
+};
+
 onMounted(async () => {
   try {
-    // ⭐️ 데이터 로딩 로직
     let checkIn = route.query.checkIn as string | undefined;
     let checkOut = route.query.checkOut as string | undefined;
     let rooms = route.query.rooms as string | undefined;
@@ -396,16 +434,7 @@ onMounted(async () => {
     let children = route.query.children as string | undefined;
 
     if (checkIn && checkOut) {
-      localStorage.setItem(
-        'detailSearch',
-        JSON.stringify({
-          checkIn,
-          checkOut,
-          rooms,
-          adults,
-          children,
-        }),
-      );
+      localStorage.setItem('detailSearch', JSON.stringify({ checkIn, checkOut, rooms, adults, children }));
     } else {
       const saved = localStorage.getItem('detailSearch');
       if (saved) {
@@ -422,32 +451,28 @@ onMounted(async () => {
     });
     const rawData = res.data.data;
     rawData.rooms = rawData.rooms.map((room: any) => {
-      // DB에서 넘어온 images가 배열처럼 보여도 실제로는 문자열
       let images: string[] = [];
       if (Array.isArray(room.images)) {
-        // 혹시나 배열일 경우 그대로
         images = room.images.flatMap((img: string) => img.split(','));
       } else if (typeof room.images === 'string') {
-        // 문자열일 경우 split 처리
         images = room.images.split(',');
       }
-
       return {
         ...room,
-        images: images.map((img: string) => ({
-          itemImageSrc: img,
-          thumbnailImageSrc: img,
-          alt: room.roomType || '객실 이미지',
-        })),
-        imageUrl: images[0] || null, // 대표 이미지
+        images: images.map((img: string) => ({ itemImageSrc: img, thumbnailImageSrc: img, alt: room.roomType || '객실 이미지' })),
+        imageUrl: images[0] || null,
       };
     });
+    rawData.fullAddress = `${rawData.sido} ${rawData.sigungu} ${rawData.roadName} ${rawData.detailAddress}`;
     place.value = rawData;
-    const {getAccessToken} = useAuthStore()
-    if(getAccessToken){
+
+    const { getAccessToken } = useAuthStore();
+    if (getAccessToken) {
       const wishRes = await apiClient.get(`/v1/wishlist/${id}`);
       place.value.isLiked = wishRes.data.data;
     }
+
+    isDataReady.value = true;
 
   } catch (e: any) {
     error.value = e.message || '숙소 데이터를 불러오는 데 실패했습니다.';
@@ -462,10 +487,9 @@ onMounted(async () => {
         const topOffset = tabHeight + 40;
         const options = {
           root: null,
-          threshold: 0, // 교차 비율 0%만 감지
+          threshold: 0,
           rootMargin: `-${topOffset}px 0px -${window.innerHeight - topOffset - 1}px 0px`,
         };
-
         const observer = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -473,11 +497,6 @@ onMounted(async () => {
             }
           });
         }, options);
-
-        // ⭐️ ref가 제대로 연결되었는지 확인하는 로그
-        console.log('[확인] roomsSection ref:', roomsSection.value);
-
-        // 관찰 시작
         if (roomsSection.value) observer.observe(roomsSection.value);
         if (infoSection.value) observer.observe(infoSection.value);
         if (mapSection.value) observer.observe(mapSection.value);
@@ -485,48 +504,9 @@ onMounted(async () => {
         if (questionsSection.value) observer.observe(questionsSection.value);
       }
     }
-    // --- 지도 초기화 로직 (DOM이 준비되어야 하므로 이 위치가 적절합니다) ---
-    if (place.value.sido && mapContainer.value) {
-      const waitForGoogleMaps = () =>
-        new Promise<void>((resolve) => {
-          const check = setInterval(() => {
-            if (window.google && window.google.maps) {
-              clearInterval(check);
-              resolve();
-            }
-          }, 100);
-        });
-
-      await waitForGoogleMaps();
-
-      const map = new google.maps.Map(mapContainer.value, {
-        center: { lat: 37.5665, lng: 126.978 },
-        zoom: 15,
-        disableDefaultUI: true,
-        zoomControl: true,
-        fullscreenControl: true,
-        mapId: '7a9f228f2f427f0087b53bb2',
-      });
-
-      const geocoder = new google.maps.Geocoder();
-      const fullAddress = `${place.value.sido} ${place.value.sigungu} ${place.value.roadName} ${place.value.detailAddress}`;
-      geocoder.geocode({ address: fullAddress }, (results, status) => {
-        if (status === 'OK' && results && results[0]) {
-          const location = results[0].geometry.location;
-          map.setCenter(location);
-          new google.maps.marker.AdvancedMarkerElement({
-            map,
-            position: location,
-            title: place.value?.name ?? '',
-          });
-        } else {
-          console.error('지오코딩 실패:', status);
-        }
-      });
-    }
   }
 });
-// 예약 검색 조건 (쿼리 or localStorage)
+
 const checkInDate = ref(route.query.checkIn as string || '');
 const checkOutDate = ref(route.query.checkOut as string || '');
 const adults = ref(route.query.adults as string || '');
@@ -540,19 +520,11 @@ const handleReservation = (roomId: number) => {
   }
   router.push({
     path: '/places/order',
-    query: {
-      hotelId: id,
-      roomId,
-      checkIn: checkInDate.value,
-      checkOut: checkOutDate.value,
-      adults: adults.value,
-      children: children.value,
-      rooms: rooms.value,
-    },
+    query: { hotelId: id, roomId, checkIn: checkInDate.value, checkOut: checkOutDate.value, adults: adults.value, children: children.value, rooms: rooms.value },
   });
 };
-
 </script>
+
 <style scoped>
 section[id] {
   scroll-margin-top: var(--tab-bar-height);
