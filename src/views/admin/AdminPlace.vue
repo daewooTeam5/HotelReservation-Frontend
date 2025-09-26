@@ -41,7 +41,12 @@
       <Button label="검색" @click="fetchPlaces" />
     </div>
 
-    <DataTable :value="places" responsiveLayout="scroll" class="mt-4">
+    <DataTable
+      :value="places"
+      responsiveLayout="scroll"
+      class="mt-4"
+      @row-click="onRowClick"
+    >
       <!-- 상태 -->
       <Column header="상태">
         <template #body="slotProps">
@@ -76,11 +81,19 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+
+const router = useRouter();
+
+const onRowClick = (event: any) => {
+  const placeId = event.data.id;
+  router.push({ name: "admin-place-detail", params: { id: placeId } });
+};
 
 // 숙소 데이터
 const places = ref<any[]>([]);
@@ -127,7 +140,7 @@ const approvalStatusOptions = [
 
 const fetchPlaces = async () => {
   try {
-    const res = await apiClient.get('/v1/places/admin', {
+    const res = await apiClient.get('/v1/admin/places', {
       params: {
         start: 0,
         approvalStatus: filters.value.approvalStatus || null,
