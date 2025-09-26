@@ -55,6 +55,7 @@
           초기화
         </button>
         <button
+          @click="exportToCSV"
           class="ml-auto bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
         >
           <i class="pi pi-download mr-2"></i>
@@ -64,7 +65,44 @@
 
       <!-- 주요 차트들 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- 객실 타입별 매출 -->
+        <!-- 매출 추이 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">매출 추이</h3>
+            <!-- ✅ 드롭다운 (매출 추이 전용) -->
+            <select v-model="selectedRevenuePeriod" class="border rounded px-3 py-1 text-sm">
+              <option value="daily">일별</option>
+              <option value="weekly">주별</option>
+              <option value="monthly">월별</option>
+              <option value="yearly">연도별</option>
+            </select>
+          </div>
+          <div class="flex-1 h-64">
+            <Chart type="line" :data="revenueTrendData" :options="lineOptions" />
+          </div>
+        </div>
+
+        <!-- 예약 건수 추이 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">예약 건수 추이</h3>
+            <!-- ✅ 드롭다운 (예약 건수 차트 전용) -->
+            <select v-model="selectedPeriod" class="border rounded px-3 py-1 text-sm">
+              <option value="daily">일별</option>
+              <option value="weekly">주별</option>
+              <option value="monthly">월별</option>
+              <option value="yearly">연도별</option>
+            </select>
+          </div>
+          <div class="flex-1 h-64">
+            <Chart type="line" :data="reservationTrendData" :options="lineOptions" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 보조 차트들 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- 객실 타입별 예약·매출 -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -91,7 +129,7 @@
         </div>
       </div>
 
-      <!-- 보조 차트들 -->
+      <!-- 결제 수단 + (추가 여유 공간) -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- 결제 수단 -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
@@ -103,15 +141,8 @@
           </div>
         </div>
 
-        <!-- 체크인·체크아웃 추이 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-gray-900">체크인·아웃 추이</h3>
-          </div>
-          <div class="flex-1 h-64">
-            <Chart type="bar" :data="checkinCheckoutData" :options="barOptions" />
-          </div>
-        </div>
+        <!-- 빈 공간(추후 다른 차트 추가 가능) -->
+        <div class="hidden lg:block"></div>
       </div>
     </div>
   </div>
@@ -142,6 +173,12 @@ const monthlyReservations = ref(0);
 const monthlyGrowthRate = ref(0);
 const cancelRate = ref(0);
 const cancelGrowthRate = ref(0);
+const reservationTrendData = ref<any>({ labels: [], datasets: [] });
+const selectedPeriod = ref("daily"); // ✅ 기본값: 일별
+
+// 🔹 매출 추이 차트 상태
+const revenueTrendData = ref<any>({ labels: [], datasets: [] });
+const selectedRevenuePeriod = ref("daily"); // ✅ 기본값: 일별
 
 // 🔹 차트 데이터
 const roomRevenueData = ref<any>({
@@ -157,19 +194,9 @@ const cancelRefundData = ref<any>({
   ],
 });
 
-const paymentMethodData = ref({
-  labels: ["카드", "계좌이체", "쿠폰", "현금"],
-  datasets: [
-    { data: [200, 100, 50, 20], backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"] },
-  ],
-});
-
-const checkinCheckoutData = ref({
-  labels: ["월", "화", "수", "목", "금", "토", "일"],
-  datasets: [
-    { label: "체크인", data: [10, 20, 15, 25, 30, 40, 35], backgroundColor: "#3b82f6" },
-    { label: "체크아웃", data: [12, 18, 20, 22, 28, 38, 33], backgroundColor: "#10b981" },
-  ],
+const paymentMethodData = ref<any>({
+  labels: [],
+  datasets: []
 });
 
 // 🔹 차트 옵션
@@ -223,6 +250,7 @@ const doughnutOptions = {
 };
 
 const pieOptions = { responsive: true, maintainAspectRatio: false };
+const lineOptions = { responsive: true, maintainAspectRatio: false, tension: 0.3 };
 const barOptions = { responsive: true, maintainAspectRatio: false };
 
 // ✅ 객실 타입별 예약·매출 API 호출
@@ -287,6 +315,101 @@ async function fetchCancelBreakdown() {
   }
 }
 
+// ✅ 예약 건수 추이 API 호출
+async function fetchReservationTrend() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split("T")[0];
+  const endDate = end.toISOString().split("T")[0];
+
+  try {
+    const { data } = await apiClient.get("/v1/statistics/reservation/trend", {
+      params: { startDate, endDate, period: selectedPeriod.value }
+    });
+
+    reservationTrendData.value = {
+      labels: data.map((d: any) => d.label),
+      datasets: [
+        {
+          label: "예약 건수",
+          data: data.map((d: any) => d.count),
+          borderColor: "#3b82f6",
+          backgroundColor: "rgba(59,130,246,0.3)",
+          fill: true
+        }
+      ]
+    };
+  } catch (err) {
+    console.error("📌 예약 건수 추이 데이터 불러오기 실패:", err);
+  }
+}
+
+// ✅ 매출 추이 API
+async function fetchRevenueTrend() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split("T")[0];
+  const endDate = end.toISOString().split("T")[0];
+
+  try {
+    const { data } = await apiClient.get("/v1/statistics/revenue/trend", {
+      params: { startDate, endDate, period: selectedRevenuePeriod.value }
+    });
+
+    revenueTrendData.value = {
+      labels: data.map((d: any) => d.label),
+      datasets: [
+        {
+          label: "매출액",
+          data: data.map((d: any) => d.revenue),
+          borderColor: "#10b981",
+          backgroundColor: "rgba(16,185,129,0.3)",
+          fill: true
+        }
+      ]
+    };
+  } catch (err) {
+    console.error("📌 매출 추이 데이터 불러오기 실패:", err);
+  }
+}
+
+// ✅ 결제 수단 통계 API 호출
+async function fetchPaymentMethodStats() {
+  if (!dateRange.value || dateRange.value.length < 2) return;
+
+  const [start, end] = dateRange.value;
+  const startDate = start.toISOString().split("T")[0];
+  const endDate = end.toISOString().split("T")[0];
+
+  try {
+    const { data } = await apiClient.get("/v1/statistics/payment/methods", {
+      params: { startDate, endDate }
+    });
+
+    paymentMethodData.value = {
+      labels: data.map((d: any) => {
+        // 백엔드 enum → 한글 변환
+        switch (d.method) {
+          case "card": return "카드";
+          case "bank_transfer": return "계좌이체";
+          case "coupon": return "쿠폰";
+          case "points": return "포인트";
+          default: return d.method;
+        }
+      }),
+      datasets: [
+        {
+          data: data.map((d: any) => d.totalAmount), // or d.count (건수 기준으로 보려면 바꿀 수 있음)
+          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"]
+        }
+      ]
+    };
+  } catch (err) {
+    console.error("📌 결제 수단 통계 데이터 불러오기 실패:", err);
+  }
+}
+
+
 onMounted(async () => {
   const today = new Date();
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -294,7 +417,9 @@ onMounted(async () => {
   dateRange.value = [firstDay, lastDay];
 
   await fetchRoomRevenue();
-  await fetchCancelBreakdown(); // ✅ 도넛 차트 데이터 로드
+  await fetchCancelBreakdown();
+  await fetchRevenueTrend();
+  await fetchPaymentMethodStats();
 
   try {
     // 오늘 예약 현황
@@ -316,11 +441,102 @@ onMounted(async () => {
   }
 });
 
-// 🔹 기간이 변경될 때마다 자동으로 API 새로 호출
+
+// 🔹 기간이 바뀌면 공통으로 갱신해야 하는 것들
 watch(dateRange, () => {
   fetchRoomRevenue();
-  fetchCancelBreakdown(); // ✅ 기간 바뀌면 도넛 차트도 다시 로드
+  fetchCancelBreakdown();
+  fetchReservationTrend();
+  fetchRevenueTrend();
+  fetchPaymentMethodStats();
 });
+
+// 🔹 예약 건수 드롭다운 변경 시 예약 건수만 갱신
+watch(selectedPeriod, () => {
+  fetchReservationTrend();
+});
+
+// 🔹 매출 추이 드롭다운 변경 시 매출 추이만 갱신
+watch(selectedRevenuePeriod, () => {
+  fetchRevenueTrend();
+});
+
+function exportToCSV() {
+  const rows: any[] = [];
+
+  // ✅ KPI 카드 데이터
+  rows.push(["오늘 예약 수", todayReservations.value]);
+  rows.push(["오늘 예약 증감률 (%)", todayGrowthRate.value]);
+  rows.push(["이번 달 예약 수", monthlyReservations.value]);
+  rows.push(["이번 달 예약 증감률 (%)", monthlyGrowthRate.value]);
+  rows.push(["예약 취소율 (%)", cancelRate.value]);
+  rows.push(["예약 취소율 증감률 (%)", cancelGrowthRate.value]);
+  rows.push([]);
+
+  // ✅ 객실 타입별 매출
+  rows.push(["객실 타입", "예약 건수", "매출액"]);
+  roomRevenueData.value.labels.forEach((label: string, idx: number) => {
+    rows.push([
+      label,
+      roomRevenueData.value.datasets[0].data[idx], // 예약 건수
+      roomRevenueData.value.datasets[1].data[idx]  // 매출액
+    ]);
+  });
+  rows.push([]);
+
+  // ✅ 취소·환불율
+  rows.push(["예약 상태", "건수"]);
+  cancelRefundData.value.labels.forEach((label: string, idx: number) => {
+    rows.push([
+      label,
+      cancelRefundData.value.datasets[0].data[idx]
+    ]);
+  });
+  rows.push([]);
+
+  // ✅ 결제 수단
+  rows.push(["결제 수단", "금액"]);
+  paymentMethodData.value.labels.forEach((label: string, idx: number) => {
+    rows.push([
+      label,
+      paymentMethodData.value.datasets[0].data[idx]
+    ]);
+  });
+  rows.push([]);
+
+  // ✅ 예약 건수 추이
+  rows.push(["예약 건수 추이", "건수"]);
+  reservationTrendData.value.labels.forEach((label: string, idx: number) => {
+    rows.push([
+      label,
+      reservationTrendData.value.datasets[0].data[idx]
+    ]);
+  });
+  rows.push([]);
+
+  // ✅ 매출 추이
+  rows.push(["매출 추이", "매출액"]);
+  revenueTrendData.value.labels.forEach((label: string, idx: number) => {
+    rows.push([
+      label,
+      revenueTrendData.value.datasets[0].data[idx]
+    ]);
+  });
+
+  // ✅ CSV 문자열 생성
+  const csvContent = rows.map(e => e.join(",")).join("\n");
+
+  // ✅ Blob 생성 후 다운로드
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", "statistics.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 </script>
 
