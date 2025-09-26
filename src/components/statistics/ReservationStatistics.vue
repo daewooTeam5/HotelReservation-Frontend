@@ -27,6 +27,7 @@
           :change="cancelGrowthRate"
           subtitle="전월 대비"
           color="red"
+          :reverseColor="true"
         />
       </div>
 

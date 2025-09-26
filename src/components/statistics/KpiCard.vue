@@ -45,6 +45,7 @@ interface Props {
   change?: number;
   subtitle?: string;
   color?: 'blue' | 'green' | 'yellow' | 'purple' | 'red';
+  reverseColor?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -81,9 +82,14 @@ const iconColor = computed(() => {
 });
 
 const changeColor = computed(() => {
-  if (!props.change) return '';
-  return props.change > 0 ? 'text-green-600' : 'text-red-600';
+  if (props.change == null) return "";
+  if (props.reverseColor) {
+    // 🔹 반대로 적용
+    return props.change > 0 ? "text-red-600" : "text-green-600";
+  }
+  return props.change > 0 ? "text-green-600" : "text-red-600";
 });
+
 
 const changeIcon = computed(() => {
   if (!props.change) return '';
