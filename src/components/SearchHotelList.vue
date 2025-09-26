@@ -44,23 +44,23 @@
         <div class="flex items-end justify-between mt-4">
           <div class="flex flex-col items-end gap-1">
             <div v-if="place.discountValue > 0">
-              <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-1">
-                {{ Math.round((place.discountValue / place.originalPrice) * 100) }}% 할인
-              </span>
+      <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-1">
+        {{ Math.round((place.discountValue / place.originalPrice) * 100) }}% 할인
+      </span>
               <div class="flex items-baseline gap-2">
-                <span class="text-gray-500 line-through text-sm">
-                  {{ Number(place.originalPrice).toLocaleString() }}원
-                </span>
+        <span class="text-gray-500 line-through text-sm">
+          {{ Number(place.originalPrice).toLocaleString() }}원
+        </span>
                 <span class="text-gray-900 font-bold text-lg">
-                  {{ Number(place.finalPrice).toLocaleString() }}원
-                </span>
+          {{ Number(place.finalPrice).toLocaleString() }}원
+        </span>
               </div>
             </div>
 
             <div v-else>
-              <span class="text-gray-900 font-bold text-lg">
-                {{ Number(place.originalPrice).toLocaleString() }}원
-              </span>
+      <span class="text-gray-900 font-bold text-lg">
+        {{ Number(place.originalPrice).toLocaleString() }}원
+      </span>
             </div>
           </div>
 
@@ -78,61 +78,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
-import PrimeButton from 'primevue/button';
-
-interface Place {
-  id: number;
-  name: string;
-  sido: string;
-  avgRating: number;
-  fileUrl?: string;
-  originalPrice: number;
-  finalPrice: number;
-  discountValue: number;
-  isLiked: number;
-}
 
 const router = useRouter();
 const route = useRoute();
 
-const places = ref<Place[]>([]);
-const searchNotice = ref<string>('');
+defineProps<{
+  places: any[];
+  searchNotice: string;
+}>();
 
-// API 호출해서 데이터 가져오기
-const fetchPlaces = async () => {
-  try {
-    const ownerId = 123; // 실제 로그인한 유저 ID
-    const response = await apiClient.get(`/api/hotel/publishing/my-list?ownerId=${ownerId}`);
+// 상세보기 이동 (localStorage 날짜 포함)
+const goDetail = (placeId: number) => {
+  const storedStart = localStorage.getItem('startDate');
+  const storedEnd = localStorage.getItem('endDate');
+  const storedRooms = localStorage.getItem('rooms');
+  const storedAdults = localStorage.getItem('adults');
+  const storedChildren = localStorage.getItem('children');
 
-    // response.data를 places 배열로 맞추기
-    if (response.data) {
-      const data = response.data;
-      places.value = [
-        {
-          id: data.id,
-          name: data.hotelName,
-          sido: data.address?.sido || '',
-          avgRating: 4.5, // 임시
-          fileUrl: data.images?.[0] || '',
-          originalPrice: data.rooms?.[0]?.minPrice || 100000,
-          finalPrice: data.rooms?.[0]?.minPrice || 100000,
-          discountValue: 0,
-          isLiked: 0
-        }
-      ];
-    } else {
-      searchNotice.value = '등록된 숙소가 없습니다.';
+  router.push({
+    name: 'PlaceDetail',
+    params: { id: placeId },
+    query: {
+      startDate: storedStart || '',
+      endDate: storedEnd || '',
+      rooms: storedRooms || '1',
+      adults: storedAdults || '1',
+      children: storedChildren || '0'
     }
-  } catch (err) {
-    console.error('숙소 데이터 가져오기 실패:', err);
-    searchNotice.value = '숙소 정보를 불러오지 못했습니다.';
-  }
+  });
 };
 
-const toggleLike = async (place: Place) => {
+const toggleLike = async (place: any) => {
   try {
     if (place.isLiked === 1) {
       await apiClient.delete(`/v1/wishlist/${place.id}`);
@@ -146,6 +124,7 @@ const toggleLike = async (place: Place) => {
   }
 };
 
+// 상세보기 클릭 시 체크인/체크아웃 날짜도 함께 전달
 const goToDetail = (placeId: number) => {
   router.push({
     name: 'PlaceDetail',
@@ -153,12 +132,10 @@ const goToDetail = (placeId: number) => {
     query: {
       checkIn: route.query.checkIn,
       checkOut: route.query.checkOut,
+      adults: route.query.adults,
+      children: route.query.children,
       rooms: route.query.rooms
     }
   });
 };
-
-onMounted(() => {
-  fetchPlaces();
-});
 </script>
