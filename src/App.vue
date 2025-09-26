@@ -11,9 +11,9 @@ import { useAuthStore } from '@/stores/authStore.ts';
 
 const route = useRoute();
 const authStore = useAuthStore();
-onMounted(async ()=>{
-  await authStore.issueToken();
-})
+onMounted(() => {
+  void authStore.issueToken();
+});
 </script>
 
 <template>

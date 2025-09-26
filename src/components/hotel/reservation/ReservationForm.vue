@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/authStore.ts';
+import { useQuery } from '@tanstack/vue-query';
+import { httpFetcher } from '@/utils/httpFetcher.ts';
+import { ApiResult } from '@/types/ApiResult';
+import type { Guest } from '@/types/users.ts';
 
 // 예약자 정보 인터페이스
 interface ReservationUserInfo {
@@ -11,7 +15,21 @@ interface ReservationUserInfo {
 }
 
 const { userAuth } = useAuthStore();
-
+const { isLoading, data, isError, error } = useQuery<ApiResult<Guest>>({
+  queryKey: ['v1', 'users', 'my', 'guest'],
+  queryFn: httpFetcher,
+  enabled: !!userAuth
+});
+const lastNameModel = computed({
+  get: () => data.value?.data?.lastName ?? formData.value.lastName,
+  set: (val: string) => {
+    if (data.value?.data) {
+      data.value.data.lastName = val; // vue-query 데이터 덮어쓰기
+    } else {
+      formData.value.lastName = val;
+    }
+  }
+});
 // 폼 데이터
 const formData = ref<ReservationUserInfo>({
   lastName: '',
@@ -72,7 +90,7 @@ if (userAuth) {
     </template>
 
     <template #content>
-      <div class="p-4 space-y-4">
+      <div  class="p-4 space-y-4">
         <!-- 성/이름 입력 -->
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
@@ -80,12 +98,12 @@ if (userAuth) {
               성 <span class="text-red-500">*</span>
             </label>
             <InputText
-              id="lastName"
               v-model="formData.lastName"
               placeholder="성을 입력하세요"
               class="w-full"
               @input="handleInputChange"
             />
+
           </div>
 
           <div class="space-y-2">
