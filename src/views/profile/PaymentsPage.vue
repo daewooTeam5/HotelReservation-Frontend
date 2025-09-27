@@ -102,7 +102,7 @@ const cancelPayment = (id: number) => {
     <div v-else>
       <div v-if="items.length === 0" class="p-6 text-gray-500 border rounded">표시할 내역이 없습니다.</div>
 
-      <div v-else class="space-y-4 flex flex-col gap-3">
+      <div v-else class="space-y-4 flex flex-col gap-3 w-full!">
         <PaymentCard
           v-for="p in items"
           :key="p.paymentId"
