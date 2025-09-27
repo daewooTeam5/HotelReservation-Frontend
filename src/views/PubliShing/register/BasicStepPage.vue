@@ -8,6 +8,8 @@ import { ref } from 'vue';
 const store = useRegisterStore();
 const router = useRouter();
 
+
+
 const fileInput = ref<HTMLInputElement | null>(null);
 const triggerFileInput = () => fileInput.value?.click();
 
@@ -64,7 +66,7 @@ const validateAndGoNext = () => {
       <p class="font-semibold my-2 text-gray-700 dark:text-gray-200">
         <span class="text-red-500 mr-1">*</span>숙소 유형
       </p>
-      <select v-model="store.categoryId" class="w-[55%] border rounded p-2 dark:bg-gray-700 dark:border-gray-600">
+      <select v-model.number="store.categoryId" class="w-[55%] border rounded p-2 dark:bg-gray-700 dark:border-gray-600">
         <option value="">선택</option>
         <option value="1">호텔</option>
         <option value="2">리조트</option>

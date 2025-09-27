@@ -19,8 +19,6 @@ export type RoomForm = {
   roomNumber: number;
   roomType: string;
   bedType: BedOption[];
-  checkIn: string;
-  checkOut: string;
   isPublic: boolean;
   selectedBed: string;
   width: number;
@@ -48,8 +46,20 @@ export type RegisterState = {
   addedRooms: RoomForm[];
   discounts: DiscountOption[];
   amenities: Amenity[];
+  checkIn: string;
+  checkOut: string;
   images: string[]; // 객실 등록 페이지용 임시 이미지 배열
   address: Address;
+};
+export type CategoryMap = Record<number, string>;
+
+// 실제 매핑 객체
+export const categoryMap: CategoryMap = {
+  1: '호텔',
+  2: '리조트',
+  3: '게스트하우스/비앤비',
+  4: '아파트/펜션',
+  5: '모텔',
 };
 
 export const defaultBeds: BedOption[] = [
@@ -66,8 +76,6 @@ const initialRoomState = (): RoomForm => ({
   roomNumber: 1,
   roomType: '',
   bedType: defaultBeds.map(b => ({ ...b })),
-  checkIn: '',
-  checkOut: '',
   isPublic: true,
   selectedBed: '',
   width: 0,
@@ -80,6 +88,8 @@ export const useRegisterStore = defineStore('registerStore', {
     name: '',
     categoryId: '',
     description: '',
+    checkIn: '15:00',
+    checkOut: '11:00',
     hotelImages: [], // hotelImages 초기 상태 정의
     rooms: initialRoomState(),
     addedRooms: [],
