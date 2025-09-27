@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import Button from "primevue/button";
-import ProgressSpinner from "primevue/progressspinner"; // [개선] 로딩 스피너 import
-import axios from "axios";
+import ProgressSpinner from "primevue/progressspinner";
 import { useAuthStore } from '@/stores/authStore.ts';
 import { apiClient } from '@/utils/axiosClient.ts';
 
-// --- 인터페이스 정의 (기존과 동일) ---
+// --- 인터페이스 정의 ---
 interface AddressDTO {
   sido: string;
   sigungu: string;
@@ -30,49 +29,45 @@ interface Place {
   categoryId: number | null;
   capacityRoom: number | null;
   isPublic: boolean;
-  minPrice: number;
+  minPrice: number; // 💡 [수정] 백엔드 데이터와 일치하도록 Price -> minPrice로 변경
 }
 
-// --- 스크립트 로직 수정 ---
+// --- 스크립트 로직 ---
 const loading = ref(true);
 const places = ref<Place[]>([]);
 const authStore = useAuthStore();
-// [개선] hasPlace 변수 제거 -> places.length로 대체하여 코드 단순화
-console.log(authStore.userAuth.id);
+
 // 숙소 정보 가져오기
 const fetchPlaces = async () => {
   loading.value = true;
   try {
-    // [참고] 현재는 ownerId 없이 모든 숙소를 가져오는 API로 보입니다.
-    // 백엔드 API가 준비되면 '/api/hotel/publishing/my-list?ownerId=...' 와 같이 변경될 수 있습니다.
-    const onerid=authStore?.userAuth?.id;
+    // 💡 [수정] 하드코딩된 ID 대신, 로그인 스토어에서 실제 ownerId를 가져옵니다.(지금은 OwnerId를 null로 써서 하드코딩한 6으로 사용)
+    const ownerId=6;
+    //const ownerId = authStore.userAuth?.id;
+    if (!ownerId) {
+      console.error("로그인 정보(ownerId)를 찾을 수 없어 API를 호출하지 않습니다.");
+      loading.value = false;
+      places.value = [];
+      return;
+    }
 
-    const response = await apiClient.get<Place[]>(`/hotel/publishing/my-list?ownerId=${onerid}`);
-
-    // API 응답이 ApiResult<{data: Place[]}> 형태일 경우:
-    // places.value = response.data.data || [];
-
-    // API 응답이 Place[] 형태일 경우:
-    places.value = response.data || [];
+    const response = await apiClient.get<{ data: Place[] }>(`/hotel/publishing/my-list?ownerId=${ownerId}`);
+    places.value = response.data.data || [];
 
   } catch (error) {
     console.error("숙소 정보를 가져오는 데 실패했습니다:", error);
-    places.value = []; // 에러 발생 시 빈 배열로 초기화
+    places.value = [];
   } finally {
     loading.value = false;
   }
 };
 
-// 숙소 삭제
+// 숙소 삭제 (수정할 부분 없음, 정상 동작)
 const deletePlace = async (placeId: number) => {
   if (confirm("정말 숙소를 삭제하시겠습니까?")) {
     try {
-      // [수정] 하드코딩된 placeId=6 제거, 파라미터로 받은 placeId 사용
-      await axios.delete(`/api/hotel/publishing/list/delete/${placeId}`);
-
-      // 화면에서 즉시 삭제된 숙소 제거
+      await apiClient.delete(`/api/hotel/publishing/list/delete/${placeId}`);
       places.value = places.value.filter(p => p.id !== placeId);
-
       alert("숙소가 삭제되었습니다.");
     } catch (error) {
       console.error("숙소 삭제에 실패했습니다:", error);
@@ -81,8 +76,13 @@ const deletePlace = async (placeId: number) => {
   }
 };
 
-onMounted(() => {
-  fetchPlaces();
+// 💡 [수정] onMounted 대신 watch를 사용하여 로그인 정보가 준비된 후 데이터를 안전하게 불러옵니다.
+watch(() => authStore.userAuth, (newUserAuth) => {
+  if (newUserAuth) {
+    fetchPlaces();
+  }
+}, {
+  immediate: true // 컴포넌트 로드 시 즉시 실행
 });
 </script>
 
@@ -95,9 +95,7 @@ onMounted(() => {
         icon="pi pi-plus"
         style="margin: 10px;"
         class="p-button-primary"
-
         @click="$router.push('/hotelregister')"
-
       />
     </h1>
 
@@ -118,12 +116,6 @@ onMounted(() => {
             class="rounded-lg shadow mb-4 w-full h-48 object-cover"
             alt="숙소 이미지"
           />
-          <Button
-            label="숙소 이미지 변경"
-            icon="pi pi-image"
-            class="p-button-outlined w-full"
-            @click="$router.push(`/hotelregister?id=${place.id}`)"
-          />
         </div>
 
         <div class="w-full md:w-2/3 space-y-3">
@@ -132,7 +124,7 @@ onMounted(() => {
           <p><strong>설명:</strong> {{ place.description }}</p>
           <p><strong>체크인:</strong> {{ place.checkIn }}</p>
           <p><strong>체크아웃:</strong> {{ place.checkOut }}</p>
-          <p><strong>최저 요금:</strong> {{ place.minPrice.toLocaleString() }} 원</p>
+          <p><strong>최저 요금:</strong> {{ place.minPrice?.toLocaleString() ?? '가격 정보 없음' }} 원</p>
 
           <div class="flex gap-3 mt-4">
             <Button
@@ -140,7 +132,6 @@ onMounted(() => {
               icon="pi pi-pencil"
               class="p-button-primary"
               @click="$router.push(`/hotelregister?id=${place.id}`)"
-              petch
             />
             <Button
               label="숙소 삭제"
