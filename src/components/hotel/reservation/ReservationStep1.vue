@@ -6,6 +6,7 @@
       <!-- 왼쪽 -->
       <div class="flex-2 space-y-4">
         <ReservationForm
+          ref="formRef"
           @data-change="handleReservationDataChange"
           @submit="handleReservationSubmit"
         />
@@ -17,11 +18,17 @@
       <div class="flex-1 space-y-4">
         <ReservationHotelCard :hotel-id="Number(hotelId) || 1" />
         <ReservationScheduleCard :check-in="checkIn" :check-out="checkOut" />
+        <ReservationCouponCard
+          :place-id="roomInfo?.placeId"
+          :order-amount="subtotal"
+          @coupon-change="onCouponChange"
+        />
         <ReservationPaymentCard
           :room-count="parseInt(rooms)"
           :price="roomInfo?.finalPrice"
           :check-in="checkIn"
           :check-out="checkOut"
+          :discount="discount"
         />
       </div>
     </div>
@@ -34,7 +41,7 @@
             <div>
               <p class="text-lg font-bold">
                 총 결제 금액:
-                <span class="text-red-600">₩{{ calculateAmount.toLocaleString() }}</span>
+                <span class="text-red-600">₩{{ finalAmount.toLocaleString() }}</span>
               </p>
               <p class="text-xs text-gray-600 mt-1">
                 위 정보를 확인한 후 다음 단계로 이동하세요.
@@ -43,7 +50,6 @@
             <PrimeButton
               severity="success"
               size="large"
-              :disabled="!isReservationValid"
               :loading="isProcessing"
               @click="completeStep1"
               class="px-8 py-2 font-semibold"
@@ -66,9 +72,11 @@ import ReservationScheduleCard from '@/components/hotel/reservation/ReservationS
 import ReservationRequestCard from '@/components/hotel/reservation/ReservationRequestCard.vue';
 import ReservationPaymentCard from '@/components/hotel/reservation/ReservationPaymentCard.vue';
 import ReservationAgreementCard from '@/components/hotel/reservation/ReservationAgreementCard.vue';
+import ReservationCouponCard from '@/components/hotel/reservation/ReservationCouponCard.vue';
 import { ref, computed, defineProps, defineEmits } from 'vue';
 import { apiClient } from '@/utils/axiosClient.ts';
 import type { RoomInfo } from '@/types/room';
+import type { AvailablePlaceCoupon } from '@/types/coupon';
 
 // Props from parent
 const props = defineProps<{
@@ -84,7 +92,7 @@ const props = defineProps<{
 
 // Emits to parent
 const emit = defineEmits<{
-  'next-step': [reservationId: string, orderId?: string]
+  'next-step': [reservationId: string, orderId?: string, couponId?: number]
 }>();
 
 // 예약자 정보 타입
@@ -100,6 +108,7 @@ const reservationData = ref<ReservationUserInfo | null>(null);
 const specialRequest = ref<string>('');
 const agreementsValid = ref<boolean>(false);
 const isProcessing = ref<boolean>(false);
+const selectedCoupon = ref<AvailablePlaceCoupon | null>(null);
 
 // 예약 폼에서 데이터 변경 시
 const handleReservationDataChange = (data: ReservationUserInfo) => {
@@ -119,6 +128,11 @@ const handleAgreementChange = (isValid: boolean) => {
   console.log('약관 동의 상태:', isValid);
 };
 
+// 쿠폰 선택 변경
+const onCouponChange = (coupon: AvailablePlaceCoupon | null) => {
+  selectedCoupon.value = coupon;
+};
+
 // 예약 유효성 검사
 const isReservationValid = computed(() => {
   const hasUserInfo =
@@ -128,41 +142,61 @@ const isReservationValid = computed(() => {
     reservationData.value.email &&
     reservationData.value.phoneNumber;
 
+  const phone = reservationData.value?.phoneNumber ?? '';
+  const isPhoneOk = /^\d+$/.test(phone);
+
   const hasAgreements = agreementsValid.value;
 
-  return hasUserInfo && hasAgreements;
+  return hasUserInfo && isPhoneOk && hasAgreements;
 });
 
-// ✅ 결제 금액 계산 (computed로 변경)
-const calculateAmount = computed(() => {
-  const info = props.roomInfo;
-  if (!info) {
-    return 0;
-  }
-  if (!info?.finalPrice || !props.checkIn || !props.checkOut) {
-    return 0;
-  }
-
+// ✅ 금액 계산
+const nightCount = computed(() => {
+  if (!props.checkIn || !props.checkOut) return 0;
   const checkInDate = new Date(props.checkIn);
   const checkOutDate = new Date(props.checkOut);
-  const nightCount = Math.ceil(
-    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  return info.finalPrice * nightCount;
+  return Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
 });
+
+// 소계(할인 전): 1박 요금 × 박수 × 객실 수
+const subtotal = computed(() => {
+  const info = props.roomInfo;
+  if (!info || !info.finalPrice || nightCount.value <= 0) return 0;
+  const roomCount = parseInt(props.rooms || '1');
+  return info.finalPrice * nightCount.value * (isNaN(roomCount) ? 1 : roomCount);
+});
+
+// 쿠폰 할인 금액
+const discount = computed(() => {
+  const coupon = selectedCoupon.value;
+  const base = subtotal.value;
+  if (!coupon || base <= 0) return 0;
+  const raw = coupon.couponType === 'rate' ? Math.floor((base * coupon.amount) / 100) : coupon.amount;
+  return Math.min(raw, base);
+});
+
+// 최종 결제 금액
+const finalAmount = computed(() => Math.max(subtotal.value - discount.value, 0));
+
+// 폼 ref (노출 메서드 타입 정의)
+type ReservationFormExpose = { validateAndFocus: () => boolean };
+const formRef = ref<ReservationFormExpose | null>(null);
 
 // 1단계 완료 및 다음 단계로 이동
 const completeStep1 = async () => {
+  // 버튼 클릭 시 폼 내부 유효성 검사 + 포커스 이동
+  const ok = formRef.value?.validateAndFocus?.();
+  if (!ok) return;
+
   if (!isReservationValid.value) {
-    alert('필수 정보를 모두 입력하고 필수 약관에 동의해주세요.');
+    // 내부 필드 중 포커스 처리로 안내되므로 추가 얼럿은 생략
     return;
   }
 
   try {
     isProcessing.value = true;
 
-    // 백엔드에 예약 정보 저장 요청
+    // 백엔드에 예약 정보 저장 요청 (couponId는 바디에 포함, 가격 대신 숙박일수 전달)
     const response = await apiClient.post('/v1/payment/process', {
       firstName: reservationData.value?.firstName,
       lastName: reservationData.value?.lastName,
@@ -170,19 +204,21 @@ const completeStep1 = async () => {
       phone: reservationData.value?.phoneNumber,
       checkIn: props.checkIn,
       checkOut: props.checkOut,
-      paymentAmount: calculateAmount.value,
+      nights: nightCount.value,
       request: specialRequest.value,
       roomId: props.roomId,
-      roomCount: props.rooms
+      roomCount: props.rooms,
+      couponId: selectedCoupon.value?.id
     });
 
-    // 예약 ID를 부모 컴포넌트로 전달
+    // 예약 ID를 부모 컴포넌트로 전달 (couponId도 함께 전달)
     const reservationId = response.data.data.reservationId || 'temp-id-123';
     const orderId = response.data.data.orderId as string | undefined;
+    const couponId = selectedCoupon.value?.id;
     console.log('예약 ID:', reservationId);
 
-    // 다음 단계로 이동 이벤트 발생 (orderId 함께 전달)
-    emit('next-step', reservationId, orderId);
+    // 다음 단계로 이동 이벤트 발생 (orderId, couponId 함께 전달)
+    emit('next-step', reservationId, orderId, couponId);
   } catch (err) {
     console.error('예약 정보 저장 실패:', err);
     alert('예약 정보 저장 중 오류가 발생했습니다. 다시 시도해 주세요.');
