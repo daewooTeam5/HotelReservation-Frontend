@@ -14,22 +14,16 @@
 
         <div class="flex justify-between ">
           <span class="font-semibold">숙박일수</span>
-          <span class="text-red-600 font-bold">{{ parseInt(route?.query?.rooms ?? 1).toLocaleString() }}</span>
+          <span class="text-red-600 font-bold">{{ nights }}박</span>
         </div>
         <div class="flex justify-between ">
           <span class="font-semibold">객실수</span>
-          <span class="text-red-600 font-bold">{{ parseInt(route?.query?.rooms ?? 1).toLocaleString() }}</span>
+          <span class="text-red-600 font-bold">{{ rooms }}개</span>
         </div>
         <div class="flex justify-between border-b pb-4">
           <span class="font-semibold">결제 금액</span>
-          <span class="text-red-600 font-bold">₩{{ (amount*parseInt(route?.query?.rooms ?? 1)).toLocaleString() }}</span>
+          <span class="text-red-600 font-bold">₩{{ (amount*rooms*nights).toLocaleString() }}</span>
         </div>
-
-        <div class="flex justify-between border-b pb-4">
-          <span class="font-semibold">결제 방법</span>
-          <span>신용카드</span>
-        </div>
-
         <!-- Toss 위젯이 렌더링될 위치 -->
         <div id="payment"></div>
         <div id="agreement"></div>

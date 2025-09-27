@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import type { ApiResult } from '@/types/ApiResult';
-import type { PlaceDetailResponse } from '@/types/place.ts';
 
 const props = defineProps<{
   price: number | undefined;
   roomCount:number |undefined;
   checkIn: string;
   checkOut: string;
+  discount?: number; // 총 할인 금액(쿠폰 등)
 }>();
 
 // 숙박 일수 계산
@@ -21,9 +20,18 @@ const nights = computed(() => {
   return Math.ceil(timeDiff / (1000 * 3600 * 24));
 });
 
-// 총 결제 금액
-const totalPrice = computed(() => {
-  return (props.price || 0) * nights.value;
+// 총 결제 금액(할인 전)
+const subtotal = computed(() => {
+  const base = (props.price || 0) * nights.value;
+  const rooms = props.roomCount ?? 1;
+  return base * rooms;
+});
+
+// 할인 적용 후 금액
+const grandTotal = computed(() => {
+  const discount = props.discount || 0;
+  const total = subtotal.value - discount;
+  return total > 0 ? total : 0;
 });
 
 // 금액 포맷팅 (원화)
@@ -57,12 +65,22 @@ const formatCurrency = (amount: number): string => {
             <span class="font-medium">{{ nights }}박 (객실수 {{props.roomCount}})</span>
           </div>
 
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">소계</span>
+            <span class="font-medium">{{ formatCurrency(subtotal) }}</span>
+          </div>
+
+          <div v-if="(discount || 0) > 0" class="flex justify-between items-center text-sm text-blue-700">
+            <span class="">쿠폰 할인</span>
+            <span class="font-medium">-{{ formatCurrency(discount || 0) }}</span>
+          </div>
+
           <div class="border-t border-gray-200 my-2"></div>
 
           <!-- 총 결제 금액 -->
           <div class="flex justify-between items-center pt-2">
             <span class="font-semibold text-lg">총 결제 금액</span>
-            <span class="font-bold text-xl text-red-600">{{ formatCurrency(totalPrice * (roomCount??1))  }}</span>
+            <span class="font-bold text-xl text-red-600">{{ formatCurrency(grandTotal) }}</span>
           </div>
         </div>
 

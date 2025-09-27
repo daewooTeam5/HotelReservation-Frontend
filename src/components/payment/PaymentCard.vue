@@ -25,7 +25,7 @@ const thumbStyle = () => (props.payment.status === 'cancelled' ? 'grayscale' : '
 </script>
 
 <template>
-  <PrimeCard :pt="{ root: { class: ['w-full', cardAccentClass()] } }">
+  <PrimeCard class="w-full!" :pt="{ root: { class: ['w-full', cardAccentClass()] } }">
     <template #content>
       <div class="flex gap-4 items-stretch">
         <!-- Thumbnail -->
