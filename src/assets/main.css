@@ -14,3 +14,27 @@ a,
   transition: 0.4s;
   padding: 3px;
 }
+/* 크롬/엣지/사파리 */
+::-webkit-scrollbar {
+  width: 6px;   /* 얇게 */
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* 트랙 색 없애기 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15); /* 살짝만 보이는 연한 회색 */
+  border-radius: 9999px;           /* 완전 둥글게 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25); /* hover 시도 연하게만 */
+}
+
+/* 파이어폭스 */
+* {
+  scrollbar-width: thin;                /* 얇게 */
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
