@@ -23,12 +23,17 @@
           :order-amount="subtotal"
           @coupon-change="onCouponChange"
         />
+        <ReservationPointCard
+          :order-amount="subtotal"
+          @point-change="onPointChange"
+        />
         <ReservationPaymentCard
           :room-count="parseInt(rooms)"
           :price="roomInfo?.finalPrice"
           :check-in="checkIn"
           :check-out="checkOut"
           :discount="discount"
+          :points-discount="usedPoints"
         />
       </div>
     </div>
@@ -50,6 +55,7 @@
             <PrimeButton
               severity="success"
               size="large"
+              :disabled="!isReservationValid"
               :loading="isProcessing"
               @click="completeStep1"
               class="px-8 py-2 font-semibold"
@@ -73,6 +79,7 @@ import ReservationRequestCard from '@/components/hotel/reservation/ReservationRe
 import ReservationPaymentCard from '@/components/hotel/reservation/ReservationPaymentCard.vue';
 import ReservationAgreementCard from '@/components/hotel/reservation/ReservationAgreementCard.vue';
 import ReservationCouponCard from '@/components/hotel/reservation/ReservationCouponCard.vue';
+import ReservationPointCard from '@/components/hotel/reservation/ReservationPointCard.vue';
 import { ref, computed, defineProps, defineEmits } from 'vue';
 import { apiClient } from '@/utils/axiosClient.ts';
 import type { RoomInfo } from '@/types/room';
@@ -109,6 +116,7 @@ const specialRequest = ref<string>('');
 const agreementsValid = ref<boolean>(false);
 const isProcessing = ref<boolean>(false);
 const selectedCoupon = ref<AvailablePlaceCoupon | null>(null);
+const usedPoints = ref<number>(0);
 
 // 예약 폼에서 데이터 변경 시
 const handleReservationDataChange = (data: ReservationUserInfo) => {
@@ -131,6 +139,11 @@ const handleAgreementChange = (isValid: boolean) => {
 // 쿠폰 선택 변경
 const onCouponChange = (coupon: AvailablePlaceCoupon | null) => {
   selectedCoupon.value = coupon;
+};
+
+// 포인트 사용 변경
+const onPointChange = (points: number) => {
+  usedPoints.value = points;
 };
 
 // 예약 유효성 검사
@@ -176,7 +189,10 @@ const discount = computed(() => {
 });
 
 // 최종 결제 금액
-const finalAmount = computed(() => Math.max(subtotal.value - discount.value, 0));
+const finalAmount = computed(() => {
+  const total = subtotal.value - discount.value;
+  return Math.max(total - usedPoints.value, 0);
+});
 
 // 폼 ref (노출 메서드 타입 정의)
 type ReservationFormExpose = { validateAndFocus: () => boolean };
@@ -208,7 +224,8 @@ const completeStep1 = async () => {
       request: specialRequest.value,
       roomId: props.roomId,
       roomCount: props.rooms,
-      couponId: selectedCoupon.value?.id
+      couponId: selectedCoupon.value?.id,
+      usedPoints:usedPoints.value
     });
 
     // 예약 ID를 부모 컴포넌트로 전달 (couponId도 함께 전달)
