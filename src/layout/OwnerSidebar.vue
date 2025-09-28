@@ -4,14 +4,15 @@
     :class="isOpen ? 'w-64' : 'w-0'"
   >
     <!-- 헤더 영역 -->
-    <div v-if="isOpen" class="flex items-center justify-between p-4 border-b border-gray-700/50">
+    <div
+      v-if="isOpen"
+      class="h-16 flex items-center justify-between px-4 border-b border-gray-700/50"
+    >
       <div class="flex items-center space-x-3">
         <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
           <i class="pi pi-building text-white text-sm"></i>
         </div>
-        <span class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-        </span>
-
+        <span class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"></span>
       </div>
       <!-- 닫기 버튼 -->
       <button
@@ -24,11 +25,11 @@
 
     <!-- 네비게이션 메뉴 -->
     <nav v-if="isOpen" class="flex-1 p-4 overflow-y-auto">
-      <ul class="space-y-2">
+      <ul class="space-y-3">
         <li v-for="item in menuItems" :key="item.path">
           <router-link
             :to="item.path"
-            class="group flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 hover:bg-white/10 hover:translate-x-1"
+            class="group flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 hover:bg-white/10 hover:translate-x-1"
             :class="[
               $route.path === item.path
                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg'
@@ -36,7 +37,7 @@
             ]"
           >
             <div
-              class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200"
+              class="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
               :class="[
                 $route.path === item.path
                   ? 'bg-white/20'
@@ -45,12 +46,12 @@
             >
               <i
                 :class="item.icon"
-                class="text-sm transition-colors duration-200"
+                class="text-base transition-colors duration-200"
                 :style="$route.path === item.path ? 'color: white' : ''"
               ></i>
             </div>
             <span
-              class="font-medium transition-colors duration-200"
+              class="font-medium text-base transition-colors duration-200"
               :class="$route.path === item.path ? 'text-white' : ''"
             >
               {{ item.name }}
@@ -60,21 +61,10 @@
       </ul>
     </nav>
 
-    <!-- 하단 영역 (사용자 정보 카드) -->
-    <div v-if="isOpen" class="p-4 border-t border-gray-700/50">
-      <div
-        class="flex items-center space-x-3 p-3 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-colors duration-200"
-        @click="$router.push('/owner/profile')"
-      >
-
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-          <i class="pi pi-user text-white"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-white truncate">관리자</p>
-          <p class="text-xs text-gray-400 truncate">admin@hotel.com</p>
-        </div>
-      </div>
+    <!-- 하단 브랜드/버전 정보 -->
+    <div v-if="isOpen" class="mt-auto px-4 py-3 border-t border-gray-700/50 text-xs text-gray-400">
+      ⓒ 2025 Hotel Reservation<br />
+      v1.0.0
     </div>
 
     <!-- 사이드바 열기 버튼 (닫혀있을 때) -->
@@ -100,8 +90,7 @@ defineEmits<{
   (e: "toggle"): void;
 }>();
 
-
-// 배지 제거된 메뉴 리스트
+// 메뉴 리스트
 const menuItems = computed(() => [
   { name: "대시보드", path: "/owner", icon: "pi pi-th-large" },
   { name: "숙소 관리", path: "/owner/place", icon: "pi pi-building" },

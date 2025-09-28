@@ -7,6 +7,8 @@ import Aura from '@primeuix/themes/aura';
 import App from './App.vue';
 import router from './router';
 import PrimeVue from 'primevue/config';
+import Tooltip from "primevue/tooltip";
+import "v-calendar/style.css";
 import ToastService from 'primevue/toastservice';
 
 import Checkbox from 'primevue/checkbox';
@@ -41,6 +43,7 @@ import Skeleton from 'primevue/skeleton';
 import Textarea from 'primevue/textarea';
 import Dialog from 'primevue/dialog';
 import { DatePicker } from 'primevue';
+import VCalendar from "v-calendar";
 import { useTheme } from '@primeuix/themes';
 import Divider from 'primevue/divider';
 
@@ -107,5 +110,7 @@ app.component('PrimeTabPanel', TabPanel);
 app.component('PrimeGalleria', Galleria);
 app.component('FileUpload', FileUpload);
 app.component('PrimeSelect', Select);
+app.directive('tooltip', Tooltip);
+app.use(VCalendar, {});
 
 app.mount('#app');

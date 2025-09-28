@@ -5,15 +5,18 @@
 
     <!-- Main content -->
     <main
-      class="flex-1 bg-gray-50 flex flex-col transition-all duration-300"
-      :class="isSidebarOpen ? 'ml-0' : ''"
+      id="main-content"
+      class="flex-1 min-w-0 bg-gray-50 flex flex-col transition-all duration-300"
     >
       <!-- Header -->
       <OwnerHeader @toggleSidebar="toggleSidebar" />
 
       <!-- Content -->
       <section class="p-6 overflow-y-auto flex-1">
-        <router-view />
+        <!-- router-view에서 컴포넌트 참조 -->
+        <router-view v-slot="{ Component }">
+          <component :is="Component" ref="pageRef" />
+        </router-view>
       </section>
 
       <!-- Footer -->
@@ -23,14 +26,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import OwnerSidebar from "./OwnerSidebar.vue";
 import OwnerHeader from "./OwnerHeader.vue";
 import OwnerFooter from "./OwnerFooter.vue";
 
 const isSidebarOpen = ref(true);
+const pageRef = ref();
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
+
+  // transition 끝난 뒤 refreshData 실행
+  nextTick(() => {
+    setTimeout(() => {
+      pageRef.value?.refreshData?.();
+    }, 310); // transition duration과 맞춤
+  });
 };
 </script>

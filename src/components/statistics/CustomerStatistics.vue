@@ -56,15 +56,6 @@
           <i class="pi pi-refresh mr-2"></i>
           초기화
         </button>
-
-        <!-- 내보내기 버튼 -->
-        <button
-          @click="exportToCSV"
-          class="ml-auto bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
-        >
-          <i class="pi pi-download mr-2"></i>
-          내보내기
-        </button>
       </div>
 
       <!-- 고객 차트 -->
@@ -355,6 +346,7 @@ async function fetchMemberRatio() {
   }
 }
 
+defineExpose({ exportToCSV });
 
 // 📌 날짜 변경 감시
 watch(dateRange, async () => {
