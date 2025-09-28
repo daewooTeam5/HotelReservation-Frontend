@@ -2,12 +2,12 @@
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import { useRegisterStore } from '@/stores/publishing/registerStore';
-import { useRouter } from 'vue-router';
-import { ref } from 'vue';
+import { useRouter,useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
 
 const store = useRegisterStore();
 const router = useRouter();
-
+const route = useRoute();
 
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -52,6 +52,25 @@ const validateAndGoNext = () => {
   // 모든 검사를 통과하면 다음 페이지로 이동
   router.push('/publishing/register/rooms');
 };
+onMounted(async () => {
+  const idFromUrl = route.query.id; // URL에서 id 파라미터를 가져옵니다.
+
+  if (idFromUrl) {
+    // URL에 id가 있으면 '수정 모드'입니다.
+    console.log(`수정 모드로 진입합니다. 숙소 ID: ${idFromUrl}`);
+
+    const success = await store.hydrateStoreForEdit(Number(idFromUrl));
+    if (!success) {
+      alert("목록 페이지로 돌아갑니다.");
+      router.push('/owner/place'); //실패시 돌아가기
+    }
+  } else {
+
+    console.log("신규 등록 모드로 진입합니다.");
+    store.clearStore();
+  }
+});
+
 </script>
 <template>
   <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-4">

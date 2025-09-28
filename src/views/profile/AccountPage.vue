@@ -29,24 +29,24 @@
           </div>
         </div>
 
-        <div class="flex-1 pt-2">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ profile.name }}</h2>
+        <div class="flex-1 pt-8">
+          <h2 style="margin-bottom:5px;" class="text-3xl font-bold text-gray-800 mb-2">{{ profile.name }}</h2>
           <div class="grid grid-cols-2 gap-y-1 text-gray-600">
             <div class="flex items-center">
               <i class="pi pi-envelope mr-2 text-indigo-500"></i>
-              <span>{{ profile.email }}</span>
+              <span style="margin-left:8px;">{{ profile.email }}</span>
             </div>
             <div class="flex items-center">
               <i class="pi pi-phone mr-2 text-indigo-500"></i>
-              <span>{{ profile.phone }}</span>
+              <span style="margin-left:8px;">{{ profile.phone }}</span>
             </div>
             <div class="flex items-center">
               <i class="pi pi-lock mr-2 text-indigo-500"></i>
-              <span>{{ profile.role }}</span>
+              <span style="margin-left:8px;">{{ profile.role }}</span>
             </div>
             <div class="flex items-center">
               <i class="pi pi-calendar mr-2 text-indigo-500"></i>
-              <span>가입일: {{ profile.createDate }}</span>
+              <span style="margin-left:8px;">가입일: {{ profile.createDate }}</span>
             </div>
           </div>
         </div>

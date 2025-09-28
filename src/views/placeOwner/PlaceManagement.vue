@@ -66,6 +66,7 @@ const filteredPlaces = computed(() => {
 // --- 함수 정의 ---
 // 숙소 정보 가져오기
 const fetchPlaces = async () => {
+
   loading.value = true;
   try {
     const ownerId = 6; // authStore.userAuth?.id ?? 6;

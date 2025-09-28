@@ -2,40 +2,39 @@
 import { categoryMap, useRegisterStore } from '@/stores/publishing/registerStore';
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter, useRoute } from 'vue-router';
-import {useAuthStore} from '@/stores/authStore.ts'
+import { useAuthStore } from '@/stores/authStore.ts';
+import { computed } from 'vue'; // 💡 [추가] computed를 import 합니다.
+import Button from 'primevue/button';
 
 const store = useRegisterStore();
-const authstore =useAuthStore();
+const authstore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
 const token = localStorage.getItem('accessToken');
 
+// 💡 [추가] 수정/등록 모드에 따라 버튼의 라벨을 동적으로 변경합니다.
+const submitButtonLabel = computed(() => store.editingPlaceId ? '수정 완료' : '등록 완료');
+
+// 💡 [수정] 수정/등록을 분기 처리하는 submit 함수
 const submit = async () => {
-  // 💡 추가된 객실이 하나도 없으면 전송을 막습니다.
   if (store.addedRooms.length === 0) {
     alert('등록된 객실이 없습니다.');
     return;
   }
-
   try {
+    // payload를 만드는 로직은 기존과 동일합니다.
     const payload = {
       hotelName: store.name,
       description: store.description,
-      // 💡 체크인/아웃은 추가된 첫 번째 객실의 정보를 사용합니다. (모두 동일하다고 가정)
       checkIn: store.checkIn,
       checkOut: store.checkOut,
       addressList: [store.address],
-      // 💡 'hotelImages'를 호텔 대표 이미지로 전송합니다.
-      hotelImages: store.hotelImages.map(img => ({
-        // 백엔드 DTO 형식에 맞게 파일 이름, 확장자, URL 등을 분리해야 할 수 있습니다.
-        // 여기서는 Base64 문자열 전체를 보내는 예시입니다.
-        url: img
-      })),
+      hotelImages: store.hotelImages.map(img => ({ url: img })),
       categoryId: store.categoryId,
-      amenities: store.amenities.filter((a) => a.checked).map((a) => a.id),
+      // 💡 amenityIds 필드명을 백엔드 DTO에 맞게 수정합니다.
+      amenityIds: store.amenities.filter((a) => a.checked).map((a) => a.id),
       discounts: store.discounts,
-      // 💡 추가 완료된 'addedRooms'만 전송하고, 불필요한 임시 'rooms'는 제외합니다.
       rooms: store.addedRooms.map((r) => ({
         roomNumber: r.roomNumber,
         roomType: r.roomType || 'STANDARD',
@@ -44,23 +43,30 @@ const submit = async () => {
         extraPrice: r.extraPrice,
         isPublic: r.isPublic,
         bedType: r.selectedBed,
-        images: r.images.map(img => ({ url: img })), // 💡 각 객실의 이미지도 포함하여 전송합니다.
-      })), userId: authstore.userAuth?.id
+        images: r.images.map(img => ({ url: img })),
+      })),
+      userId: authstore.userAuth?.id
     };
 
-    // console.log('전송될 데이터:', payload); // 전송 전 데이터 확인용
+    if (store.editingPlaceId) {
+      // 수정 모드: PUT 요청
+      await apiClient.put(`/hotel/publishing/update/${store.editingPlaceId}`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('수정이 완료되었습니다.');
+    } else {
+      // 등록 모드: POST 요청
+      await apiClient.post('/hotel/publishing/register', payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('등록이 완료되었습니다.');
+    }
 
-    await apiClient.post('/hotel/publishing/register', payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    store.clearStore(); // 💡 작업 완료 후 스토어 비우기
+    router.push({ name: 'owner-dashboard' }); // 성공 후 대시보드로 이동
 
-    alert('등록 완료');
-    router.push({ name: 'owner-dashboard' });
   } catch (e: any) {
-    const title = e?.response?.data?.error?.title || '등록 중 오류가 발생했어요';
+    const title = e?.response?.data?.error?.title || '작업 중 오류가 발생했어요';
     const detail = e?.response?.data?.error?.detail || e?.message || '잠시 후 다시 시도해 주세요.';
     router.replace({
       name: 'RegisterError',
@@ -71,7 +77,6 @@ const submit = async () => {
 
 const back = () => router.push('/publishing/register/address');
 </script>
-
 <template>
   <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-6">
     <div style="border: 1px solid whitesmoke" class="space-y-2 p-3">
@@ -138,9 +143,11 @@ const back = () => router.push('/publishing/register/address');
       </div>
     </div>
 
-    <div class="flex justify-between pt-4">
-      <Button label="이전" severity="secondary" @click="back" />
-      <Button label="등록" icon="pi pi-check" @click="submit" />
+    <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-6">
+      <div class="flex justify-between pt-4">
+        <Button label="이전" severity="secondary" @click="back" />
+        <Button :label="submitButtonLabel" icon="pi pi-check" @click="submit" />
+      </div>
     </div>
   </div>
 </template>
