@@ -14,6 +14,7 @@
       <!-- Content -->
       <section class="p-6 overflow-y-auto flex-1">
         <!-- router-view에서 컴포넌트 참조 -->
+        <Toast/>
         <router-view v-slot="{ Component }">
           <component :is="Component" ref="pageRef" />
         </router-view>
@@ -30,6 +31,7 @@ import { ref, nextTick } from "vue";
 import OwnerSidebar from "./OwnerSidebar.vue";
 import OwnerHeader from "./OwnerHeader.vue";
 import OwnerFooter from "./OwnerFooter.vue";
+import Toast from "primevue/toast";
 
 const isSidebarOpen = ref(true);
 const pageRef = ref();

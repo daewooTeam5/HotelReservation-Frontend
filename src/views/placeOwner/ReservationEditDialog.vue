@@ -36,15 +36,36 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
-import { apiClient } from "@/utils/axiosClient"; // default export 아님, 이름 import
+import { apiClient } from "@/utils/axiosClient";
+import { useToast } from "primevue/usetoast";
 
 const props = defineProps({ reservation: Object });
 const emit = defineEmits(["close"]);
 
 const form = reactive({ ...props.reservation });
+const toast = useToast();
 
 const save = async () => {
-  await apiClient.put(`/v1/reservations/${form.reservationId}`, form);
-  emit("close");
+  try {
+    await apiClient.put(`/v1/reservations/${form.reservationId}`, form);
+
+    toast.add({
+      severity: "success",
+      summary: "예약 수정 완료",
+      detail: `예약 #${form.reservationId} 이(가) 수정되었습니다.`,
+      life: 3000,
+    });
+
+    emit("close");
+  } catch (error) {
+    console.error("예약 수정 중 오류:", error);
+
+    toast.add({
+      severity: "error",
+      summary: "수정 실패",
+      detail: "예약 수정 중 오류가 발생했습니다. 다시 시도해주세요.",
+      life: 4000,
+    });
+  }
 };
 </script>

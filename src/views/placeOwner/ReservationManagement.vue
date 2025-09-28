@@ -283,9 +283,7 @@
               >
                 금액
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 액션
               </th>
             </tr>
@@ -295,6 +293,7 @@
               v-for="r in reservations"
               :key="r.reservationId"
               class="hover:bg-gray-50 transition-colors"
+              @click="goDetail(r.reservationId)"
             >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div>
@@ -355,22 +354,11 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
                 <div class="flex items-center gap-3">
-                  <router-link
-                    :to="`/owner/reservations/${r.reservationId}`"
-                    class="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                  >
-                    상세
-                  </router-link>
+                  <button @click.stop="openEdit(r)" class="text-green-600 hover:text-green-700 font-medium">수정</button>
                   <button
-                    @click="openEdit(r)"
-                    class="text-green-600 hover:text-green-700 font-medium transition-colors"
-                  >
-                    수정
-                  </button>
-                  <button
-                    @click="cancelReservation(r.reservationId)"
-                    class="text-red-600 hover:text-red-700 font-medium transition-colors"
-                    :disabled="r.status === 'cancelled'"
+                    v-if="r.status === 'pending' || r.status === 'confirmed'"
+                    @click.stop="handleCancel(r)"
+                    class="text-red-600 hover:text-red-700 font-medium"
                   >
                     취소
                   </button>
@@ -455,10 +443,12 @@
 
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient';
 import ReservationEditDialog from './ReservationEditDialog.vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import axios from 'axios';
+import { useToast } from 'primevue/usetoast';
 
 import {
   formatDateTime,
@@ -468,6 +458,9 @@ import {
 } from '@/utils/placeOwner/formatters.js';
 
 import Calendar from 'primevue/calendar';
+
+const router = useRouter();
+const toast = useToast();
 
 const reservations = ref([]);
 const search = ref({
@@ -494,6 +487,10 @@ const showAdvanced = ref(false);
 // 날짜 관련
 const dateRange = ref(null);
 const createdRange = ref(null);
+
+const goDetail = (id) => {
+  router.push(`/owner/reservations/${id}`);
+};
 
 // 검색 값 확인
 const hasSearchValues = computed(() => {
@@ -605,14 +602,28 @@ const visiblePages = computed(() => {
 });
 
 // 예약 취소
-const cancelReservation = async (id) => {
-  if (!confirm('정말 이 예약을 취소하시겠습니까?')) return;
+const handleCancel = async (r) => {
+  if (!confirm(`예약 #${r.reservationId} 을(를) 정말 취소하시겠습니까?`)) return;
+
   try {
-    await apiClient.put(`/v1/reservations/${id}/cancel`);
+    await apiClient.put(`/v1/reservations/${r.reservationId}/cancel`);
     await fetchReservations();
+
+    toast.add({
+      severity: 'success',
+      summary: '예약 취소 완료',
+      detail: `예약 #${r.reservationId} 이(가) 취소되었습니다.`,
+      life: 3000,
+    });
   } catch (error) {
     console.error('예약 취소 중 오류:', error);
-    alert('예약 취소에 실패했습니다. 다시 시도해주세요.');
+
+    toast.add({
+      severity: 'error',
+      summary: '취소 실패',
+      detail: '예약 취소 중 오류가 발생했습니다. 다시 시도해주세요.',
+      life: 4000,
+    });
   }
 };
 
