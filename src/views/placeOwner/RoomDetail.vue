@@ -1,14 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { apiClient } from "@/utils/axiosClient";
 
 // PrimeVue
 import Button from "primevue/button";
-import Calendar from "primevue/calendar";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import InputNumber from "primevue/inputnumber";
+import Dialog from "primevue/dialog";
+
+// VCalendar
+import { format, addDays } from "date-fns";
 
 // Custom
 import RoomDialog from "./RoomDialog.vue";
@@ -16,17 +16,18 @@ import RoomDialog from "./RoomDialog.vue";
 const route = useRoute();
 const router = useRouter();
 
-const room = ref(null);
-const inventory = ref([]);
-const showDialog = ref(false);
+const room = ref<any>(null);
 
-const today = new Date();
-const nextWeek = new Date();
-nextWeek.setDate(today.getDate() + 7);
-const dateRange = ref([today, nextWeek]);
+// ✅ 상태 분리
+const showCalendarDialog = ref(false); // 달력 팝업
+const showRoomDialog = ref(false);     // 객실 수정 다이얼로그
+const selectedDay = ref<{ date: string; available: number; total: number } | null>(null);
 
+const allDays = ref<Record<string, { date: string; available: number; total: number }>>({});
+const loading = ref(false);
+const errorMsg = ref<string | null>(null);
 
-const formatPrice = (price) =>
+const formatPrice = (price: number) =>
   price ? `${Number(price).toLocaleString()}원` : "-";
 
 const fetchRoom = async () => {
@@ -34,31 +35,78 @@ const fetchRoom = async () => {
   room.value = res.data;
 };
 
-const fetchInventory = async () => {
-  if (!dateRange.value || dateRange.value.length !== 2) return;
-  const [start, end] = dateRange.value.map((d) => d.toISOString().split("T")[0]);
+const fetchInventory = async (year: number) => {
+  const start = `${year}-01-01`;
+  const end = `${year}-12-31`;
   const res = await apiClient.get(`/v1/owner/inventory/${route.params.id}`, {
     params: { start, end },
   });
-  inventory.value = res.data.map((item) => ({ ...item, _edited: false }));
+
+  (res.data || []).forEach((item: any) => {
+    const dateStr: string = item.date;
+    const available = Number(item.availableRoom ?? 0);
+    const total = Number(room.value?.capacityRoom ?? 0);
+    allDays.value[dateStr] = { date: dateStr, available, total };
+  });
 };
 
-const markAsEdited = (row) => (row._edited = true);
+function makeDateRange(from: Date, to: Date): string[] {
+  const out: string[] = [];
+  let cur = new Date(from);
+  while (cur <= to) {
+    out.push(format(cur, "yyyy-MM-dd"));
+    cur = addDays(cur, 1);
+  }
+  return out;
+}
 
-const updateInventory = async (row) => {
-  try {
-    await apiClient.put(`/v1/owner/inventory/${route.params.id}`, {
-      roomId: route.params.id,
-      date: row.date,
-      availableRoom: row.availableRoom,
-    });
-    row._edited = false;
-    alert("재고가 수정되었습니다.");
-  } catch (e) {
-    console.error("재고 수정 실패", e);
-    alert("재고 수정 실패");
+// 3년 전 ~ 3년 후 데이터 프리로드
+const preloadSevenYears = async () => {
+  const nowYear = new Date().getFullYear();
+  const startYear = nowYear - 3;
+  const endYear = nowYear + 3;
+  await Promise.all(
+    Array.from({ length: endYear - startYear + 1 }, (_, i) => fetchInventory(startYear + i))
+  );
+
+  // 누락 날짜를 기본 total=capacityRoom, available=total로 채움
+  if (!room.value) return;
+  const from = new Date(startYear, 0, 1);
+  const to = new Date(endYear, 11, 31);
+  const dates = makeDateRange(from, to);
+
+  for (const dateStr of dates) {
+    if (!allDays.value[dateStr]) {
+      const total = Number(room.value.capacityRoom ?? 0);
+      allDays.value[dateStr] = { date: dateStr, available: total, total };
+    }
   }
 };
+
+function getColorByDateStr(dateStr: string): string {
+  const day = allDays.value[dateStr];
+  if (!day) return "bg-gray-200";
+  if (!day.total) return "bg-gray-200";
+
+  const ratio = (day.available / day.total) * 100;
+  if (ratio === 100) return "bg-green-500";
+  if (ratio >= 80) return "bg-green-300";
+  if (ratio >= 60) return "bg-yellow-300";
+  if (ratio >= 40) return "bg-orange-300";
+  if (ratio >= 20) return "bg-orange-500";
+  if (ratio > 0) return "bg-red-400";
+  return "bg-red-700";
+}
+
+function openDialogByDateStr(dateStr: string) {
+  const day = allDays.value[dateStr];
+  if (day) selectedDay.value = day;
+  else {
+    const total = Number(room.value?.capacityRoom ?? 0);
+    selectedDay.value = { date: dateStr, available: total, total };
+  }
+  showCalendarDialog.value = true; // ✅ 달력 팝업만 열림
+}
 
 const deleteRoom = async () => {
   if (confirm("정말 삭제하시겠습니까?")) {
@@ -67,14 +115,22 @@ const deleteRoom = async () => {
   }
 };
 
-const openDialog = () => (showDialog.value = true);
-const closeDialog = () => (showDialog.value = false);
+const openRoomDialog = () => (showRoomDialog.value = true);
+const closeRoomDialog = () => (showRoomDialog.value = false);
 
-onMounted(() => {
-  fetchRoom();
-  fetchInventory();
+onMounted(async () => {
+  loading.value = true;
+  errorMsg.value = null;
+  try {
+    await fetchRoom();
+    await preloadSevenYears();
+  } catch (e) {
+    console.error("재고 캘린더 로드 실패", e);
+    errorMsg.value = "재고 데이터를 불러오는 중 오류가 발생했습니다.";
+  } finally {
+    loading.value = false;
+  }
 });
-
 </script>
 
 <template>
@@ -98,12 +154,10 @@ onMounted(() => {
         </div>
 
         <div class="flex items-center space-x-3 gap-6">
-
-          <!-- 액션 버튼들 -->
           <Button
             label="수정"
             icon="pi pi-pencil"
-            @click="openDialog"
+            @click="openRoomDialog"
             class="!bg-blue-500 !border-blue-500 hover:!bg-blue-600"
           />
           <Button
@@ -137,7 +191,7 @@ onMounted(() => {
           <p class="font-semibold text-lg text-blue-600">{{ formatPrice(room?.price) }}</p>
         </div>
         <div class="space-y-1">
-          <span class="text-sm text-gray-500">상태</span><br>
+          <span class="text-sm text-gray-500">상태</span><br />
           <span
             :class="room?.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
             class="inline-block px-2 py-1 rounded-full text-xs font-medium"
@@ -148,91 +202,50 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- 재고 관리 카드 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col gap-6">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-lg font-semibold text-gray-900">재고 관리</h2>
-        <div class="flex items-center space-x-4 gap-4">
-          <Calendar
-            v-model="dateRange"
-            selectionMode="range"
-            dateFormat="yy-mm-dd"
-            showIcon
-            placeholder="기간 선택"
-            class="w-64"
-          />
-          <Button
-            label="조회"
-            icon="pi pi-search"
-            @click="fetchInventory"
-            class="!bg-blue-500 !border-blue-500 hover:!bg-blue-600"
-          />
-        </div>
-      </div>
+    <!-- 재고 관리 캘린더 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">객실 가용률 캘린더</h2>
 
-      <!-- 재고 테이블 -->
-      <div class="border border-gray-200 rounded-lg overflow-hidden">
-        <DataTable
-          :value="inventory"
-          editMode="row"
-          :paginator="inventory.length > 10"
-          :rows="10"
-          class="w-full"
+      <div v-if="errorMsg" class="mb-2 text-red-600 text-sm">{{ errorMsg }}</div>
+      <div v-if="loading" class="mb-2 text-gray-500 text-sm">데이터 불러오는 중...</div>
+
+      <!-- ✅ 가운데 정렬을 유지하되, 살짝 오른쪽으로 이동 (md 이상) -->
+      <div class="max-w-5xl mx-auto flex justify-center">
+        <VCalendar
+          title-position="center"
+          class="inline-block h-[700px] md:ml-6"
         >
-          <Column field="date" header="날짜" class="!bg-gray-50 !font-medium">
-            <template #body="slotProps">
-              <span class="font-medium text-gray-900">{{ slotProps.data.date }}</span>
-            </template>
-          </Column>
-
-          <Column field="availableRoom" header="남은 객실 수">
-            <template #body="slotProps">
-              <div class="flex items-center space-x-2">
-                <InputNumber
-                  v-model="slotProps.data.availableRoom"
-                  :min="0"
-                  :max="room?.capacityRoom"
-                  class="w-20"
-                  @update:modelValue="markAsEdited(slotProps.data)"
-                />
-                <span v-if="slotProps.data._edited" class="text-xs text-orange-500 font-medium">
-                  수정됨
-                </span>
-              </div>
-            </template>
-          </Column>
-
-          <Column header="저장" class="w-24">
-            <template #body="slotProps">
-              <Button
-                label="저장"
-                icon="pi pi-check"
-                size="small"
-                severity="success"
-                @click="updateInventory(slotProps.data)"
-                :disabled="!slotProps.data._edited"
-                class="w-full"
-              />
-            </template>
-          </Column>
-        </DataTable>
-      </div>
-
-      <!-- 빈 상태 -->
-      <div v-if="inventory.length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">재고 데이터 없음</h3>
-        <p class="mt-1 text-sm text-gray-500">기간을 선택하고 조회 버튼을 클릭해주세요.</p>
+          <template #day-content="{ day }">
+            <div
+              class="w-14 h-14 flex items-center justify-center rounded-lg cursor-pointer font-bold text-gray-900"
+              :class="getColorByDateStr(format(day.date, 'yyyy-MM-dd'))"
+              @click="openDialogByDateStr(format(day.date, 'yyyy-MM-dd'))"
+            >
+              {{ day.day }}
+            </div>
+          </template>
+        </VCalendar>
       </div>
     </div>
 
-    <!-- 다이얼로그 -->
+    <!-- 달력 팝업 -->
+    <Dialog v-model:visible="showCalendarDialog" modal header="객실 가용 정보" :style="{ width: '360px' }">
+      <div v-if="selectedDay">
+        <p class="font-bold mb-4 text-lg">📅 {{ selectedDay.date }}</p>
+        <div class="flex justify-between items-center p-2 rounded border bg-gray-50">
+          <span class="font-medium">남은 객실</span>
+          <span class="font-semibold">
+            {{ selectedDay.available }} / {{ selectedDay.total }}개
+          </span>
+        </div>
+      </div>
+    </Dialog>
+
+    <!-- 객실 수정 다이얼로그 -->
     <RoomDialog
-      v-if="showDialog"
+      v-if="showRoomDialog"
       :room="room"
-      @close="closeDialog"
+      @close="closeRoomDialog"
       @save="fetchRoom"
     />
   </div>
