@@ -7,6 +7,7 @@ const props = defineProps<{
   checkIn: string;
   checkOut: string;
   discount?: number; // 총 할인 금액(쿠폰 등)
+  pointsDiscount?: number; // 포인트 할인 금액
 }>();
 
 // 숙박 일수 계산
@@ -29,8 +30,9 @@ const subtotal = computed(() => {
 
 // 할인 적용 후 금액
 const grandTotal = computed(() => {
-  const discount = props.discount || 0;
-  const total = subtotal.value - discount;
+  const coupon = props.discount || 0;
+  const points = props.pointsDiscount || 0;
+  const total = subtotal.value - coupon - points;
   return total > 0 ? total : 0;
 });
 
@@ -73,6 +75,11 @@ const formatCurrency = (amount: number): string => {
           <div v-if="(discount || 0) > 0" class="flex justify-between items-center text-sm text-blue-700">
             <span class="">쿠폰 할인</span>
             <span class="font-medium">-{{ formatCurrency(discount || 0) }}</span>
+          </div>
+
+          <div v-if="(pointsDiscount || 0) > 0" class="flex justify-between items-center text-sm text-blue-700">
+            <span class="">포인트 할인</span>
+            <span class="font-medium">-{{ formatCurrency(pointsDiscount || 0) }}</span>
           </div>
 
           <div class="border-t border-gray-200 my-2"></div>
