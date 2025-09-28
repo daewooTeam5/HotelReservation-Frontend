@@ -53,6 +53,11 @@ const items = ref([
         label:"쿠폰",
         icon: "pi pi-ticket",
         command: () => router.push("/auth/coupon")
+      },
+      {
+        label:'포인트',
+        icon:'pi pi-circle',
+        command:()=>router.push("/auth/point")
       }
     ],
   },
