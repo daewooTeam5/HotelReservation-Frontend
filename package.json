@@ -32,6 +32,7 @@
     "primevue": "^4.3.9",
     "tailwindcss": "^4.1.13",
     "tailwindcss-primeui": "^0.6.1",
+    "v-calendar": "^3.1.2",
     "vue": "^3.5.18",
     "vue-gravatar": "^1.4.1",
     "vue-router": "^4.5.1",
