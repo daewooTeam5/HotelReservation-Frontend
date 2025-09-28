@@ -30,13 +30,17 @@
               @click="toggleMenu"
               class="cursor-pointer flex items-center gap-2"
             >
-              <Gravatar
-                class="rounded-full w-10 h-10"
-                :email="user.email as `${string}@${string}.${string}`"
-                :size="80"
-                default="identicon"
+              <img
+                v-if="images.length"
+                :src="images[0]"
+                alt="프로필 이미지"
+                class="w-10 h-10 rounded-full object-cover border border-gray-300"
               />
-              <span>{{ user.name }}</span>
+
+              <div v-else class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                <i class="pi pi-user"></i>
+              </div>
+              <span>{{ profile.name }}</span>
             </div>
 
             <!-- 드롭다운 메뉴 -->
@@ -71,7 +75,11 @@ import { parseJwt } from "@/utils/jwtUtils";
 import { Gravatar } from "@sauromates/vue-gravatar";
 import { useRouter } from "vue-router";
 import { apiClient } from "@/utils/axiosClient.ts";
+import { useProfileStore } from '@/stores/publishing/ProfileStore';
+import { storeToRefs } from 'pinia';
 
+const profileStore = useProfileStore();
+const { profile, images } = storeToRefs(profileStore);
 const router = useRouter();
 const menu = ref();
 const authStore = useAuthStore();

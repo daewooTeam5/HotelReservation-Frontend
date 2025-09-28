@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+// [정리] import 구문을 그룹화하여 정리합니다.
+import { ref, watch, computed } from "vue";
+import { useRouter } from 'vue-router';
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
+import Dropdown from 'primevue/dropdown';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { apiClient } from '@/utils/axiosClient.ts';
+import { categoryMap } from '@/stores/publishing/registerStore.ts';
 
 // --- 인터페이스 정의 ---
+// [정리] 코드 상단에 인터페이스를 먼저 정의하여 타입을 명확히 합니다.
 interface AddressDTO {
   sido: string;
   sigungu: string;
@@ -26,33 +31,58 @@ interface Place {
   checkOut: string;
   address: AddressDTO | null;
   images: string[];
-  categoryId: number | null;
+  categoryId: number | null; // [수정] string 대신 number | null로 타입을 더 명확히 합니다.
+  categoryName: string; // [추가] 화면 표시에 사용할 카테고리 이름을 추가합니다.
   capacityRoom: number | null;
   isPublic: boolean;
-  minPrice: number; // 💡 [수정] 백엔드 데이터와 일치하도록 Price -> minPrice로 변경
+  minPrice: number;
 }
 
 // --- 스크립트 로직 ---
-const loading = ref(true);
-const places = ref<Place[]>([]);
+const router = useRouter();
 const authStore = useAuthStore();
 
+
+const loading = ref(true);
+const places = ref<Place[]>([]); // 서버에서 가져온 원본 데이터
+const selectedCategory = ref<number | null>(null); // 필터링을 위한 선택된 카테고리 ID
+
+
+const categoryOptions = Object.entries(categoryMap).map(([id, name]) => ({
+  id: Number(id),
+  name
+}));
+
+
+const filteredPlaces = computed(() => {
+  // 선택된 카테고리가 없으면 (null 이면) 전체 목록을 반환합니다.
+  if (!selectedCategory.value) {
+    return places.value;
+  }
+  // 선택된 카테고리가 있으면, 해당 ID와 일치하는 숙소만 필터링하여 반환합니다.
+  return places.value.filter(p => p.categoryId === selectedCategory.value);
+});
+
+// --- 함수 정의 ---
 // 숙소 정보 가져오기
 const fetchPlaces = async () => {
   loading.value = true;
   try {
-    // 💡 [수정] 하드코딩된 ID 대신, 로그인 스토어에서 실제 ownerId를 가져옵니다.(지금은 OwnerId를 null로 써서 하드코딩한 6으로 사용)
-    const ownerId=6;
-    //const ownerId = authStore.userAuth?.id;
+    const ownerId = 6; // authStore.userAuth?.id ?? 6;
     if (!ownerId) {
-      console.error("로그인 정보(ownerId)를 찾을 수 없어 API를 호출하지 않습니다.");
-      loading.value = false;
+      console.error("Owner ID를 찾을 수 없습니다.");
       places.value = [];
       return;
     }
 
     const response = await apiClient.get<{ data: Place[] }>(`/hotel/publishing/my-list?ownerId=${ownerId}`);
-    places.value = response.data.data || [];
+    const rawPlaces = response.data.data || [];
+
+    // [수정] 데이터를 가져온 직후, 화면 표시에 필요한 categoryName을 추가하여 가공합니다.
+    places.value = rawPlaces.map(place => ({
+      ...place,
+      categoryName: categoryMap[place.categoryId] || '정보 없음'
+    }));
 
   } catch (error) {
     console.error("숙소 정보를 가져오는 데 실패했습니다:", error);
@@ -62,11 +92,12 @@ const fetchPlaces = async () => {
   }
 };
 
-// 숙소 삭제 (수정할 부분 없음, 정상 동작)
+// 숙소 삭제
 const deletePlace = async (placeId: number) => {
   if (confirm("정말 숙소를 삭제하시겠습니까?")) {
     try {
-      await apiClient.delete(`/api/hotel/publishing/list/delete/${placeId}`);
+      await apiClient.delete(`/hotel/publishing/delete/${placeId}`);
+      // [개선] API 재호출 대신, 프론트엔드 목록에서 직접 제거하여 즉각적인 피드백을 줍니다.
       places.value = places.value.filter(p => p.id !== placeId);
       alert("숙소가 삭제되었습니다.");
     } catch (error) {
@@ -76,26 +107,39 @@ const deletePlace = async (placeId: number) => {
   }
 };
 
-// 💡 [수정] onMounted 대신 watch를 사용하여 로그인 정보가 준비된 후 데이터를 안전하게 불러옵니다.
+// --- Lifecycle & Watchers ---
+// [정리] 로그인 정보가 준비되면 데이터를 안전하게 불러옵니다.
 watch(() => authStore.userAuth, (newUserAuth) => {
-  if (newUserAuth) {
+  // 로그인 되었고, 아직 숙소 목록이 비어있을 때만 데이터를 불러옵니다.
+  if (newUserAuth && places.value.length === 0) {
     fetchPlaces();
   }
 }, {
-  immediate: true // 컴포넌트 로드 시 즉시 실행
+  immediate: true // 컴포넌트 로드 시 즉시 실행하여 초기 로그인 상태를 확인합니다.
 });
 </script>
-
 <template>
+
+  <ConfirmDialog></ConfirmDialog>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-6">
-      내 숙소 관리
+    <h1 class="text-2xl font-bold mb-6 flex items-center gap-4">
+      <span  style="margin-left: 3px; margin-bottom: 12px;">내 숙소 관리</span>
       <Button
         label="숙소 등록 요청"
         icon="pi pi-plus"
-        style="margin: 10px;"
         class="p-button-primary"
-        @click="$router.push('/hotelregister')"
+        @click="router.push('/hotelregister')"
+        style="margin-left: 3px; margin-bottom: 12px;"
+      />
+      <Dropdown
+        v-model="selectedCategory"
+        :options="categoryOptions"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="카테고리별 보기"
+        class="w-60"
+        showClear
+        style="margin-left: 3px; margin-bottom: 12px;"
       />
     </h1>
 
@@ -104,34 +148,35 @@ watch(() => authStore.userAuth, (newUserAuth) => {
       <p class="text-gray-600 mt-4">숙소 목록을 불러오는 중입니다...</p>
     </div>
 
-    <div v-else-if="places.length > 0" class="flex flex-col gap-6">
+    <div v-else-if="filteredPlaces.length > 0" class="flex flex-col gap-6">
       <div
-        v-for="place in places"
+        v-for="place in filteredPlaces"
         :key="place.id"
-        class="bg-white rounded shadow p-6 flex flex-col md:flex-row gap-6"
+        class="bg-white rounded shadow p-4 flex flex-col md:flex-row gap-6"
       >
         <div class="w-full md:w-1/3 flex flex-col items-center">
           <img
             :src="place.images && place.images.length > 0 ? place.images[0] : 'https://via.placeholder.com/400x400'"
-            class="rounded-lg shadow mb-4 w-full h-48 object-cover"
+            class="rounded-lg shadow mb-4 w-full h-60 object-cover"
             alt="숙소 이미지"
           />
         </div>
 
-        <div class="w-full md:w-2/3 space-y-3">
+        <div style="margin-top: 10px;" class="w-full md:w-2/3 space-y-4">
           <p><strong>숙소명:</strong> {{ place.hotelName }}</p>
           <p><strong>주소:</strong> {{ place.address?.sido }} {{ place.address?.sigungu }}</p>
           <p><strong>설명:</strong> {{ place.description }}</p>
           <p><strong>체크인:</strong> {{ place.checkIn }}</p>
           <p><strong>체크아웃:</strong> {{ place.checkOut }}</p>
           <p><strong>최저 요금:</strong> {{ place.minPrice?.toLocaleString() ?? '가격 정보 없음' }} 원</p>
+          <p><strong>숙소 유형:</strong> {{ place.categoryName }}</p>
 
-          <div class="flex gap-3 mt-4">
+          <div style="margin-top: 10px;" class="flex gap-3 mt-4">
             <Button
               label="숙소 정보 수정"
               icon="pi pi-pencil"
               class="p-button-primary"
-              @click="$router.push(`/hotelregister?id=${place.id}`)"
+              @click="router.push(`/hotelregister?id=${place.id}`)"
             />
             <Button
               label="숙소 삭제"

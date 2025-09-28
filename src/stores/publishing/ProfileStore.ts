@@ -14,6 +14,7 @@ export const useProfileStore = defineStore('profile', () => {
     role: "admin",
     createDate: "2025-09-27 21:21",
     review: 6
+
   });
 
   function addImage(imageUrl: string) {
