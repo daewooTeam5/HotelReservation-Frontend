@@ -19,13 +19,15 @@ export type User = {
   createdAt: string;
 }
 
+export type UserInfo = Partial<User | { point: number }>
+
 export type Guest = {
   email: string
   firstName: string
   id: number
   lastName: string
   phone: string,
-  users:User
+  users: User
 }
 export type UserDto = {
   id: number;
