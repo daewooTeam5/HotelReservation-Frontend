@@ -537,19 +537,20 @@ const lastUpdated = ref(null);
 const loading = ref(false);
 const timeAgo = ref('');
 
-// 시간차 계산
+// 시간차 계산 (방금 / n분 전만)
 const updateTimeAgo = () => {
   if (!lastUpdated.value) {
     timeAgo.value = '';
     return;
   }
-  const diff = Math.floor((Date.now() - lastUpdated.value) / 1000);
-  if (diff < 5) timeAgo.value = '방금';
-  else if (diff < 60) timeAgo.value = `${diff}초`;
-  else if (diff < 3600) timeAgo.value = `${Math.floor(diff / 60)}분`;
-  else timeAgo.value = `${Math.floor(diff / 3600)}시간`;
-};
+  const diffSec = Math.floor((Date.now() - lastUpdated.value) / 1000);
 
+  if (diffSec < 60) {
+    timeAgo.value = '방금';
+  } else {
+    timeAgo.value = `${Math.floor(diffSec / 60)}분`;
+  }
+};
 // 예약 데이터 불러오기
 const fetchReservations = async () => {
   try {

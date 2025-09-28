@@ -46,15 +46,6 @@
           <i class="pi pi-refresh mr-2"></i>
           초기화
         </button>
-
-        <!-- 내보내기 버튼 -->
-        <button
-          @click="exportToCSV"
-          class="ml-auto bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
-        >
-          <i class="pi pi-download mr-2"></i>
-          내보내기
-        </button>
       </div>
 
       <!-- 차트 영역 -->
@@ -216,6 +207,8 @@ function exportToCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
+defineExpose({ exportToCSV });
 
 // 반응형 데이터 로드
 watch([dateRange, selectedPeriod], async () => {

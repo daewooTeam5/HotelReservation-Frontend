@@ -1,18 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 flex flex-col gap-6">
-
-      <!-- 상단 내보내기 버튼 -->
-      <div class="flex justify-end">
-        <button
-          @click="exportAllCSV"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
-        >
-          <i class="pi pi-download mr-2"></i>
-          전체 내보내기
-        </button>
-      </div>
-
       <!-- KPI 카드 -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <KpiCard
@@ -286,7 +274,7 @@ async function fetchPeakSeason() {
 
 
 // 전체 CSV 내보내기
-function exportAllCSV() {
+function exportToCSV() {
   let csv = "";
 
   // KPI
@@ -333,6 +321,8 @@ function exportAllCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
+defineExpose({ exportToCSV });
 
 watch(peakType, fetchPeakSeason);
 

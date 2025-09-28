@@ -25,14 +25,16 @@ let intervalId, timerId;
 const formatPrice = (price) =>
   price ? `${Number(price).toLocaleString()}원` : "-";
 
-// 시간차 계산
+// 시간차 계산 (방금 / n분 전만)
 const updateTimeAgo = () => {
   if (!lastUpdated.value) return;
-  const diff = Math.floor((Date.now() - lastUpdated.value) / 1000);
-  if (diff < 5) timeAgo.value = "방금";
-  else if (diff < 60) timeAgo.value = `${diff}초`;
-  else if (diff < 3600) timeAgo.value = `${Math.floor(diff / 60)}분`;
-  else timeAgo.value = `${Math.floor(diff / 3600)}시간`;
+  const diffSec = Math.floor((Date.now() - lastUpdated.value) / 1000);
+
+  if (diffSec < 60) {
+    timeAgo.value = "방금";
+  } else {
+    timeAgo.value = `${Math.floor(diffSec / 60)}분`;
+  }
 };
 
 // API: 목록 조회
@@ -122,12 +124,10 @@ onUnmounted(() => {
       <h1 class="text-2xl font-bold text-gray-900">객실 유형 관리</h1>
 
       <div class="flex flex-wrap items-center gap-3">
-        <Button
-          label="객실 유형 추가"
-          icon="pi pi-plus"
-          class="h-10"
-          @click="openDialog()"
-        />
+        <!-- 마지막 업데이트 시간 -->
+        <span class="text-xs text-gray-500">
+      {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : "업데이트 기록 없음" }}
+    </span>
 
         <!-- 새로고침 버튼 -->
         <button
@@ -143,8 +143,12 @@ onUnmounted(() => {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5l1 1"
+            />
           </svg>
           <svg
             v-else
@@ -153,18 +157,30 @@ onUnmounted(() => {
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle class="opacity-25" cx="12" cy="12" r="10"
-                    stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
           </svg>
           새로고침
         </button>
 
-        <!-- 마지막 업데이트 시간 -->
-        <span class="text-xs text-gray-500">
-          {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : "업데이트 기록 없음" }}
-        </span>
+        <!-- 객실 유형 추가 버튼 -->
+        <Button
+          label="객실 유형 추가"
+          icon="pi pi-plus"
+          class="h-10"
+          @click="openDialog()"
+        />
       </div>
     </div>
 

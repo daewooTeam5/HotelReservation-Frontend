@@ -54,13 +54,6 @@
           <i class="pi pi-refresh mr-2"></i>
           초기화
         </button>
-        <button
-          @click="exportToCSV"
-          class="ml-auto bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
-        >
-          <i class="pi pi-download mr-2"></i>
-          내보내기
-        </button>
       </div>
 
       <!-- 주요 차트들 -->
@@ -538,6 +531,7 @@ function exportToCSV() {
   document.body.removeChild(link);
 }
 
+defineExpose({ exportToCSV });
 </script>
 
 
