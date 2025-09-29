@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
+import { defineComponent, onMounted, reactive } from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -30,7 +30,13 @@ export default defineComponent({
     const toast = useToast();
     const router = useRouter();
     const route = useRoute(); // 현재 라우트 객체를 가져옵니다.
-    const { setOtpEmail } = useAuthStore();
+    const authStore = useAuthStore();
+    onMounted(()=>{
+      if(authStore.userAuth){
+        router.push("/")
+      }
+
+    })
     const emailMutate = reactive(useMutation({
       mutationFn: async (data: { email: string }) => {
         const result = await apiClient.post<ApiResult<boolean>>('../auth', {
@@ -43,7 +49,7 @@ export default defineComponent({
       onSuccess: (data) => {
         console.log('Mutation 성공:', data);
         console.log('localStorage accessToken:', localStorage.getItem('accessToken'));
-        setOtpEmail(data as string);
+        authStore.setOtpEmail(data as string);
         // 주석: OTP 페이지로 이동할 때 현재 라우트의 쿼리(redirect 포함)를 그대로 전달합니다.
         router.push({
           path: '/auth/email-otp',

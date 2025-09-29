@@ -29,5 +29,50 @@ export type ReservationPayment = {
   guestId: number;
   paymentId: number;
 };
-
-
+export type PaymentDetail = {
+  method: string;
+  couponDiscountAmount: number;
+  minOrderAmount: number;
+  fixedDiscountAmount: number | null;
+  pointDiscountAmount: number | null;
+  maxOrderAmount: number;
+  reservationId: number;
+  transactionDate: string;
+  firstImageUrl: string;
+  couponHistoryId: number;
+  discountAmount: number;
+  couponStatus: string;
+  couponAmount: number;
+  couponCreatedAt: string;
+  couponExpiredAt: string;
+  couponName: string;
+  placeId: number;
+  placeName: string;
+  status: string;
+  roomType: string;
+  resevStart: string;
+  resevEnd: string;
+  finalAmount: number;
+  baseAmount: number;
+  couponCode: string;
+  couponType: string;
+  amount: number;
+  orderId: string;
+  paymentKey: string;
+  roomId: number;
+  checkIn: string;
+  couponId: number;
+  request?: string;
+  paymentId: number;
+  roomPrice: number;
+  coupon?: {
+    id: number;
+    couponName: string;
+    couponType: 'rate' | 'amount';
+    amount: number;
+    couponCode: string;
+    expiredAt: string;
+    minOrderAmount: number;
+    maxOrderAmount: number;
+  };
+};

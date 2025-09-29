@@ -31,10 +31,12 @@ const { isLoading, isError, error, data } = useQuery<ApiResult<RoomInfo>>({
   enabled: computed(() => !!rooms.value && !!checkIn.value && !!checkOut.value).value
 });
 
-const handleNextStep = (reservationId: string, orderId?: string) => {
+const handleNextStep = (reservationId: string, orderId?: string, couponId?: number) => {
+  const query: Record<string, any> = { ...route.query, reservationId, orderId };
+  if (couponId != null) query.couponId = String(couponId);
   router.push({
     path: '/places/payment',
-    query: { ...route.query, reservationId, orderId }
+    query
   });
 };
 </script>
@@ -42,12 +44,12 @@ const handleNextStep = (reservationId: string, orderId?: string) => {
 <template>
   <div v-if="isLoading">loading...</div>
   <div v-else-if="isError">{{ error }}</div>
-  <div v-else-if="!data">no data</div>
+  <div v-else-if="!data || !data.data">no data</div>
   <div v-else>
     <ReservationStep1
       :hotel-id="hotelId"
       :room-id="roomId"
-      :room-info="data?.data"
+      :room-info="data?.data || undefined"
       :check-in="checkIn"
       :check-out="checkOut"
       :adults="adults"

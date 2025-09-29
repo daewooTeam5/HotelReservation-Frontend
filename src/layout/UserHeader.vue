@@ -10,6 +10,12 @@
     <template #end>
       <div class="flex gap-4 items-center">
         <div class="relative inline-flex">
+
+          <Button v-if="!accessToken" variant="outlined" class="mr-4!">
+            비회원 예약 조회
+          </Button>
+
+
           <Button
             variant="outlined"
             rounded
@@ -30,17 +36,13 @@
               @click="toggleMenu"
               class="cursor-pointer flex items-center gap-2"
             >
-              <img
-                v-if="images.length"
-                :src="images[0]"
-                alt="프로필 이미지"
-                class="w-10 h-10 rounded-full object-cover border border-gray-300"
+              <Gravatar
+                class="rounded-full w-10 h-10"
+                :email="user.email as `${string}@${string}.${string}`"
+                :size="80"
+                default="identicon"
               />
-
-              <div v-else class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                <i class="pi pi-user"></i>
-              </div>
-              <span>{{ profile.name }}</span>
+              <span>{{ user.name }}</span>
             </div>
 
             <!-- 드롭다운 메뉴 -->
@@ -66,24 +68,20 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-import Button from "primevue/button";
-import Menubar from "primevue/menubar";
-import Menu from "primevue/menu";
-import { useAuthStore } from "@/stores/authStore";
-import type { UserDto } from "@/types/users";
-import { parseJwt } from "@/utils/jwtUtils";
-import { Gravatar } from "@sauromates/vue-gravatar";
-import { useRouter } from "vue-router";
-import { apiClient } from "@/utils/axiosClient.ts";
-import { useProfileStore } from '@/stores/publishing/ProfileStore';
-import { storeToRefs } from 'pinia';
+import Button from 'primevue/button';
+import Menubar from 'primevue/menubar';
+import Menu from 'primevue/menu';
+import { useAuthStore } from '@/stores/authStore';
+import type { UserDto } from '@/types/users';
+import { parseJwt } from '@/utils/jwtUtils';
+import { Gravatar } from '@sauromates/vue-gravatar';
+import { useRouter } from 'vue-router';
+import { apiClient } from '@/utils/axiosClient.ts';
 
-const profileStore = useProfileStore();
-const { profile, images } = storeToRefs(profileStore);
 const router = useRouter();
 const menu = ref();
 const authStore = useAuthStore();
-const { setAccessToken,getAccessToken } = authStore;
+const { setAccessToken, getAccessToken } = authStore;
 const cartCount = ref(0);
 
 // accessToken, user는 computed로 관리
@@ -99,10 +97,10 @@ watch(
   async (newToken) => {
     if (newToken) {
       try {
-        const res = await apiClient.get("/v1/cart");
+        const res = await apiClient.get('/v1/cart');
         cartCount.value = res.data.data ?? 0;
       } catch (err) {
-        console.error("장바구니 개수 불러오기 실패:", err);
+        console.error('장바구니 개수 불러오기 실패:', err);
       }
     } else {
       cartCount.value = 0;
@@ -113,46 +111,46 @@ watch(
 
 const profileItems = [
   {
-    label: "계정",
-    icon: "pi pi-user",
-    command: () => router.push("/profile/account"),
+    label: '계정',
+    icon: 'pi pi-user',
+    command: () => router.push('/profile/account')
   },
   {
-    label: "결제 내역",
-    icon: "pi pi-credit-card",
-    command: () => router.push("/profile/payments"),
+    label: '결제 내역',
+    icon: 'pi pi-credit-card',
+    command: () => router.push('/profile/payments')
   },
   {
-    label: "위시리스트",
-    icon: "pi pi-heart-fill",
-    command: () => router.push("/profile/wishlist"),
+    label: '위시리스트',
+    icon: 'pi pi-heart-fill',
+    command: () => router.push('/profile/wishlist')
   },
   {
-    label: "설정",
-    icon: "pi pi-cog",
-    command: () => router.push("/profile/settings"),
+    label: '설정',
+    icon: 'pi pi-cog',
+    command: () => router.push('/profile/settings')
   },
   {
-    label: "쿠폰",
-    icon: "pi pi-ticket",
-    command: () => router.push("/auth/coupon?type=all"),
+    label: '쿠폰',
+    icon: 'pi pi-ticket',
+    command: () => router.push('/auth/coupon?type=all')
   },
 
   {
-    label: "문의",
-    icon: "pi pi-comments",
-    command: () => router.push("/profile/comments"),
+    label: '문의',
+    icon: 'pi pi-comments',
+    command: () => router.push('/profile/comments')
   },
   { separator: true },
   {
-    label: "로그아웃",
-    icon: "pi pi-sign-out",
+    label: '로그아웃',
+    icon: 'pi pi-sign-out',
     command: async () => {
-      await apiClient.post("../logout");
+      await apiClient.post('../logout');
       setAccessToken(null);
-      await router.push("/auth/signin");
-    },
-  },
+      await router.push('/auth/signin');
+    }
+  }
 ];
 
 const toggleMenu = (event: MouseEvent) => {

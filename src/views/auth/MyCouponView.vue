@@ -133,6 +133,7 @@ const submitCoupon = () => {
     <PrimeTabs :value="selectedType">
       <PrimeTabList>
         <PrimeTab
+          class="flex items-center flex-1"
           v-for="t in tabs"
           :key="t.type"
           :value="t.type"
