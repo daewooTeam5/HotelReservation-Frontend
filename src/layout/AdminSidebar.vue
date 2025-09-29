@@ -105,6 +105,8 @@ const menuItems = computed(() => [
   { name: "대시보드", path: "/admin", icon: "pi pi-th-large" },
   { name: "숙소 관리", path: "/admin/place", icon: "pi pi-building" },
   { name: "유저 관리", path: "/admin/user", icon: "pi pi-user" },
-  { name: "리뷰 관리", path: "/admin/review", icon: "pi pi-user" },
+  { name: "리뷰 관리", path: "/admin/review", icon: "pi pi-star" },
+  { name: "결제 관리", path: "/admin/payment", icon: "pi pi-wallet" },
+  { name: "통계", path: "/admin/statistics", icon: "pi pi-chart-bar" },
 ]);
 </script>
