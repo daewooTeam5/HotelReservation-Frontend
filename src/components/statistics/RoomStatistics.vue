@@ -30,12 +30,6 @@
             <HeatmapCalendar :data="availabilityData" class="w-full h-full" />
           </div>
         </div>
-
-        <!-- 오른쪽: 객실 상태 분포 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-4">객실 상태 분포</h3>
-          <Chart type="doughnut" :data="roomStatusData" :options="chartOptions" class="h-72" />
-        </div>
       </div>
       <!-- 피크 시즌 분석 -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col gap-4">

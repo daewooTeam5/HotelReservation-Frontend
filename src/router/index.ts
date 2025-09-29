@@ -287,12 +287,6 @@ const router = createRouter({
           meta: { layout: 'owner' }
         },
         {
-          path: 'settings',
-          name: 'owner-settings',
-          component: () => import('@/views/placeOwner/SettingsPage.vue'),
-          meta: { layout: 'owner' }
-        },
-        {
           path: 'rooms',
           name: 'owner-rooms',
           component: () => import('@/views/placeOwner/RoomManagement.vue'),

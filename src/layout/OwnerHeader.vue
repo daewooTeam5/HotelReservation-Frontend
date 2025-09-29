@@ -2,24 +2,18 @@
   <header
     class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center justify-between px-6 relative"
   >
-    <!-- 사이드바 토글 버튼 -->
-    <button
-      @click="$emit('toggleSidebar')"
-      class="p-2 rounded-lg hover:bg-gray-100/80 transition-colors duration-200 group"
-    >
-      <i class="pi pi-bars text-gray-700 group-hover:text-gray-900 transition-colors duration-200"></i>
-    </button>
 
-    <!-- 타이틀 -->
     <h1
-      class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
+      class="absolute left-1/2 transform -translate-x-1/2 text-xl font-bold
+             bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+             cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
       @click="router.push('/')"
     >
       Hotel Reservation
     </h1>
 
     <!-- 오른쪽 영역 -->
-    <div class="flex items-center space-x-3 relative">
+    <div class="flex items-center space-x-3 absolute right-6">
       <div class="relative" ref="profileRef">
         <Button
           @click.stop="toggleProfileMenu"
@@ -41,8 +35,8 @@
 
           <!-- ✅ ProfileStore에서 이름 가져오기 -->
           <span class="text-sm font-medium text-gray-700 hidden md:inline">
-            {{ profile.name }}
-          </span>
+        {{ profile.name }}
+      </span>
           <i class="pi pi-angle-down text-gray-500 text-xs"></i>
         </Button>
 
@@ -66,13 +60,6 @@
               >
                 <i class="pi pi-user text-gray-500"></i>
                 <span class="text-sm text-gray-700">내 프로필</span>
-              </button>
-              <button
-                class="w-full text-left px-4 py-3 hover:bg-gray-50/50 transition-colors duration-200 flex items-center space-x-3"
-                @click="navigateToSettings"
-              >
-                <i class="pi pi-cog text-gray-500"></i>
-                <span class="text-sm text-gray-700">설정</span>
               </button>
               <hr class="my-2 border-gray-200/50" />
               <button
