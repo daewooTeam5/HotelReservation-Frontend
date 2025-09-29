@@ -1,5 +1,3 @@
-
-
 <template>
   <header
     class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center justify-between px-6 relative"
@@ -9,12 +7,10 @@
       @click="$emit('toggleSidebar')"
       class="p-2 rounded-lg hover:bg-gray-100/80 transition-colors duration-200 group"
     >
-      <i
-        class="pi pi-bars text-gray-700 group-hover:text-gray-900 transition-colors duration-200"
-      ></i>
+      <i class="pi pi-bars text-gray-700 group-hover:text-gray-900 transition-colors duration-200"></i>
     </button>
 
-    <!-- 타이틀 (클릭 시 대시보드 이동) -->
+    <!-- 타이틀 -->
     <h1
       class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
       @click="router.push('/')"
@@ -24,26 +20,33 @@
 
     <!-- 오른쪽 영역 -->
     <div class="flex items-center space-x-3 relative">
-      <!-- 프로필 버튼 -->
       <div class="relative" ref="profileRef">
         <Button
           @click.stop="toggleProfileMenu"
           class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100/80 transition-colors duration-200 border-0 bg-transparent"
         >
-          <!-- 동적 아바타 -->
-          <Gravatar
-            class="rounded-full w-8 h-8"
-            :email="authStore.userAuth?.email || 'default@example.com'"
-            :size="80"
-            default="identicon"
+          <!-- ✅ ProfileStore에서 이미지 가져오기 -->
+          <img
+            v-if="images.length"
+            :src="images[0]"
+            alt="프로필 이미지"
+            class="rounded-full w-8 h-8 object-cover border"
           />
+          <div
+            v-else
+            class="rounded-full w-8 h-8 bg-gray-200 flex items-center justify-center text-gray-500"
+          >
+            <i class="pi pi-user text-sm"></i>
+          </div>
+
+          <!-- ✅ ProfileStore에서 이름 가져오기 -->
           <span class="text-sm font-medium text-gray-700 hidden md:inline">
-            {{ authStore.userAuth?.name || '관리자' }}
+            {{ profile.name }}
           </span>
           <i class="pi pi-angle-down text-gray-500 text-xs"></i>
         </Button>
 
-        <!-- 프로필 드롭다운 -->
+        <!-- 드롭다운 -->
         <Transition
           enter-active-class="transition ease-out duration-200"
           enter-from-class="opacity-0 transform scale-95"
@@ -91,23 +94,23 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
-import { Gravatar } from '@sauromates/vue-gravatar';
 import { apiClient } from '@/utils/axiosClient.ts';
 import { useAuthStore } from '@/stores/authStore';
+import { useProfileStore } from '@/stores/publishing/ProfileStore';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
-const authStore = useAuthStore(); // ✅ 구조분해 할당 ❌
+const authStore = useAuthStore();
+const profileStore = useProfileStore();
+const { profile, images } = storeToRefs(profileStore);
 
-// 상태
 const isProfileMenuOpen = ref(false);
 const profileRef = ref<HTMLElement | null>(null);
 
-// 토글 함수
 const toggleProfileMenu = () => {
   isProfileMenuOpen.value = !isProfileMenuOpen.value;
 };
 
-// 네비게이션 함수
 const navigateToProfile = () => {
   router.push('/owner/profile');
   isProfileMenuOpen.value = false;
@@ -118,11 +121,10 @@ const navigateToSettings = () => {
   isProfileMenuOpen.value = false;
 };
 
-// 로그아웃
 const logout = async () => {
   try {
     await apiClient.post('../logout', null, { withCredentials: true });
-    authStore.setAccessToken(null); // ✅ 스토어 직접 사용
+    authStore.setAccessToken(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('placeId');
@@ -134,7 +136,6 @@ const logout = async () => {
   }
 };
 
-// 외부 클릭 시 드롭다운 닫기
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as Node;
   if (profileRef.value && !profileRef.value.contains(target)) {
@@ -142,13 +143,11 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener('click', handleClickOutside);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside);
 });
-
-console.log(authStore.getAccessToken);
 </script>

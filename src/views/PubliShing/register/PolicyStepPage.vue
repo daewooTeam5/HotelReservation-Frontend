@@ -22,7 +22,7 @@ const goNext = () => router.push('/publishing/register/address');
           <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">체크 인 시간</p>
           <input
             type="time"
-            v-model="store.rooms.checkIn"
+            v-model="store.checkIn"
             class="w-[60%] border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200"
           />
         </div>
@@ -30,7 +30,7 @@ const goNext = () => router.push('/publishing/register/address');
           <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">체크 아웃 시간</p>
           <input
             type="time"
-            v-model="store.rooms.checkOut"
+            v-model="store.checkOut"
             class="w-[60%] border rounded px-2 py-1 dark:bg-gray-700 dark:text-gray-200"
           />
         </div>

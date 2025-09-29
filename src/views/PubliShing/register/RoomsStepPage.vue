@@ -152,35 +152,11 @@ const calcPrice = (d: DiscountOption) => {
         <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200"><span class="text-red-500">*</span>1박 요금</p>
         <input type="number" v-model.number="store.rooms.price" placeholder="예: 45000" class="w-full border rounded p-2" />
       </div>
-      <div class="flex flex-col">
-        <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200">추가 인원 요금</p>
-        <input type="number" v-model.number="store.rooms.extraPrice" placeholder="예: 30000" class="w-full border rounded p-2" />
-      </div>
+
     </div>
 
     <!-- 할인율 -->
-    <div class="px-5 py-2">
-      <h3 class="font-bold mb-2">인원에 따른 할인율 설정</h3>
-      <table class="w-full border-collapse text-center text-sm">
-        <thead>
-        <tr class="bg-gray-100 dark:bg-gray-100">
-          <th class="border border-gray-300 px-2 py-1">인원</th>
-          <th class="border border-gray-300 px-2 py-1">할인율(%)</th>
-          <th class="border border-gray-300 px-2 py-1">적용 가격</th>
-          <th class="border border-gray-300 px-2 py-1">삭제</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="(d, idx) in store.discounts" :key="idx">
-          <td class="border border-gray-300 px-2 py-1"><input type="number" v-model.number="d.person" min="1" class="w-16 text-center border-gray-50 rounded" /></td>
-          <td class="border border-gray-300 px-2 py-1"><input type="number" v-model.number="d.discount" min="0" max="100" class="w-16 text-center border-gray-50 rounded" /></td>
-          <td class="border border-gray-300 px-2 py-1">{{ calcPrice(d) }}</td>
-          <td class="border border-gray-300 px-2 py-1"><Button label="삭제" severity="danger" size="small" @click="removeDiscount(idx)" /></td>
-        </tr>
-        </tbody>
-      </table>
-      <Button style="margin-top:8px; margin-bottom: 8px;" label="할인율 추가" size="small" class="mt-2" @click="addDiscount" />
-    </div>
+
 
     <!-- 객실 추가 버튼 -->
     <div class="px-5 py-2 flex justify-center">
