@@ -208,11 +208,23 @@ onMounted(async () => {
         >
           <template #day-content="{ day }">
             <div
-              class="w-14 h-14 flex items-center justify-center rounded-lg cursor-pointer font-bold text-gray-900"
+              class="w-20 h-20 flex flex-col items-center justify-center rounded-lg cursor-pointer font-bold text-gray-900"
               :class="getColorByDateStr(format(day.date, 'yyyy-MM-dd'))"
               @click="openDialogByDateStr(format(day.date, 'yyyy-MM-dd'))"
             >
-              {{ day.day }}
+              <!-- 날짜 숫자 -->
+              <span class="text-base">{{ day.day }}</span>
+
+              <!-- 남은 객실/총 객실 -->
+              <span class="text-xs mt-1 font-medium">
+        {{
+                  allDays[format(day.date, "yyyy-MM-dd")]
+                    ? allDays[format(day.date, "yyyy-MM-dd")].available +
+                    "/" +
+                    allDays[format(day.date, "yyyy-MM-dd")].total
+                    : "-"
+                }}
+      </span>
             </div>
           </template>
         </VCalendar>
