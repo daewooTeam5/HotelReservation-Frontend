@@ -10,17 +10,60 @@
     <!-- 콘텐츠 -->
     <template #content>
       <div class="p-6 space-y-5">
-        <div class="text-lg font-bold!">
+        <div class="text-lg font-bold">
           {{reservationData?.room.place.name}} ({{reservationData?.room.roomType }}-{{reservationData?.room.bedType}})
         </div>
+
+        <!-- 투숙객 정보 토글 섹션 -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <button
+            @click="toggleGuestInfo"
+            class="w-full bg-gray-50 hover:bg-gray-100 px-4 py-3 flex justify-between items-center transition-colors duration-200"
+          >
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <span class="font-semibold text-gray-700">투숙객 정보</span>
+              <span v-if="reservationData?.guest.users" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">회원</span>
+              <span v-else class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">비회원</span>
+            </div>
+            <svg
+              class="w-5 h-5 text-gray-500 transition-transform duration-200"
+              :class="{ 'rotate-180': showGuestInfo }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <div
+            v-if="showGuestInfo"
+            class="px-4 py-3 bg-white border-t border-gray-200 space-y-3 transition-all duration-200"
+          >
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">이름</span>
+              <span class="text-sm font-medium text-gray-800">{{ reservationData?.guest.firstName }} {{ reservationData?.guest.lastName }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">이메일</span>
+              <span class="text-sm font-medium text-gray-800">{{ reservationData?.guest.email }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm text-gray-600">전화번호</span>
+              <span class="text-sm font-medium text-gray-800">{{ reservationData?.guest.phone }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 예약 기본 정보 -->
-        <Divider/>
+        <div class="border-t border-gray-200 pt-4"></div>
+
         <div class="flex justify-between pb-3">
           <span class="font-semibold text-gray-700">예약 ID</span>
           <span class="text-gray-800 font-medium">{{ reservationData?.orderId || props.orderId }}</span>
-        </div>
-        <div>
-
         </div>
 
         <div class="flex justify-between pb-3">
@@ -36,28 +79,34 @@
           <span class="font-semibold text-gray-700">기본 금액</span>
           <span class="font-bold text-gray-800">₩{{ reservationData?.baseAmount.toLocaleString() }}</span>
         </div>
-        <Divider/>
+
+        <div class="border-t border-gray-200 pt-4"></div>
 
         <!-- 쿠폰 할인 -->
         <div class="flex justify-between items-center text-green-600">
           <div class="flex items-center space-x-2">
-            <i class="pi pi-tag"></i>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
             <span class="font-semibold">쿠폰 할인</span>
           </div>
           <span class="font-bold">-₩{{ reservationData?.couponDiscountAmount.toLocaleString() || 0 }}</span>
         </div>
 
         <!-- 포인트 할인 -->
-        <div class="flex justify-between items-center text-green-600 mt-1!">
+        <div class="flex justify-between items-center text-green-600 mt-1">
           <div class="flex items-center space-x-2">
-            <i class="pi pi-wallet"></i>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+              <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+            </svg>
             <span class="font-semibold">포인트 할인</span>
           </div>
           <span class="font-bold">-₩{{ reservationData?.pointDiscountAmount.toLocaleString() || 0 }}</span>
         </div>
 
         <!-- Divider -->
-        <Divider class="my-4" />
+        <div class="border-t border-gray-200 my-4"></div>
 
         <!-- 최종 결제 금액 -->
         <div class="flex justify-between py-2">
@@ -77,7 +126,9 @@
             class="w-full px-10 py-3 text-lg rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
             @click="completePayment"
           >
-            <i class="pi pi-credit-card mr-2"></i>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+            </svg>
             결제하기
           </PrimeButton>
         </div>
@@ -93,9 +144,9 @@ import { apiClient } from '@/utils/axiosClient.ts';
 import { useRoute } from 'vue-router';
 import type { ApiResult } from '@/types/ApiResult.ts';
 
-
 const route = useRoute();
 const reservationData = ref<any | null>(null);
+const showGuestInfo = ref(false);
 
 // Props
 const props = defineProps<{
@@ -112,6 +163,11 @@ const emit = defineEmits<{
 // Toss 위젯 저장용 전역 변수
 let widgets: any = null;
 
+// 투숙객 정보 토글
+const toggleGuestInfo = () => {
+  showGuestInfo.value = !showGuestInfo.value;
+};
+
 // 결제 완료 처리
 const completePayment = async () => {
   if (!widgets) {
@@ -121,7 +177,7 @@ const completePayment = async () => {
 
   // Toss 결제 요청
   await widgets.requestPayment({
-    orderId: reservationData?.value?.orderId, // 주문 고유번호
+    orderId: reservationData?.value?.orderId,
     orderName: '호텔 예약 결제',
     successUrl: `${window.location.origin}/places/success?reservationId=${encodeURIComponent(props.reservationId)}&orderId=${encodeURIComponent(reservationData?.value?.orderId || '')}`,
     failUrl: `${window.location.origin}/places/payment?status=fail&reservationId=${encodeURIComponent(props.reservationId)}&orderId=${encodeURIComponent(reservationData?.value?.orderId || '')}`
@@ -130,13 +186,13 @@ const completePayment = async () => {
   // (옵션) 성공 시 부모 컴포넌트로 이벤트 emit
   emit('payment-complete', props.reservationId);
 };
+
 const couponDiscount = ref(0);
 const pointDiscount = ref(0);
 
 // Reservation ID 바뀔 때 위젯 세팅 (즉시 실행)
 onMounted(
   async () => {
-
     const result = await apiClient.get<ApiResult<any>>(`/v1/payment/reservation/${props.reservationId}`);
 
     const customerKey = result.data.data.guest.users
@@ -144,8 +200,8 @@ onMounted(
       : result.data.data.firstName +
       result.data.data.guest.firstName +
       result.data.data.guest.lastName +
-      encodeURIComponent(result.data.data.guest.email);
-
+      result.data.data.guest.email;
+    console.log(customerKey);
 
     const tossPayments = await loadTossPayments('test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm');
     reservationData.value = result.data.data;
@@ -175,6 +231,7 @@ onMounted(
     ]);
   }
 );
+
 // 숙박일수 계산 (checkIn, checkOut 차이)
 const nights = computed(() => {
   const checkIn = route.query.checkIn as string | undefined;

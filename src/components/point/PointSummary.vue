@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { UserInfo } from '@/types/users';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { httpFetcher } from '@/utils/httpFetcher';
 import type { ApiResult } from '@/types/ApiResult';
 
 // API 호출
 const { isLoading, isError, data, error } = useQuery<ApiResult<UserInfo>>({
-  queryKey: ['v1','users','my'],
+  queryKey: ['v1', 'users', 'my'],
   queryFn: httpFetcher
 });
 
@@ -28,7 +28,7 @@ const errMsg = computed(() => {
         <i class="pi pi-wallet text-primary "></i>
         <span class="text-xl font-bold ml-2!">나의 포인트</span>
       </div>
-      <Divider/>
+      <Divider />
     </template>
 
     <template #content>
@@ -46,19 +46,12 @@ const errMsg = computed(() => {
       <!-- 정상 -->
       <div v-else class="w-full">
         <div class="flex flex-column mb-4">
-          <div class="flex flex-col ">
+          <div class="flex flex-col  ">
             <Tag severity="info" class="text-xl font-bold!">포인트</Tag>
-            <div>
-              <span class="text-primary font-bold text-4xl">{{ me?.point.toLocaleString() ?? 0 }}</span>
+            <div class="my-2!">
+              <span class="text-primary font-bold text-4xl">{{ me?.point?.toLocaleString() ?? 0 }}</span>
               <span class="text-500 text-xl ml-1">P</span>
             </div>
-          </div>
-        </div>
-
-
-        <div class="flex align-items-center justify-content-between">
-          <div class="flex align-items-center">
-            <Avatar icon="pi pi-user" class="mr-2" size="small" />
           </div>
         </div>
       </div>

@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/stores/authStore.ts';
+import { ref } from 'vue';
+import SignInModal from '@/components/auth/SignInModal.vue';
 
 const { userAuth } = useAuthStore();
+const showLoginModal = ref(false);
 </script>
 
 <template>
@@ -11,8 +14,13 @@ const { userAuth } = useAuthStore();
         <div class="flex items-center gap-2 p-3 text-sm text-gray-700">
           <template v-if="!userAuth">
             <i class="pi pi-user text-blue-500"></i>
-            <span>로그인하면 더 간편하게 예약할 수 있어요 ✨</span>
-            <router-link to="/auth/signin">로그인/회원가입</router-link>
+            <span>
+              로그인하면 더 간편하게 예약할 수 있어요 ✨
+              <span>
+                <button class="login-link ml-1" @click="showLoginModal = true">로그인</button>
+              </span>
+            </span>
+            <SignInModal :visible="showLoginModal" @close="showLoginModal = false" @success="showLoginModal = false" />
           </template>
           <template v-else>
             <i class="pi pi-check-circle text-green-500"></i>
@@ -25,5 +33,17 @@ const { userAuth } = useAuthStore();
 </template>
 
 <style scoped>
+.login-link {
+  color: #42b883;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+.login-link:hover {
+  text-decoration: underline;
+  color: #369870;
+}
 </style>
-

@@ -39,7 +39,7 @@ onMounted(async () => {
 });
 
 const goToReservationList = () => {
-  router.push('/list');
+  router.push('/profile/payments');
 };
 
 const goToHome = () => {

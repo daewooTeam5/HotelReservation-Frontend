@@ -1,10 +1,12 @@
 <template>
   <div class="space-y-4">
-    <ReservationGuideCard />
+    <div class="mb-4!">
+      <ReservationGuideCard />
+    </div>
 
     <div class="flex gap-4">
       <!-- 왼쪽 -->
-      <div class="flex-2 space-y-4">
+      <div class="flex-2 space-y-4 gap-4 flex flex-col">
         <ReservationForm
           ref="formRef"
           @data-change="handleReservationDataChange"
@@ -15,7 +17,7 @@
       </div>
 
       <!-- 오른쪽 -->
-      <div class="flex-1 space-y-4">
+      <div class="flex-1 space-y-4 gap-4 flex flex-col">
         <ReservationHotelCard :hotel-id="Number(hotelId) || 1" />
         <ReservationScheduleCard :check-in="checkIn" :check-out="checkOut" />
         <ReservationCouponCard
@@ -39,7 +41,7 @@
     </div>
 
     <!-- 하단 결제 -->
-    <div>
+    <div class="mt-4!">
       <PrimeCard class="shadow-md border-t-4 border-t-blue-500">
         <template #content>
           <div class="flex justify-between items-center">

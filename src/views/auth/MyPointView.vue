@@ -4,7 +4,7 @@ import PointHistory from '@/components/point/PointHistory.vue';
 </script>
 
 <template>
-  <section class="max-w-4xl mx-auto p-4 space-y-6">
+  <section class="max-w-4xl mx-auto p-4 space-y-6 flex flex-col gap-4">
     <PointSummary />
     <PointHistory />
   </section>

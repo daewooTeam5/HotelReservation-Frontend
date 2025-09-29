@@ -82,6 +82,7 @@ const couponLabel = computed<string | null>(() => {
 const couponExpiry = computed<string | null>(() => payment.value?.couponExpiredAt || (payment.value as any)?.coupon?.expiredAt || null);
 
 const isCancelable = computed(() => (payment.value?.status || '').toLowerCase() === 'paid');
+console.log(payment.value?.status);
 
 const cancelMutation = useMutation({
   mutationKey: ['v1', 'payment', 'cancel'],
@@ -108,9 +109,10 @@ const cancelMutation = useMutation({
 });
 
 const cancel = () => {
-  if (cancelMutation.isPending || !paymentId.value) return;
+  if (!cancelMutation.isPending || !paymentId.value) return;
   if (!window.confirm('해당 결제를 취소하시겠습니까?')) return;
-  cancelMutation.mutate(paymentId.value);
+  if(!payment?.value?.paymentKey) return;
+  cancelMutation.mutate(payment?.value.paymentKey);
 };
 
 const copy = async (val?: string, label?: string) => {
