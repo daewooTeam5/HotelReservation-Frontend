@@ -304,6 +304,19 @@ const router = createRouter({
           name: 'statistics',
           component: () => import('@/views/placeOwner/Statistics.vue'),
           meta: { layout: 'owner' }
+        },
+        {
+          path: 'coupons',
+          name: 'owner-coupons',
+          component: () => import('@/views/placeOwner/CouponManagement.vue'),
+          meta: { layout: 'owner' }
+        },
+        {
+          path: 'coupons/:id',
+          name: 'owner-coupon-detail',
+          component: () => import('@/views/placeOwner/CouponDetail.vue'),
+          props: true,
+          meta: { layout: 'owner' }
         }
       ]
     },

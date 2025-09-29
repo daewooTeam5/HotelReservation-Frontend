@@ -108,13 +108,6 @@ function openDialogByDateStr(dateStr: string) {
   showCalendarDialog.value = true; // ✅ 달력 팝업만 열림
 }
 
-const deleteRoom = async () => {
-  if (confirm("정말 삭제하시겠습니까?")) {
-    await apiClient.delete(`/v1/owner/rooms/${route.params.id}`);
-    router.push("/owner/rooms");
-  }
-};
-
 const openRoomDialog = () => (showRoomDialog.value = true);
 const closeRoomDialog = () => (showRoomDialog.value = false);
 
@@ -159,12 +152,6 @@ onMounted(async () => {
             icon="pi pi-pencil"
             @click="openRoomDialog"
             class="!bg-blue-500 !border-blue-500 hover:!bg-blue-600"
-          />
-          <Button
-            label="삭제"
-            icon="pi pi-trash"
-            severity="danger"
-            @click="deleteRoom"
           />
         </div>
       </div>

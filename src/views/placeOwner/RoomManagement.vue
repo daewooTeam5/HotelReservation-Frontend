@@ -11,6 +11,11 @@ import Column from "primevue/column";
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore.js";
 
+import Toast from "primevue/toast";
+import { useToast } from "primevue/usetoast";
+
+const toast = useToast();
+
 const rooms = ref([]);
 const showDialog = ref(false);
 const selectedRoom = ref(null);
@@ -77,14 +82,6 @@ const handleRefresh = async () => {
   loading.value = false;
 };
 
-// 삭제
-const deleteRoom = async (id) => {
-  if (confirm("정말 이 객실 유형을 삭제하시겠습니까?")) {
-    await apiClient.delete(`/v1/owner/rooms/${id}`);
-    fetchRooms();
-  }
-};
-
 // 행 클릭 → 상세 페이지 이동
 const onRowClick = (event) => {
   router.push(`/owner/rooms/${event.data.id}`);
@@ -119,6 +116,7 @@ onUnmounted(() => {
 
 <template>
   <div class="p-6 bg-gray-50 min-h-screen flex flex-col gap-6">
+    <Toast />
     <!-- 상단 헤더 -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
       <h1 class="text-2xl font-bold text-gray-900">객실 유형 관리</h1>
@@ -208,19 +206,6 @@ onUnmounted(() => {
           <span class="text-gray-800">
             {{ formatPrice(slotProps.data.price) }}
           </span>
-        </template>
-      </Column>
-      <Column field="status" header="상태" />
-      <Column header="액션" bodyClass="text-center">
-        <template #body="slotProps">
-          <Button
-            label="삭제"
-            icon="pi pi-trash"
-            severity="danger"
-            size="small"
-            class="px-3 py-1"
-            @click.stop="deleteRoom(slotProps.data.id)"
-          />
         </template>
       </Column>
     </DataTable>
