@@ -348,12 +348,24 @@ const router = createRouter({
           component: () => import('@/views/admin/AdminPlaceDetail.vue'),
           meta: { layout: 'admin' }
         },
+          {
+            path: 'review',
+            name: 'admin-review',
+            component: () => import('@/views/admin/AdminReview.vue'),
+            meta: { layout: 'admin' }
+          },
         {
-          path: 'review',
-          name: 'admin-review',
-          component: () => import('@/views/admin/AdminReview.vue'),
-          meta: { layout: 'admin' }
-        }
+          path: "payment",
+          name: "admin-payment",
+          component: () => import('@/views/admin/AdminPayment.vue'),
+          meta: { layout: "admin" },
+        },
+        {
+          path: "statistics",
+          name: "admin-statistics",
+          component: () => import('@/views/admin/AdminStatistics.vue'),
+          meta: { layout: "admin" },
+        },
       ]
     },
     {

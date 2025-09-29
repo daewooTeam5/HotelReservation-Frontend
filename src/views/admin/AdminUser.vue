@@ -1,16 +1,18 @@
 <template>
   <div class="flex flex-col gap-6">
-    <!-- 페이지 헤더 -->
     <div class="flex items-center justify-between">
       <h1 class="text-3xl font-bold text-gray-900">유저 관리</h1>
     </div>
 
-    <!-- 유저 테이블 -->
-    <DataTable :value="users" responsiveLayout="scroll" class="mt-4">
-      <!-- 아이디 -->
+    <DataTable
+      :value="users"
+      responsiveLayout="scroll"
+      class="mt-4 cursor-pointer"
+      rowHover
+      @row-click="goToDetail"
+    >
       <Column field="id" header="아이디" style="min-width: 80px" />
 
-      <!-- 이메일 (admin이면 userId로 대체) -->
       <Column header="이메일 / ID" style="min-width: 200px">
         <template #body="slotProps">
           <span>
@@ -19,10 +21,8 @@
         </template>
       </Column>
 
-      <!-- 이름 -->
       <Column field="name" header="이름" style="min-width: 150px" />
 
-      <!-- 권한 -->
       <Column field="role" header="권한" style="min-width: 120px">
         <template #body="slotProps">
           <span
@@ -34,36 +34,31 @@
         </template>
       </Column>
 
-      <!-- 상태 -->
       <Column field="status" header="상태" style="min-width: 200px">
         <template #body="slotProps">
           <div class="flex items-center gap-2">
-            <!-- 상태 뱃지 -->
             <span
               class="px-3 py-1 rounded-full text-xs font-medium"
               :class="getStatusClass(slotProps.data.status)"
             >
-        {{ translateStatus(slotProps.data.status) }}
-      </span>
+              {{ translateStatus(slotProps.data.status) }}
+            </span>
 
-            <!-- inactive → 허용 + 취소 버튼 둘 다 표시 -->
             <template
               v-if="currentUserRole === 'admin'
               && ['place_admin', 'user_admin'].includes(slotProps.data.role)
               && slotProps.data.status === 'inactive'"
             >
-              <!-- 허용 버튼 -->
               <button
                 class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200"
-                @click="allowUser(slotProps.data.id)"
+                @click.stop="allowUser(slotProps.data.id)"
               >
                 허용
               </button>
 
-              <!-- 취소 버튼 -->
               <button
                 class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
-                @click="cancelUser(slotProps.data.id)"
+                @click.stop="cancelUser(slotProps.data.id)"
               >
                 취소
               </button>
@@ -81,20 +76,31 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router'; // ✅ [ADD] useRouter 임포트
 import { apiClient } from '@/utils/axiosClient';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+
+// ✅ [ADD] router 인스턴스 생성
+const router = useRouter();
 
 interface UserResponse {
   id: number;
   userId: string;
   email: string;
-  name: string;
+  name:string;
   role: string;
   status: string;
 }
 
 const currentUserRole = ref<string>('admin');
+
+// ✅ [ADD] 상세 페이지로 이동하는 함수
+const goToDetail = (event: any) => {
+  const userId = event.data.id;
+  router.push({ name: 'admin-user-detail', params: { id: userId } });
+};
+
 
 // 허용 (inactive → active)
 const allowUser = async (userId: number) => {
@@ -115,19 +121,6 @@ const cancelUser = async (userId: number) => {
     console.error('취소 실패:', err);
   }
 };
-
-// 취소 처리 → inactive → banned
-const banUser = async (user: UserResponse) => {
-  try {
-    await apiClient.post(`/v1/admin/users/${user.id}/cancel`, {
-      status: 'banned',
-    });
-    await fetchUsers();
-  } catch (err) {
-    console.error('취소 실패:', err);
-  }
-};
-
 
 // 유저 데이터
 const users = ref<UserResponse[]>([]);
