@@ -12,7 +12,7 @@
         />
         <KpiCard
           title="객실 점유율"
-          :value="occupancyRate.toFixed(1) + '%'"
+          :value="occupancyRate + '%'"
           icon="pi-chart-pie"
           subtitle="현재 기준"
           color="green"
@@ -147,7 +147,7 @@ const chartOptions = {
 async function fetchRoomSummary() {
   const { data } = await apiClient.get("/v1/statistics/rooms/summary");
   totalRooms.value = data.totalRooms;
-  occupancyRate.value = data.occupancyRate;
+  occupancyRate.value = Math.round(data.occupancyRate * 100) / 100;
 }
 
 async function fetchAvailability() {
@@ -274,7 +274,7 @@ function exportToCSV() {
   // KPI
   csv += "=== KPI ===\n";
   csv += `전체 객실 수,${totalRooms.value}\n`;
-  csv += `객실 점유율,${occupancyRate.value.toFixed(1)}%\n\n`;
+  csv += `객실 점유율,${occupancyRate.value}%\n\n`;
 
   // 객실 가용률 캘린더
   csv += "=== 객실 가용률 캘린더 ===\n";

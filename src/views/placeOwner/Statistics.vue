@@ -13,12 +13,13 @@
         <!-- 새로고침 -->
         <button
           @click="refreshData"
-          class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center"
+          :disabled="loading"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <i class="pi pi-refresh mr-2"></i>
-          새로고침
+          <i v-if="loading" class="pi pi-spinner pi-spin mr-2"></i>
+          <i v-else class="pi pi-refresh mr-2"></i>
+          {{ loading ? '불러오는 중...' : '새로고침' }}
         </button>
-
         <!-- 내보내기 -->
         <button
           @click="exportCurrentTab"
@@ -74,6 +75,8 @@ import CustomerStatistics from "@/components/statistics/CustomerStatistics.vue";
 import ReviewStatistics from "@/components/statistics/ReviewStatistics.vue";
 import RoomStatistics from "@/components/statistics/RoomStatistics.vue";
 
+const loading = ref(false);
+
 const toast = useToast();
 
 const activeTab = ref("0");
@@ -94,12 +97,19 @@ const timeAgo = computed(() => {
 });
 
 // 새로고침 함수
-function refreshData() {
-  reservationRef.value?.refresh?.();
-  customerRef.value?.refresh?.();
-  reviewRef.value?.refresh?.();
-  roomRef.value?.refresh?.();
-  lastUpdated.value = new Date();
+async function refreshData() {
+  try {
+    loading.value = true;
+    await Promise.all([
+      reservationRef.value?.refresh?.(),
+      customerRef.value?.refresh?.(),
+      reviewRef.value?.refresh?.(),
+      roomRef.value?.refresh?.(),
+    ]);
+    lastUpdated.value = new Date();
+  } finally {
+    loading.value = false;
+  }
 }
 
 // 내보내기
