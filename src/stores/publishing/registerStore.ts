@@ -28,6 +28,7 @@ export type RoomForm = {
   width: number;
   images: string[]; // 각 객실에 대한 이미지 배열
   capacityRoom: number; // 해당 타입의 객실 개수
+  amenityIds: number[]; // 객실 편의시설 ID 배열
 };
 
 export type Address = {
@@ -72,7 +73,7 @@ export const defaultBeds: BedOption[] = [
 const initialRoomState = (): RoomForm => ({
   capacityPeople: 1, price: 0, extraPrice: 0, roomNumber: 1, roomType: '',
   bedType: defaultBeds.map(b => ({ ...b })), isPublic: true, selectedBed: '',
-  width: 0, images: [], capacityRoom: 0
+  width: 0, images: [], capacityRoom: 1, amenityIds: []
 });
 
 

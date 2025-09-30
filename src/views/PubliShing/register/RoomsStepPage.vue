@@ -128,6 +128,7 @@ const cancelEditRoom = () => {
   store.rooms.price = 0;
   store.rooms.roomType = '';
   store.rooms.capacityPeople = 1;
+  store.rooms.capacityRoom = 1; // capacityRoom 초기화 추가
   store.rooms.selectedBed = '';
   store.images = [];
   selectedRoomAmenities.value = [];
