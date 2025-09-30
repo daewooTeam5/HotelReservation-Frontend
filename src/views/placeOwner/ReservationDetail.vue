@@ -21,32 +21,61 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-900">예약 상태</h2>
           <div class="flex space-x-2">
-            <span
-              :class="getStatusColor(reservation.status)"
-              class="px-3 py-1 rounded-full text-sm font-medium"
-            >
-              {{ translateStatus(reservation.status) }}
-            </span>
+        <span
+          :class="getStatusColor(reservation.status)"
+          class="px-3 py-1 rounded-full text-sm font-medium"
+        >
+          {{ translateStatus(reservation.status) }}
+        </span>
             <span
               :class="getPaymentStatusColor(reservation.paymentStatus)"
               class="px-3 py-1 rounded-full text-sm font-medium"
             >
-              {{ translatePaymentStatus(reservation.paymentStatus) }}
-            </span>
+          {{ translatePaymentStatus(reservation.paymentStatus) }}
+        </span>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
+            <span class="text-gray-500">예약 번호</span>
+            <p class="font-medium">{{ reservation.reservationId }}</p>
+          </div>
+          <div>
             <span class="text-gray-500">예약일</span>
             <p class="font-medium">{{ formatDateTime(reservation.createdAt) }}</p>
           </div>
+        </div>
+      </div>
+
+      <!-- ✅ 결제/금액 정보 카드 -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">결제 정보</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <span class="text-gray-500">결제수단</span>
-            <p class="font-medium">{{ reservation.method }}</p>
+            <p class="font-medium">{{ reservation.method || '-' }}</p>
           </div>
           <div>
-            <span class="text-gray-500">최종 결제 금액</span>
-            <p class="text-semibold text-lg text-blue-600">{{ formatCurrency(reservation.finalAmount) }}</p>
+            <span class="text-gray-500">예약 금액 (원가)</span>
+            <p class="font-medium">{{ formatCurrency(reservation.baseAmount) }}</p>
+          </div>
+          <div>
+            <span class="text-gray-500">쿠폰 할인</span>
+            <p class="font-medium text-red-600">
+              - {{ formatCurrency(reservation.couponDiscountAmount) }}
+            </p>
+          </div>
+          <div>
+            <span class="text-gray-500">포인트 할인</span>
+            <p class="font-medium text-red-600">
+              - {{ formatCurrency(reservation.pointDiscountAmount) }}
+            </p>
+          </div>
+          <div class="md:col-span-2 border-t pt-3">
+            <span class="text-gray-700 font-semibold">최종 결제 금액</span>
+            <p class="text-xl font-bold text-blue-600 mt-1">
+              {{ formatCurrency(reservation.finalAmount) }}
+            </p>
           </div>
         </div>
       </div>

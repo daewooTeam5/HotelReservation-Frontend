@@ -186,6 +186,10 @@
       <div class="flex items-center justify-between p-6 border-b border-gray-200">
         <h2 class="text-lg font-semibold text-gray-900">예약 목록</h2>
         <div class="flex items-center gap-3">
+          <!-- 마지막 업데이트 시간 -->
+          <span class="text-xs text-gray-500">
+            {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : '아직 업데이트 기록 없음' }}
+          </span>
           <!-- 새로고침 버튼 -->
           <button
             @click="handleRefresh"
@@ -231,11 +235,6 @@
             </svg>
             새로고침
           </button>
-
-          <!-- 마지막 업데이트 시간 -->
-          <span class="text-xs text-gray-500">
-            {{ lastUpdated ? `${timeAgo} 전 업데이트됨` : '아직 업데이트 기록 없음' }}
-          </span>
 
           <label class="text-sm font-medium text-gray-700">정렬:</label>
           <select

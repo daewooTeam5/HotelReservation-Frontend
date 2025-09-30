@@ -108,13 +108,6 @@ function openDialogByDateStr(dateStr: string) {
   showCalendarDialog.value = true; // ✅ 달력 팝업만 열림
 }
 
-const deleteRoom = async () => {
-  if (confirm("정말 삭제하시겠습니까?")) {
-    await apiClient.delete(`/v1/owner/rooms/${route.params.id}`);
-    router.push("/owner/rooms");
-  }
-};
-
 const openRoomDialog = () => (showRoomDialog.value = true);
 const closeRoomDialog = () => (showRoomDialog.value = false);
 
@@ -160,12 +153,6 @@ onMounted(async () => {
             @click="openRoomDialog"
             class="!bg-blue-500 !border-blue-500 hover:!bg-blue-600"
           />
-          <Button
-            label="삭제"
-            icon="pi pi-trash"
-            severity="danger"
-            @click="deleteRoom"
-          />
         </div>
       </div>
     </div>
@@ -190,15 +177,6 @@ onMounted(async () => {
           <span class="text-sm text-gray-500">가격</span>
           <p class="font-semibold text-lg text-blue-600">{{ formatPrice(room?.price) }}</p>
         </div>
-        <div class="space-y-1">
-          <span class="text-sm text-gray-500">상태</span><br />
-          <span
-            :class="room?.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-            class="inline-block px-2 py-1 rounded-full text-xs font-medium"
-          >
-            {{ room?.status || '-' }}
-          </span>
-        </div>
       </div>
     </div>
 
@@ -217,11 +195,23 @@ onMounted(async () => {
         >
           <template #day-content="{ day }">
             <div
-              class="w-14 h-14 flex items-center justify-center rounded-lg cursor-pointer font-bold text-gray-900"
+              class="w-20 h-20 flex flex-col items-center justify-center rounded-lg cursor-pointer font-bold text-gray-900"
               :class="getColorByDateStr(format(day.date, 'yyyy-MM-dd'))"
               @click="openDialogByDateStr(format(day.date, 'yyyy-MM-dd'))"
             >
-              {{ day.day }}
+              <!-- 날짜 숫자 -->
+              <span class="text-base">{{ day.day }}</span>
+
+              <!-- 남은 객실/총 객실 -->
+              <span class="text-xs mt-1 font-medium">
+        {{
+                  allDays[format(day.date, "yyyy-MM-dd")]
+                    ? allDays[format(day.date, "yyyy-MM-dd")].available +
+                    "/" +
+                    allDays[format(day.date, "yyyy-MM-dd")].total
+                    : "-"
+                }}
+      </span>
             </div>
           </template>
         </VCalendar>

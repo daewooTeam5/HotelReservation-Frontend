@@ -291,12 +291,6 @@ const router = createRouter({
           meta: { layout: 'owner' }
         },
         {
-          path: 'settings',
-          name: 'owner-settings',
-          component: () => import('@/views/placeOwner/SettingsPage.vue'),
-          meta: { layout: 'owner' }
-        },
-        {
           path: 'rooms',
           name: 'owner-rooms',
           component: () => import('@/views/placeOwner/RoomManagement.vue'),
@@ -313,6 +307,19 @@ const router = createRouter({
           path: '/owner/statistics',
           name: 'statistics',
           component: () => import('@/views/placeOwner/Statistics.vue'),
+          meta: { layout: 'owner' }
+        },
+        {
+          path: 'coupons',
+          name: 'owner-coupons',
+          component: () => import('@/views/placeOwner/CouponManagement.vue'),
+          meta: { layout: 'owner' }
+        },
+        {
+          path: 'coupons/:id',
+          name: 'owner-coupon-detail',
+          component: () => import('@/views/placeOwner/CouponDetail.vue'),
+          props: true,
           meta: { layout: 'owner' }
         }
       ]
