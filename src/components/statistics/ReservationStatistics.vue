@@ -104,7 +104,7 @@
             </div>
           </div>
           <div class="flex-1 h-72">
-            <Chart type="bar" :data="roomRevenueData" :options="enhancedChartOptions" />
+            <Chart type="bar" :data="roomRevenueData" :options="roomRevenueOptions" />
           </div>
         </div>
 
@@ -192,6 +192,25 @@ const paymentMethodData = ref<any>({
   datasets: []
 });
 
+// 🔹 옵션 (Y축 2개 설정)
+const roomRevenueOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      type: "linear",
+      position: "left",
+      title: { display: true, text: "예약 건수" }
+    },
+    y1: {
+      type: "linear",
+      position: "right",
+      title: { display: true, text: "매출액 (원)" },
+      grid: { drawOnChartArea: false } // ✅ 겹치지 않게
+    }
+  }
+};
+
 // 🔹 차트 옵션
 const enhancedChartOptions = { responsive: true, maintainAspectRatio: false };
 const doughnutOptions = {
@@ -246,7 +265,7 @@ const pieOptions = { responsive: true, maintainAspectRatio: false };
 const lineOptions = { responsive: true, maintainAspectRatio: false, tension: 0.3 };
 const barOptions = { responsive: true, maintainAspectRatio: false };
 
-// ✅ 객실 타입별 예약·매출 API 호출
+//  객실 타입별 예약·매출 API 호출
 async function fetchRoomRevenue() {
   if (!dateRange.value || dateRange.value.length < 2) return;
 
@@ -267,12 +286,14 @@ async function fetchRoomRevenue() {
         {
           label: "예약 건수",
           data: data.map((d: any) => d.reservationCount),
-          backgroundColor: "rgba(59,130,246,0.8)"
+          backgroundColor: "rgba(59,130,246,0.8)",
+          yAxisID: "y" // ✅ 왼쪽 축
         },
         {
           label: "매출액",
           data: data.map((d: any) => d.totalRevenue),
-          backgroundColor: "rgba(16,185,129,0.8)"
+          backgroundColor: "rgba(16,185,129,0.8)",
+          yAxisID: "y1" // ✅ 오른쪽 축
         }
       ]
     };
