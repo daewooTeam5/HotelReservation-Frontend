@@ -174,13 +174,6 @@ const router = createRouter({
       component: () => import('@/views/AboutView.vue'),
       meta: { layout: 'user' }
     },
-    // 인증/회원가입
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/LoginView.vue'),
-      meta: { layout: 'user' }
-    },
     {
       path: '/auth/register',
       name: 'register',
@@ -385,17 +378,59 @@ const router = createRouter({
     },
 
     {
-      path: '/login1',
+      path: '/login',
       name: 'admin-login',
       component: () => import('@/views/admin/AdminLogin.vue')
     },
     {
-      path: '/signup1',
+      path: '/signup',
       name: 'admin-signup',
       component: () => import('@/views/admin/AdminSignUp.vue')
     }
   ],
   scrollBehavior
 });
+
+import { useAuthStore } from "@/stores/authStore"
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  const token = authStore.accessToken
+  let role: string | null = null
+
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      role = JSON.parse(payload.sub).role
+    } catch (e) {
+      console.error("JWT 파싱 실패:", e)
+    }
+  }
+
+  if (to.path.startsWith("/admin")) {
+    setTimeout(()=>{
+
+
+    console.log("token:", token)
+    console.log("parsed role:", role)
+
+    if (!token) {
+      console.log("➡️ 토큰 없음 → admin-login으로 이동")
+      return next({ name: "home" })
+    }
+
+    if (!role || !["admin", "place_admin", "user_admin"].includes(role)) {
+      console.log("➡️ 권한 없음 → home으로 이동")
+      return next({ name: "home" })
+    }
+    },0)
+  }
+
+  if (to.name === "admin-login" && token) {
+    return next({ name: "admin-dashboard" })
+  }
+
+  next()
+})
 
 export default router;
