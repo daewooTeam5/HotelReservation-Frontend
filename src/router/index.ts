@@ -56,6 +56,11 @@ const router = createRouter({
           name: 'OwnerRequest',
           component: () => import('../views/user/RequestOwnerPage.vue')
         },
+        {
+          path: 'review-list',
+          name: 'reviewList',
+          component: () => import('../views/user/reviews/ReviewList.vue')
+        },
 
       ]
     },

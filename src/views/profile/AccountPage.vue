@@ -69,12 +69,7 @@
         <Button @click="submit" label="변경 사항 저장" icon="pi pi-check" class="p-button-info" />
       </div>
 
-      <h3 class="text-2xl font-semibold text-gray-700 mt-8 mb-6">
-        내 리뷰 ({{ profile.review }}개)
-      </h3>
-      <div class="text-gray-500 italic p-4 bg-gray-50 rounded-lg">
-        최근 작성된 리뷰가 여기에 표시됩니다.
-      </div>
+
     </div>
   </div>
 </template>
