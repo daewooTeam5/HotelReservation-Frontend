@@ -32,6 +32,61 @@ import { useRouter } from 'vue-router';
 import UserProfile from '@/components/common/UserProfile.vue';
 
 const router = useRouter();
+const { setAccessToken, accessToken, userAuth, getAccessToken } = useAuthStore();
+
+// 사용자 정보 추출
+const user = ref<UserDto | null>(null);
+if (accessToken) {
+  user.value = parseJwt<UserDto>(accessToken);
+}
+
+// 상태
+const isProfileMenuOpen = ref(false);
+const profileRef = ref<HTMLElement | null>(null);
+
+// 토글 함수
+const toggleProfileMenu = () => {
+  isProfileMenuOpen.value = !isProfileMenuOpen.value;
+};
+
+// 네비게이션 함수
+const navigateToProfile = () => {
+  router.push('/admin/profile');
+  isProfileMenuOpen.value = false;
+};
+
+const navigateToSettings = () => {
+  router.push('/admin/settings');
+  isProfileMenuOpen.value = false;
+};
+
+// 로그아웃
+const logout = async () => {
+  try {
+    await apiClient.post('../logout', null, { withCredentials: true });
+    setAccessToken(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('placeId');
+    router.push('/login1');
+  } catch (e) {
+    console.error('로그아웃 실패:', e);
+  } finally {
+    isProfileMenuOpen.value = false;
+  }
+};
+
+// 외부 클릭 시 드롭다운 닫기
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as Node;
+  if (profileRef.value && !profileRef.value.contains(target)) {
+    isProfileMenuOpen.value = false;
+  }
+};
+
+onMounted(async () => {
+  window.addEventListener('click', handleClickOutside);
+});
 
 defineEmits<{
   toggleSidebar: []

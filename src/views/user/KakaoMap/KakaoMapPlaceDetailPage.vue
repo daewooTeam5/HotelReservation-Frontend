@@ -5,7 +5,7 @@
       <p class="text-xs text-gray-500">{{ error }}</p>
     </div>
   </div>
-  <div v-else ref="mapContainer" class="w-full h-full rounded-lg shadow no-padding"></div>
+  <div v-else ref="mapContainer" class="w-full h-[500px] rounded-lg shadow no-padding"></div>
 </template>
 
 <script setup lang="ts">
