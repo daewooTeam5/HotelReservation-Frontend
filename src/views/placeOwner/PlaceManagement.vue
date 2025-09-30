@@ -91,7 +91,7 @@ const fetchPlaces = async () => {
 const deletePlace = async (placeId: number) => {
   if (confirm("정말 숙소를 삭제하시겠습니까?")) {
     try {
-      await apiClient.delete(`/hotel/publishing/delete/${placeId}`);
+      await apiClient.delete(`/v1/hotel/publishing/delete/${placeId}`);
       // [개선] API 재호출 대신, 프론트엔드 목록에서 직접 제거하여 즉각적인 피드백을 줍니다.
       places.value = places.value.filter(p => p.id !== placeId);
       alert("숙소가 삭제되었습니다.");

@@ -68,7 +68,7 @@ const startEditRoom = (index: number) => {
   store.images = [...room.images];
 
   // 객실 편의시설 선택 상태 복원
-  selectedRoomAmenities.value = room.amenities || [];
+  selectedRoomAmenities.value = room.amenityIds || [];
 
   // 이미지 새로고침
   loadRoomImages();
@@ -100,7 +100,7 @@ const updateRoom = () => {
     ...store.rooms,
     width: Number(pyeongWidth.value) * 3.3,
     images: [...store.images],
-    amenities: [...selectedRoomAmenities.value]
+    amenityIds: [...selectedRoomAmenities.value]   // ✅ amenityIds로 저장
   };
 
   store.addedRooms[editingRoomIndex.value] = updatedRoom;
@@ -223,7 +223,7 @@ const addRoom = () => {
   const roomToAdd = {
     ...JSON.parse(JSON.stringify(store.rooms)),
     images: [...store.images],
-    amenities: [...selectedRoomAmenities.value],
+    amenityIds: [...selectedRoomAmenities.value],   // ✅ amenityIds로 저장
     width: Number(pyeongWidth.value) * 3.3
   };
 
@@ -263,7 +263,6 @@ const goNext = () => {
     alert('객실을 한 개 이상 추가해야 다음 단계로 진행할 수 있습니다.');
     return;
   }
-
 
   router.push('/publishing/register/confirm');
 };
@@ -336,7 +335,6 @@ onMounted(async () => {
       </div>
     </div>
 
-
     <div class="flex flex-row gap-6 px-5">
       <!-- 침대 선택 -->
       <div class="w-1/2 flex flex-col justify-start h-[40%]">
@@ -371,11 +369,7 @@ onMounted(async () => {
         <p class="font-semibold mb-2 text-gray-700 dark:text-gray-200"><span class="text-red-500">*</span>1박 요금</p>
         <input type="number" v-model.number="store.rooms.price" placeholder="예: 45000" class="w-full border rounded p-2" />
       </div>
-
     </div>
-
-    <!-- 할인율 -->
-
 
     <!-- 객실 편의시설 선택 -->
     <div class="px-5 py-2">
@@ -467,8 +461,8 @@ onMounted(async () => {
             <div class="font-medium mb-1">객실 {{ room.roomNumber }} - {{ room.roomType }} ({{ room.capacityRoom }}개)</div>
             <div class="text-gray-600">면적: {{ room.width.toFixed(2) }}m² | 최대인원: {{ room.capacityPeople }}명 | 1박: {{ room.price }}원</div>
             <div class="text-gray-600">침대: {{ room.selectedBed }}</div>
-            <div v-if="room.amenities && room.amenities.length > 0" class="text-gray-600 mt-1">
-              편의시설: {{ getRoomAmenityNames(room.amenities).join(', ') }}
+            <div v-if="room.amenityIds && room.amenityIds.length > 0" class="text-gray-600 mt-1">
+              편의시설: {{ getRoomAmenityNames(room.amenityIds).join(', ') }}
             </div>
           </div>
           <div class="flex gap-1 ml-2">
@@ -501,6 +495,5 @@ onMounted(async () => {
     <div v-if="showRestoreComponent" class="px-5 py-4">
       <HotelRegistrationRestore @data-restored="onDataRestored" @start-new="onStartNew" />
     </div>
-
   </div>
 </template>
