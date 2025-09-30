@@ -3,7 +3,7 @@ import { categoryMap, useRegisterStore } from '@/stores/publishing/registerStore
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { computed } from 'vue'; // 💡 [추가] computed를 import 합니다.
+import { computed, ref, onMounted } from 'vue';
 import Button from 'primevue/button';
 
 const store = useRegisterStore();
@@ -13,26 +13,52 @@ const route = useRoute();
 
 const token = localStorage.getItem('accessToken');
 
+// 이미지 URL들을 저장할 반응형 데이터
+const hotelImageUrls = ref<string[]>([]);
+const roomImageUrls = ref<{ [key: number]: string[] }>({});
+
 // 💡 [추가] 수정/등록 모드에 따라 버튼의 라벨을 동적으로 변경합니다.
 const submitButtonLabel = computed(() => store.editingPlaceId ? '수정 완료' : '등록 완료');
 
-// 💡 [수정] 수정/등록을 분기 처리하는 submit 함수
+// 이미지 URL들을 로드하는 함수
+const loadImages = async () => {
+  try {
+    // 호텔 이미지 URL 로드
+    hotelImageUrls.value = await store.getAllHotelImageUrls();
+
+    // 각 객실의 이미지 URL 로드
+    for (let i = 0; i < store.addedRooms.length; i++) {
+      const room = store.addedRooms[i];
+      const urls = await Promise.all(
+        room.images.map(async (id) => {
+          return await store.getRoomImageUrl(id) || '';
+        })
+      );
+      roomImageUrls.value[i] = urls.filter(url => url !== '');
+    }
+  } catch (error) {
+    console.error('이미지 로딩 실패:', error);
+  }
+};
+
+// 💡 [수정] 멀티파트 형식으로 수정/등록을 분기 처리하는 submit 함수
 const submit = async () => {
   if (store.addedRooms.length === 0) {
     alert('등록된 객실이 없습니다.');
     return;
   }
   try {
-    // payload를 만드는 로직은 기존과 동일합니다.
-    const payload = {
+    // FormData 객체 생성
+    const formData = new FormData();
+
+    // 1. JSON 데이터 준비
+    const jsonData = {
       hotelName: store.name,
       description: store.description,
       checkIn: store.checkIn,
       checkOut: store.checkOut,
       addressList: [store.address],
-      hotelImages: store.hotelImages.map(img => ({ url: img })),
       categoryId: store.categoryId,
-      // 💡 amenityIds 필드명을 백엔드 DTO에 맞게 수정합니다.
       amenityIds: store.amenities.filter((a) => a.checked).map((a) => a.id),
       discounts: store.discounts,
       rooms: store.addedRooms.map((r) => ({
@@ -43,26 +69,48 @@ const submit = async () => {
         extraPrice: r.extraPrice,
         isPublic: r.isPublic,
         bedType: r.selectedBed,
-        images: r.images.map(img => ({ url: img })),
+        roomImageCount: r.images.length, // 각 객실의 이미지 개수
+        capacityRoom: r.capacityRoom
       })),
       userId: authstore.userAuth?.id
     };
 
+    // JSON 데이터를 FormData에 추가
+    formData.append('data', JSON.stringify(jsonData));
+
+    // 2. 호텔 이미지 파일들 추가
+    const hotelImageFiles = await store.getAllHotelImageFiles();
+    hotelImageFiles.forEach((file) => {
+      formData.append(`hotelImages`, file);
+    });
+
+    // 3. 각 객실의 이미지 파일들 추가
+    for (let roomIndex = 0; roomIndex < store.addedRooms.length; roomIndex++) {
+      const room = store.addedRooms[roomIndex];
+      const roomImageFiles = await store.getRoomImageFiles(room.images);
+      roomImageFiles.forEach((file) => {
+        formData.append(`roomImages_${roomIndex}`, file);
+      });
+    }
+
+
     if (store.editingPlaceId) {
       // 수정 모드: PUT 요청
-      await apiClient.put(`/hotel/publishing/update/${store.editingPlaceId}`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await apiClient.put(`/hotel/publishing/update/${store.editingPlaceId}`, formData, config);
       alert('수정이 완료되었습니다.');
     } else {
       // 등록 모드: POST 요청
-      await apiClient.post('/hotel/publishing/register', payload, {
-        headers: { Authorization: `Bearer ${token}` }
+      await apiClient.post('/v1/hotel/publishing/register', formData, {
+        headers:{
+          'Content-Type': 'multipart/form-data'
+        }
       });
       alert('등록이 완료되었습니다.');
     }
 
-    store.clearStore(); // 💡 작업 완료 후 스토어 비우기
+    // 등록/수정 완료 후 IndexedDB와 로컬스토리지 정리
+    await store.clearAllImages();
+    store.clearStoreAndStorage();
     router.push({ name: 'owner-dashboard' }); // 성공 후 대시보드로 이동
 
   } catch (e: any) {
@@ -75,7 +123,11 @@ const submit = async () => {
   }
 };
 
-const back = () => router.push('/publishing/register/address');
+const back = () => router.push('/publishing/register/rooms');
+
+onMounted(async () => {
+  await loadImages();
+});
 </script>
 <template>
   <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-6">
@@ -93,7 +145,7 @@ const back = () => router.push('/publishing/register/address');
         <p class="font-semibold mb-1">업로드된 호텔 대표 사진</p>
         <div class="grid grid-cols-3 gap-2">
           <img
-            v-for="(img, imgIdx) in store.hotelImages"
+            v-for="(img, imgIdx) in hotelImageUrls"
             :key="imgIdx"
             :src="img"
             alt="hotel image"
@@ -137,7 +189,13 @@ const back = () => router.push('/publishing/register/address');
         <div>
           <p class="font-semibold mb-1">객실 사진</p>
           <div class="grid grid-cols-5 gap-2">
-            <img v-for="(img, imgIdx) in room.images" :key="imgIdx" :src="img" class="w-20 h-20 object-cover rounded border" />
+            <img
+              v-for="(img, imgIdx) in roomImageUrls[idx]"
+              :key="imgIdx"
+              :src="img"
+              :alt="`객실 ${idx + 1} 이미지 ${imgIdx + 1}`"
+              class="w-20 h-20 object-cover rounded border"
+            />
           </div>
         </div>
       </div>

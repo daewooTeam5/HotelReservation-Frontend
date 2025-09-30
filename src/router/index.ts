@@ -107,12 +107,11 @@ const router = createRouter({
           meta: { step: '1' }
         },
         {
-          path: 'rooms',
-          name: 'RegisterRooms',
-          component: () => import('@/views/PubliShing/register/RoomsStepPage.vue'),
+          path: 'address',
+          name: 'RegisterAddress',
+          component: () => import('@/views/PubliShing/register/AddressStepPage.vue'),
           meta: { step: '2' }
         },
-
         {
           path: 'amenities',
           name: 'RegisterAmenities',
@@ -125,11 +124,10 @@ const router = createRouter({
           component: () => import('@/views/PubliShing/register/PolicyStepPage.vue'),
           meta: { step: '4' }
         },
-
         {
-          path: 'address',
-          name: 'RegisterAddress',
-          component: () => import('@/views/PubliShing/register/AddressStepPage.vue'),
+          path: 'rooms',
+          name: 'RegisterRooms',
+          component: () => import('@/views/PubliShing/register/RoomsStepPage.vue'),
           meta: { step: '5' }
         },
         {
