@@ -80,18 +80,21 @@
             <td class="p-3">{{ coupon.couponCode }}</td>
             <td class="p-3">{{ coupon.couponType === 'fixed' ? '정액 할인' : '정률 할인' }}</td>
             <td class="p-3">
-                <span v-if="coupon.couponType === 'fixed'">
-                  {{ coupon.amount === 0 ? '없음' : coupon.amount.toLocaleString() + '원' }}
-                </span>
+              <span v-if="coupon.couponType === 'fixed'">
+                {{ coupon.amount === 0 ? '없음' : coupon.amount.toLocaleString() + '원' }}
+              </span>
               <span v-else>
-                  {{ coupon.amount === 0 ? '없음' : coupon.amount + '%' }}
-                </span>
+                {{ coupon.amount === 0 ? '없음' : coupon.amount + '%' }}
+              </span>
             </td>
             <td class="p-3">
               {{ coupon.minOrderAmount === 0 ? '없음' : coupon.minOrderAmount.toLocaleString() + '원' }}
             </td>
             <td class="p-3">
-              {{ coupon.maxOrderAmount === 0 ? '없음' : coupon.maxOrderAmount.toLocaleString() + '원' }}
+              <span v-if="coupon.maxOrderAmount === -1">없음</span>
+              <span v-else>
+                {{ coupon.maxOrderAmount === 0 ? '없음' : coupon.maxOrderAmount.toLocaleString() + '원' }}
+              </span>
             </td>
             <td class="p-3">{{ coupon.createdAt }}</td>
             <td class="p-3">{{ coupon.expiredAt }}</td>
@@ -166,14 +169,15 @@
                      :placeholder="form.couponType === 'fixed' ? '할인 금액 (원)' : '할인 비율 (%)'"
                      class="w-full border p-2 rounded pr-10" :class="{ 'border-red-500': errors.amount }" />
               <span
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">{{ form.couponType === 'fixed' ?
-                '원' : '%' }}</span>
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+      {{ form.couponType === 'fixed' ? '원' : '%' }}
+    </span>
             </div>
             <p v-if="errors.amount" class="text-sm text-red-500 mt-1">{{ errors.amount }}</p>
           </div>
 
-          <!-- 최소 주문 금액 -->
-          <div>
+          <!--  최소 주문 금액 (정액 할인에서만 표시) -->
+          <div v-if="form.couponType === 'fixed'">
             <div class="relative">
               <input :value="displayMinOrderAmount" @input="handleMinOrderAmountInput($event.target.value)" type="text"
                      placeholder="최소 주문 금액 (원)" class="w-full border p-2 rounded pr-10"
@@ -183,9 +187,14 @@
             <p v-if="errors.minOrderAmount" class="text-sm text-red-500 mt-1">{{ errors.minOrderAmount }}</p>
           </div>
 
-          <!-- 최대 주문 금액 -->
-          <div>
-            <div class="relative">
+          <!--  최대 주문 금액 (정률 할인에서만 표시) -->
+          <div v-if="form.couponType === 'rate'">
+            <label class="flex items-center gap-2 mb-2">
+              <input type="checkbox" v-model="isUnlimitedMaxOrder" @change="toggleMaxOrderLimit" />
+              <span>최대 주문 금액 제한 없음</span>
+            </label>
+
+            <div v-if="!isUnlimitedMaxOrder" class="relative">
               <input :value="displayMaxOrderAmount" @input="handleMaxOrderAmountInput($event.target.value)" type="text"
                      placeholder="최대 주문 금액 (원)" class="w-full border p-2 rounded pr-10"
                      :class="{ 'border-red-500': errors.maxOrderAmount }" />
@@ -193,6 +202,7 @@
             </div>
             <p v-if="errors.maxOrderAmount" class="text-sm text-red-500 mt-1">{{ errors.maxOrderAmount }}</p>
           </div>
+
 
           <!-- 만료일 -->
           <div>
@@ -221,7 +231,11 @@
           <li><strong>최소 주문 금액:</strong>
             {{ form.minOrderAmount ? form.minOrderAmount.toLocaleString() + '원' : '없음' }}</li>
           <li><strong>최대 주문 금액:</strong>
-            {{ form.maxOrderAmount ? form.maxOrderAmount.toLocaleString() + '원' : '없음' }}</li>
+            <span v-if="form.maxOrderAmount === -1"> 없음</span>
+            <span v-else>
+              {{ form.maxOrderAmount ? form.maxOrderAmount.toLocaleString() + '원' : '없음' }}
+            </span>
+          </li>
           <li><strong>만료일:</strong> {{ form.expiredAt }}</li>
         </ul>
         <div class="flex justify-end mt-4 gap-4">
@@ -249,6 +263,14 @@ const totalPages = ref(0)
 
 const coupons = ref([])
 const loading = ref(false)
+const isUnlimitedMaxOrder = ref(false)
+const toggleMaxOrderLimit = () => {
+  if (isUnlimitedMaxOrder.value) {
+    form.value.maxOrderAmount = -1
+  } else {
+    form.value.maxOrderAmount = null
+  }
+}
 
 const lastUpdated = ref(new Date())
 const timeAgo = computed(() => {
@@ -321,9 +343,10 @@ const displayMinOrderAmount = computed(() =>
   form.value.minOrderAmount ? Number(form.value.minOrderAmount).toLocaleString() : ''
 )
 
-const displayMaxOrderAmount = computed(() =>
-  form.value.maxOrderAmount ? Number(form.value.maxOrderAmount).toLocaleString() : ''
-)
+const displayMaxOrderAmount = computed(() => {
+  if (form.value.maxOrderAmount === -1) return '-1'
+  return form.value.maxOrderAmount ? Number(form.value.maxOrderAmount).toLocaleString() : ''
+})
 
 // ✅ 입력 핸들러
 const handleAmountInput = (val) => {
@@ -343,6 +366,10 @@ const handleMinOrderAmountInput = (val) => {
 }
 
 const handleMaxOrderAmountInput = (val) => {
+  if (val === "-1") {
+    form.value.maxOrderAmount = -1
+    return
+  }
   const raw = val.replace(/[^0-9]/g, '')
   form.value.maxOrderAmount = raw ? Number(raw) : null
 }
@@ -375,23 +402,23 @@ const validateAndSubmit = async () => {
 
   // 4. 최대 주문 금액
   if (form.value.couponType === 'rate') {
-    if (!form.value.maxOrderAmount || form.value.maxOrderAmount <= 0) {
+    if (form.value.maxOrderAmount === null) {
       errors.value.maxOrderAmount = '정률 할인은 최대 주문 금액이 필요합니다'
     } else if (
+      form.value.maxOrderAmount !== -1 &&
       form.value.minOrderAmount &&
       form.value.maxOrderAmount < form.value.minOrderAmount
     ) {
-      errors.value.maxOrderAmount =
-        '최대 주문 금액은 최소 주문 금액 이상이어야 합니다'
+      errors.value.maxOrderAmount = '최대 주문 금액은 최소 주문 금액 이상이어야 합니다'
     }
   } else {
     if (
       form.value.maxOrderAmount &&
+      form.value.maxOrderAmount !== -1 &&
       form.value.minOrderAmount &&
       form.value.maxOrderAmount < form.value.minOrderAmount
     ) {
-      errors.value.maxOrderAmount =
-        '최대 주문 금액은 최소 주문 금액 이상이어야 합니다'
+      errors.value.maxOrderAmount = '최대 주문 금액은 최소 주문 금액 이상이어야 합니다'
     }
   }
 
