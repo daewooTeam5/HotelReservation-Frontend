@@ -1,12 +1,12 @@
 <template>
   <Card class="group border-0 shadow-lg">
     <template #content>
-      <div class="flex items-start justify-between p-4">
+      <div class="flex items-start justify-between p-4!">
         <div>
-          <p class="text-sm font-medium text-gray-500">{{ title }}</p>
-          <p class="text-3xl font-bold text-gray-900 mt-2">{{ value }}</p>
+          <p class="text-sm! font-medium! text-gray-500">{{ title }}</p>
+          <p class="text-3xl font-semibold! text-gray-900 mt-2!">{{ value }}</p>
         </div>
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="colorClass">
+        <div class="w-12 h-12 rounded-xl! flex items-center justify-center" :class="colorClass">
           <i :class="['pi', icon, 'text-white', 'text-lg']"></i>
         </div>
       </div>

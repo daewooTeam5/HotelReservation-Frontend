@@ -2,8 +2,8 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">관리자 대시보드</h1>
-        <p class="text-gray-600 mt-1">숙소 예약/매출 현황을 확인하세요</p>
+        <h1 class="text-3xl font-bold! text-gray-900">통계</h1>
+        <p class="text-gray-600 mt-1!">숙소 예약/매출 현황을 확인하세요</p>
       </div>
     </div>
 
@@ -13,22 +13,22 @@
         <PrimeTab value="customer">고객</PrimeTab>
       </PrimeTabList>
 
-      <PrimeTabPanels class="mt-2">
+      <PrimeTabPanels class="mt-2!">
         <PrimeTabPanel value="revenue">
-          <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div class="space-y-6!">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4! lg:gap-6!">
               <AdminKpiCard title="이번 달 예약" :value="summary.reservationCount" icon="pi-calendar-plus" color="blue"/>
               <AdminKpiCard title="이번 달 매출" :value="formatCurrency(summary.revenue)" icon="pi-wallet" color="green"/>
               <AdminKpiCard title="취소율" :value="summary.cancelRate.toFixed(1) + '%'" icon="pi-times-circle" color="red"/>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div class="bg-white p-4 rounded-xl shadow-lg">
+              <div class="bg-white p-4! rounded-xl shadow-lg">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-                  <h3 class="text-lg font-semibold text-gray-800">{{ titles.reservations }}</h3>
+                  <h3 class="text-lg font-semibold! text-gray-800">{{ titles.reservations }}</h3>
                   <PrimeSelect v-model="periods.reservations" :options="periodOptions" optionLabel="label" optionValue="value" class="w-full md:w-32"/>
                 </div>
-                <div v-if="periods.reservations === 'daily'" class="flex items-center gap-2 mb-4">
+                <div v-if="periods.reservations === 'daily'" class="flex items-center gap-2 mb-4!">
                   <PrimeDatePicker v-model="dates.reservations[0]" placeholder="시작일" dateFormat="yy-mm-dd" class="w-full"/>
                   <PrimeDatePicker v-model="dates.reservations[1]" placeholder="종료일" dateFormat="yy-mm-dd" class="w-full"/>
                 </div>
@@ -36,11 +36,11 @@
               </div>
 
               <div class="bg-white p-4 rounded-xl shadow-lg">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-                  <h3 class="text-lg font-semibold text-gray-800">{{ titles.revenue }}</h3>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4! gap-4">
+                  <h3 class="text-lg font-semibold! text-gray-800">{{ titles.revenue }}</h3>
                   <PrimeSelect v-model="periods.revenue" :options="periodOptions" optionLabel="label" optionValue="value" class="w-full md:w-32"/>
                 </div>
-                <div v-if="periods.revenue === 'daily'" class="flex items-center gap-2 mb-4">
+                <div v-if="periods.revenue === 'daily'" class="flex items-center gap-2 mb-4!">
                   <PrimeDatePicker v-model="dates.revenue[0]" placeholder="시작일" dateFormat="yy-mm-dd" class="w-full"/>
                   <PrimeDatePicker v-model="dates.revenue[1]" placeholder="종료일" dateFormat="yy-mm-dd" class="w-full"/>
                 </div>
@@ -48,11 +48,11 @@
               </div>
 
               <div class="bg-white p-4 rounded-xl shadow-lg">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-                  <h3 class="text-lg font-semibold text-gray-800">{{ titles.cancelRate }}</h3>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4! gap-4">
+                  <h3 class="text-lg font-semibold! text-gray-800">{{ titles.cancelRate }}</h3>
                   <PrimeSelect v-model="periods.cancelRate" :options="periodOptions" optionLabel="label" optionValue="value" class="w-full md:w-32"/>
                 </div>
-                <div v-if="periods.cancelRate === 'daily'" class="flex items-center gap-2 mb-4">
+                <div v-if="periods.cancelRate === 'daily'" class="flex items-center gap-2 mb-4!">
                   <PrimeDatePicker v-model="dates.cancelRate[0]" placeholder="시작일" dateFormat="yy-mm-dd" class="w-full"/>
                   <PrimeDatePicker v-model="dates.cancelRate[1]" placeholder="종료일" dateFormat="yy-mm-dd" class="w-full"/>
                 </div>

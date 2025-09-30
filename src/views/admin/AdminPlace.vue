@@ -1,86 +1,84 @@
 <template>
   <div class="flex flex-col gap-6">
-    <!-- 페이지 헤더 -->
-    <div class="flex items-center justify-between">
-      <h1 class="text-3xl font-bold text-gray-900">숙소 관리</h1>
+    <div v-if="!hasPermission" class="text-center text-red-600 text-lg py-10">
+      접근 권한이 없습니다.
     </div>
+    <div v-else>
+      <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-gray-900">숙소 관리</h1>
+      </div>
 
-    <!-- 검색 필터 -->
-    <div class="flex flex-wrap gap-4 items-center">
-      <PrimeSelect
-        v-model="filters.approvalStatus"
-        :options="[{ label: '선택 없음', value: '' }, ...approvalStatusOptions]"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="상태 선택"
-        class="w-40"
-      />
-      <InputText v-model="filters.ownerName" placeholder="숙소 관리자 이름" />
-      <InputText v-model="filters.placeName" placeholder="숙소 이름" />
+      <!-- 검색 필터 -->
+      <div class="flex flex-wrap gap-4 items-center">
+        <PrimeSelect
+          v-model="filters.approvalStatus"
+          :options="[{ label: '선택 없음', value: '' }, ...approvalStatusOptions]"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="상태 선택"
+          class="w-40"
+        />
+        <InputText v-model="filters.ownerName" placeholder="숙소 관리자 이름" />
+        <InputText v-model="filters.placeName" placeholder="숙소 이름" />
 
-      <PrimeSelect
-        v-model="filters.sido"
-        :options="[{ label: '선택 없음', value: '' }, ...sidoOptions]"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="시/도 선택"
-      class="w-40"
-      @change="onSidoChange"
-      />
+        <PrimeSelect
+          v-model="filters.sido"
+          :options="[{ label: '선택 없음', value: '' }, ...sidoOptions]"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="시/도 선택"
+          class="w-40"
+          @change="onSidoChange"
+        />
 
-      <PrimeSelect
-        v-model="filters.sigungu"
-        :options="[{ label: '선택 없음', value: '' }, ...sigunguOptions]"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="시/군/구 선택"
-      class="w-40"
-      :disabled="!sigunguOptions.length"
-      />
+        <PrimeSelect
+          v-model="filters.sigungu"
+          :options="[{ label: '선택 없음', value: '' }, ...sigunguOptions]"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="시/군/구 선택"
+          class="w-40"
+          :disabled="!sigunguOptions.length"
+        />
 
-      <Button label="검색" @click="fetchPlaces" />
+        <Button label="검색" @click="fetchPlaces" />
+      </div>
+
+      <DataTable :value="places" responsiveLayout="scroll" class="mt-4" @row-click="onRowClick">
+        <!-- 상태 -->
+        <Column header="상태">
+          <template #body="slotProps">
+            <span
+              class="px-3 py-1 rounded-full text-xs font-medium"
+              :class="getApprovalClass(slotProps.data.status)"
+            >
+              {{ translateApproval(slotProps.data.status) }}
+            </span>
+          </template>
+        </Column>
+
+        <Column field="id" header="숙소 ID" style="min-width: 50px" />
+        <Column field="name" header="숙소 이름" style="min-width: 150px" />
+        <Column header="주소" style="min-width: 150px">
+          <template #body="slotProps">
+            {{ slotProps.data.sido }} {{ slotProps.data.sigungu }}
+          </template>
+        </Column>
+        <Column field="ownerId" header="주인 ID" style="min-width: 50px" />
+        <Column field="ownerName" header="주인 이름" style="min-width: 150px" />
+
+        <template #empty>
+          <div class="text-center text-gray-500 py-6">검색 결과가 없습니다.</div>
+        </template>
+      </DataTable>
     </div>
-
-    <DataTable
-      :value="places"
-      responsiveLayout="scroll"
-      class="mt-4"
-      @row-click="onRowClick"
-    >
-      <!-- 상태 -->
-      <Column header="상태">
-        <template #body="slotProps">
-      <span
-        class="px-3 py-1 rounded-full text-xs font-medium"
-        :class="getApprovalClass(slotProps.data.status)"
-      >
-        {{ translateApproval(slotProps.data.status) }}
-      </span>
-        </template>
-      </Column>
-
-      <Column field="id" header="숙소 ID" style="min-width: 50px" />
-      <Column field="name" header="숙소 이름" style="min-width: 150px" />
-      <Column header="주소" style="min-width: 150px">
-        <template #body="slotProps">
-          {{ slotProps.data.sido }} {{ slotProps.data.sigungu }}
-        </template>
-      </Column>
-      <Column field="ownerId" header="주인 ID" style="min-width: 50px" />
-      <Column field="ownerName" header="주인 이름" style="min-width: 150px" />
-
-      <template #empty>
-        <div class="text-center text-gray-500 py-6">
-          검색 결과가 없습니다.
-        </div>
-      </template>
-    </DataTable>
-
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import { parseJwt } from '@/utils/jwtUtils';
 import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient';
 import DataTable from 'primevue/datatable';
@@ -92,8 +90,42 @@ const router = useRouter();
 
 const onRowClick = (event: any) => {
   const placeId = event.data.id;
-  router.push({ name: "admin-place-detail", params: { id: placeId } });
+  router.push({ name: 'admin-place-detail', params: { id: placeId } });
 };
+
+// authStore에서 토큰 가져오기
+const authStore = useAuthStore();
+const token = authStore.accessToken;
+
+// 현재 유저 role
+const userRole = computed(() => {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return JSON.parse(payload.sub).role;
+  } catch {
+    return null;
+  }
+});
+
+const userStatus = computed(() => {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return JSON.parse(payload.sub).status;
+  } catch {
+    return null;
+  }
+});
+
+// 권한 체크 (AdminPlace → admin, place_admin만 가능)
+const hasPermission = computed(() => {
+  return (
+    userRole.value &&
+    ['admin', 'place_admin'].includes(userRole.value) &&
+    userStatus.value === 'active'
+  );
+});
 
 // 숙소 데이터
 const places = ref<any[]>([]);
@@ -128,14 +160,14 @@ const onSidoChange = () => {
     label: sigungu,
     value: sigungu,
   }));
-  filters.value.sigungu = "";
+  filters.value.sigungu = '';
 };
 
 const approvalStatusOptions = [
-  { label: "승인", value: "APPROVED" },
-  { label: "대기", value: "PENDING" },
-  { label: "거절", value: "REJECTED" },
-  { label: "정지", value: "INACTIVE" },
+  { label: '승인', value: 'APPROVED' },
+  { label: '대기', value: 'PENDING' },
+  { label: '거절', value: 'REJECTED' },
+  { label: '정지', value: 'INACTIVE' },
 ];
 
 const fetchPlaces = async () => {
@@ -176,6 +208,9 @@ const translateApproval = (status: string) => {
   return map[status] || status;
 };
 
+onMounted(() => {
+  if (hasPermission.value) fetchPlaces();
+});
 // 페이지 로드 시 자동 실행
 fetchPlaces();
 </script>

@@ -127,12 +127,12 @@ const navigateToSettings = () => {
 // 로그아웃
 const logout = async () => {
   try {
-    await apiClient.post('../auth/logout', null, { withCredentials: true });
+    await apiClient.post('../logout', null, { withCredentials: true });
     setAccessToken(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('placeId');
-    router.push('/auth/signin');
+    router.push('/login1');
   } catch (e) {
     console.error('로그아웃 실패:', e);
   } finally {

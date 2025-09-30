@@ -2,8 +2,7 @@
   <Card class="border-0 shadow-lg">
     <template #title>
       <div class="flex items-center space-x-3 p-2">
-        <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
-        <span class="text-xl font-semibold text-gray-900">{{ title }}</span>
+        <span class="text-lg font-semibold! text-gray-900">{{ title }}</span>
       </div>
     </template>
     <template #content>
