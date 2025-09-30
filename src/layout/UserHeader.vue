@@ -14,8 +14,12 @@
           <Button v-if="!accessToken" variant="outlined" class="mr-4!">
             비회원 예약 조회
           </Button>
-
-
+          <Button
+            @click="router.push('/owner')"
+            class="mr-4!"
+            variant="outlined" rounded v-if="authStore.userAuth?.role==='hotel_owner'">
+            내 호텔 관리
+          </Button>
           <Button
             variant="outlined"
             rounded
@@ -32,21 +36,7 @@
         <template v-if="user">
           <div class="flex items-center gap-2">
             <!-- 프로필 클릭 -->
-            <div
-              @click="toggleMenu"
-              class="cursor-pointer flex items-center gap-2"
-            >
-              <Gravatar
-                class="rounded-full w-10 h-10"
-                :email="user.email as `${string}@${string}.${string}`"
-                :size="80"
-                default="identicon"
-              />
-              <span>{{ user.name }}</span>
-            </div>
-
-            <!-- 드롭다운 메뉴 -->
-            <Menu ref="menu" :model="profileItems" :popup="true" />
+            <UserProfile />
           </div>
         </template>
 
@@ -67,21 +57,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import Button from 'primevue/button';
 import Menubar from 'primevue/menubar';
-import Menu from 'primevue/menu';
 import { useAuthStore } from '@/stores/authStore';
 import type { UserDto } from '@/types/users';
 import { parseJwt } from '@/utils/jwtUtils';
-import { Gravatar } from '@sauromates/vue-gravatar';
 import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
+import UserProfile from '@/components/common/UserProfile.vue';
 
 const router = useRouter();
-const menu = ref();
 const authStore = useAuthStore();
-const { setAccessToken, getAccessToken } = authStore;
 const cartCount = ref(0);
 
 // accessToken, user는 computed로 관리
@@ -108,55 +95,6 @@ watch(
   },
   { immediate: true }
 );
-
-const profileItems = [
-  {
-    label: '계정',
-    icon: 'pi pi-user',
-    command: () => router.push('/profile/account')
-  },
-  {
-    label: '결제 내역',
-    icon: 'pi pi-credit-card',
-    command: () => router.push('/profile/payments')
-  },
-  {
-    label: '위시리스트',
-    icon: 'pi pi-heart-fill',
-    command: () => router.push('/profile/wishlist')
-  },
-  {
-    label: '설정',
-    icon: 'pi pi-cog',
-    command: () => router.push('/profile/settings')
-  },
-  {
-    label: '쿠폰',
-    icon: 'pi pi-ticket',
-    command: () => router.push('/auth/coupon?type=all')
-  },
-
-  {
-    label: '문의',
-    icon: 'pi pi-comments',
-    command: () => router.push('/profile/comments')
-  },
-  { separator: true },
-  {
-    label: '로그아웃',
-    icon: 'pi pi-sign-out',
-    command: async () => {
-      await apiClient.post('../logout');
-      setAccessToken(null);
-      await router.push('/auth/signin');
-    }
-  }
-];
-
-const toggleMenu = (event: MouseEvent) => {
-  menu.value.toggle(event);
-};
-
 </script>
 
 <style scoped>

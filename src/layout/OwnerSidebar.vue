@@ -1,30 +1,27 @@
 <template>
   <aside
-    class="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300 relative"
-    :class="isOpen ? 'w-64' : 'w-0'"
+    class="w-64 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col relative"
   >
     <!-- 헤더 영역 -->
     <div
-      v-if="isOpen"
       class="h-16 flex items-center justify-between px-4 border-b border-gray-700/50"
     >
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+        <div
+          class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+        >
           <i class="pi pi-building text-white text-sm"></i>
         </div>
-        <span class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"></span>
+        <span
+          class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
+        >
+           &nbsp;Hotel Owner
+        </span>
       </div>
-      <!-- 닫기 버튼 -->
-      <button
-        @click="$emit('close')"
-        class="p-2 rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
-      >
-        <i class="pi pi-times text-gray-300 hover:text-white transition-colors duration-200"></i>
-      </button>
     </div>
 
     <!-- 네비게이션 메뉴 -->
-    <nav v-if="isOpen" class="flex-1 p-4 overflow-y-auto">
+    <nav class="flex-1 p-4 overflow-y-auto">
       <ul class="space-y-3">
         <li v-for="item in menuItems" :key="item.path">
           <router-link
@@ -62,19 +59,12 @@
     </nav>
 
     <!-- 하단 브랜드/버전 정보 -->
-    <div v-if="isOpen" class="mt-auto px-4 py-3 border-t border-gray-700/50 text-xs text-gray-400">
+    <div
+      class="mt-auto px-4 py-3 border-t border-gray-700/50 text-xs text-gray-400"
+    >
       ⓒ 2025 Hotel Reservation<br />
       v1.0.0
     </div>
-
-    <!-- 사이드바 열기 버튼 (닫혀있을 때) -->
-    <button
-      v-if="!isOpen"
-      @click="$emit('toggle')"
-      class="absolute top-4 -right-3 w-6 h-6 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors duration-200 shadow-lg border border-gray-600"
-    >
-      <i class="pi pi-angle-right text-white text-xs"></i>
-    </button>
   </aside>
 </template>
 
@@ -84,12 +74,6 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-defineProps<{ isOpen: boolean }>();
-defineEmits<{
-  (e: "close"): void;
-  (e: "toggle"): void;
-}>();
-
 // 메뉴 리스트
 const menuItems = computed(() => [
   { name: "대시보드", path: "/owner", icon: "pi pi-th-large" },
@@ -98,7 +82,7 @@ const menuItems = computed(() => [
   { name: "예약 관리", path: "/owner/reservations", icon: "pi pi-calendar" },
   { name: "리뷰 관리", path: "/owner/reviews", icon: "pi pi-star" },
   { name: "문의 관리", path: "/owner/inquiries", icon: "pi pi-question-circle" },
-  { name: "통계", path: "/owner/statistics", icon: "pi pi-chart-bar" },
-  { name: "설정", path: "/owner/settings", icon: "pi pi-cog" }
+  { name: "쿠폰 관리", path: "/owner/coupons", icon: "pi pi-ticket" },
+  { name: "통계", path: "/owner/statistics", icon: "pi pi-chart-bar" }
 ]);
 </script>

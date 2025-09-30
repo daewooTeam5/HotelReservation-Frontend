@@ -5,7 +5,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <KpiCard
           title="평균 평점"
-          :value="avgRating.toFixed(1)"
+          :value="avgRating"
           icon="pi-star"
           subtitle="전체 리뷰 기준"
           color="yellow"
@@ -19,7 +19,7 @@
         />
         <KpiCard
           title="리뷰 작성률"
-          :value="reviewRate.toFixed(1) + '%'"
+          :value="reviewRate + '%'"
           icon="pi-chart-pie"
           subtitle="예약 건수 대비"
           color="green"
@@ -150,9 +150,9 @@ async function fetchReviewStats() {
   const { data } = await apiClient.get("/v1/statistics/reviews/summary", {
     params: { startDate, endDate },
   });
-  avgRating.value = data.avgRating;
+  avgRating.value = Math.round(data.avgRating * 100) / 100;
   totalReviews.value = data.totalReviews;
-  reviewRate.value = data.reviewRate;
+  reviewRate.value = Math.round(data.reviewRate * 100) / 100;
 }
 
 async function fetchRatingDistribution() {

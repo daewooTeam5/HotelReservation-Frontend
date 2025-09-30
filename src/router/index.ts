@@ -50,7 +50,12 @@ const router = createRouter({
           path: '/auth/coupon',
           name: 'coupon',
           component: () => import('@/views/auth/MyCouponView.vue')
-        }
+        },
+        {
+          path: 'owner-request',
+          name: 'OwnerRequest',
+          component: () => import('../views/user/RequestOwnerPage.vue')
+        },
 
       ]
     },
@@ -102,12 +107,11 @@ const router = createRouter({
           meta: { step: '1' }
         },
         {
-          path: 'rooms',
-          name: 'RegisterRooms',
-          component: () => import('@/views/PubliShing/register/RoomsStepPage.vue'),
+          path: 'address',
+          name: 'RegisterAddress',
+          component: () => import('@/views/PubliShing/register/AddressStepPage.vue'),
           meta: { step: '2' }
         },
-
         {
           path: 'amenities',
           name: 'RegisterAmenities',
@@ -120,11 +124,10 @@ const router = createRouter({
           component: () => import('@/views/PubliShing/register/PolicyStepPage.vue'),
           meta: { step: '4' }
         },
-
         {
-          path: 'address',
-          name: 'RegisterAddress',
-          component: () => import('@/views/PubliShing/register/AddressStepPage.vue'),
+          path: 'rooms',
+          name: 'RegisterRooms',
+          component: () => import('@/views/PubliShing/register/RoomsStepPage.vue'),
           meta: { step: '5' }
         },
         {
@@ -231,7 +234,6 @@ const router = createRouter({
       name: 'Amenties',
       component: () => import('../views/PubliShing/Amenities.vue')
     },
-
     // 오너 영역
     {
       path: '/owner',
@@ -287,12 +289,6 @@ const router = createRouter({
           meta: { layout: 'owner' }
         },
         {
-          path: 'settings',
-          name: 'owner-settings',
-          component: () => import('@/views/placeOwner/SettingsPage.vue'),
-          meta: { layout: 'owner' }
-        },
-        {
           path: 'rooms',
           name: 'owner-rooms',
           component: () => import('@/views/placeOwner/RoomManagement.vue'),
@@ -309,6 +305,19 @@ const router = createRouter({
           path: '/owner/statistics',
           name: 'statistics',
           component: () => import('@/views/placeOwner/Statistics.vue'),
+          meta: { layout: 'owner' }
+        },
+        {
+          path: 'coupons',
+          name: 'owner-coupons',
+          component: () => import('@/views/placeOwner/CouponManagement.vue'),
+          meta: { layout: 'owner' }
+        },
+        {
+          path: 'coupons/:id',
+          name: 'owner-coupon-detail',
+          component: () => import('@/views/placeOwner/CouponDetail.vue'),
+          props: true,
           meta: { layout: 'owner' }
         }
       ]
@@ -368,6 +377,7 @@ const router = createRouter({
         },
       ]
     },
+
     {
       path: '/login1',
       name: 'admin-login',

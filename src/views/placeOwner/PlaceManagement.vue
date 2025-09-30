@@ -69,14 +69,8 @@ const fetchPlaces = async () => {
 
   loading.value = true;
   try {
-    const ownerId = 6; // authStore.userAuth?.id ?? 6;
-    if (!ownerId) {
-      console.error("Owner ID를 찾을 수 없습니다.");
-      places.value = [];
-      return;
-    }
 
-    const response = await apiClient.get<{ data: Place[] }>(`/hotel/publishing/my-list?ownerId=${ownerId}`);
+    const response = await apiClient.get<{ data: Place[] }>(`v1/hotel/publishing/my-list`);
     const rawPlaces = response.data.data || [];
 
     // [수정] 데이터를 가져온 직후, 화면 표시에 필요한 categoryName을 추가하여 가공합니다.

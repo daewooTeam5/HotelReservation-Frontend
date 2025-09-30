@@ -12,7 +12,7 @@
         />
         <KpiCard
           title="객실 점유율"
-          :value="occupancyRate.toFixed(1) + '%'"
+          :value="occupancyRate + '%'"
           icon="pi-chart-pie"
           subtitle="현재 기준"
           color="green"
@@ -29,12 +29,6 @@
           <div class="w-full h-[800px] flex items-center justify-center">
             <HeatmapCalendar :data="availabilityData" class="w-full h-full" />
           </div>
-        </div>
-
-        <!-- 오른쪽: 객실 상태 분포 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-4">객실 상태 분포</h3>
-          <Chart type="doughnut" :data="roomStatusData" :options="chartOptions" class="h-72" />
         </div>
       </div>
       <!-- 피크 시즌 분석 -->
@@ -153,7 +147,7 @@ const chartOptions = {
 async function fetchRoomSummary() {
   const { data } = await apiClient.get("/v1/statistics/rooms/summary");
   totalRooms.value = data.totalRooms;
-  occupancyRate.value = data.occupancyRate;
+  occupancyRate.value = Math.round(data.occupancyRate * 100) / 100;
 }
 
 async function fetchAvailability() {
@@ -280,7 +274,7 @@ function exportToCSV() {
   // KPI
   csv += "=== KPI ===\n";
   csv += `전체 객실 수,${totalRooms.value}\n`;
-  csv += `객실 점유율,${occupancyRate.value.toFixed(1)}%\n\n`;
+  csv += `객실 점유율,${occupancyRate.value}%\n\n`;
 
   // 객실 가용률 캘린더
   csv += "=== 객실 가용률 캘린더 ===\n";

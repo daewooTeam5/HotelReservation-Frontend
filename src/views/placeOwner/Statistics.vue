@@ -1,5 +1,6 @@
 <template>
   <div class="p-6 space-y-6 flex flex-col gap-6">
+    <Toast/>
     <!-- 페이지 헤더 -->
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-gray-900">통계 대시보드</h1>
@@ -12,12 +13,13 @@
         <!-- 새로고침 -->
         <button
           @click="refreshData"
-          class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center"
+          :disabled="loading"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <i class="pi pi-refresh mr-2"></i>
-          새로고침
+          <i v-if="loading" class="pi pi-spinner pi-spin mr-2"></i>
+          <i v-else class="pi pi-refresh mr-2"></i>
+          {{ loading ? '불러오는 중...' : '새로고침' }}
         </button>
-
         <!-- 내보내기 -->
         <button
           @click="exportCurrentTab"
@@ -64,12 +66,18 @@ import TabList from "primevue/tablist";
 import Tab from "primevue/tab";
 import TabPanels from "primevue/tabpanels";
 import TabPanel from "primevue/tabpanel";
+import Toast from "primevue/toast";
+import { useToast } from "primevue/usetoast";
 
 // 통계별 컴포넌트
 import ReservationStatistics from "@/components/statistics/ReservationStatistics.vue";
 import CustomerStatistics from "@/components/statistics/CustomerStatistics.vue";
 import ReviewStatistics from "@/components/statistics/ReviewStatistics.vue";
 import RoomStatistics from "@/components/statistics/RoomStatistics.vue";
+
+const loading = ref(false);
+
+const toast = useToast();
 
 const activeTab = ref("0");
 const reservationRef = ref();
@@ -89,21 +97,38 @@ const timeAgo = computed(() => {
 });
 
 // 새로고침 함수
-function refreshData() {
-  reservationRef.value?.refresh?.();
-  customerRef.value?.refresh?.();
-  reviewRef.value?.refresh?.();
-  roomRef.value?.refresh?.();
-  lastUpdated.value = new Date();
+async function refreshData() {
+  try {
+    loading.value = true;
+    await Promise.all([
+      reservationRef.value?.refresh?.(),
+      customerRef.value?.refresh?.(),
+      reviewRef.value?.refresh?.(),
+      roomRef.value?.refresh?.(),
+    ]);
+    lastUpdated.value = new Date();
+  } finally {
+    loading.value = false;
+  }
 }
 
 // 내보내기
 function exportCurrentTab() {
+  let success = false;
   switch (activeTab.value) {
-    case "0": reservationRef.value?.exportToCSV(); break;
-    case "1": customerRef.value?.exportToCSV(); break;
-    case "2": reviewRef.value?.exportToCSV(); break;
-    case "3": roomRef.value?.exportToCSV(); break;
+    case "0": reservationRef.value?.exportToCSV(); success = true; break;
+    case "1": customerRef.value?.exportToCSV(); success = true; break;
+    case "2": reviewRef.value?.exportToCSV(); success = true; break;
+    case "3": roomRef.value?.exportToCSV(); success = true; break;
+  }
+
+  if (success) {
+    toast.add({
+      severity: "success",
+      summary: "내보내기 완료",
+      detail: "CSV 파일이 성공적으로 내보내졌습니다.",
+      life: 3000
+    });
   }
 }
 
