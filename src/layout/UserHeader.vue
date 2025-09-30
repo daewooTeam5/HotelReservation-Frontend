@@ -21,9 +21,12 @@
             내 호텔 관리
           </Button>
           <Button
+            v-if="['admin', 'place_admin', 'user_admin'].includes(authStore.userAuth?.role ?? '')"
             @click="router.push('/admin')"
             class="mr-4!"
-            variant="outlined" rounded :disabled="!(authStore.userAuth?.role === 'admin' || authStore.userAuth?.role === 'place_admin' || authStore.userAuth?.role == 'user_admin')">
+            variant="outlined"
+            rounded
+          >
             관리자 페이지
           </Button>
           <Button
