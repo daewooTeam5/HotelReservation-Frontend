@@ -418,17 +418,17 @@ onMounted(async () => {
     // 오늘 예약 현황
     const { data: todayData } = await apiClient.get("/v1/statistics/reservation/today");
     todayReservations.value = todayData.todayReservations;
-    todayGrowthRate.value = todayData.growthRate;
+    todayGrowthRate.value   = Math.round(todayData.growthRate * 100) / 100;
 
     // 이번 달 예약
     const { data: monthData } = await apiClient.get("/v1/statistics/reservation/monthly");
     monthlyReservations.value = monthData.thisMonthReservations;
-    monthlyGrowthRate.value = monthData.growthRate;
+    monthlyGrowthRate.value = Math.round(monthData.growthRate * 100) / 100;
 
     // 취소율 KPI 카드
     const { data: cancelData } = await apiClient.get("/v1/statistics/reservation/cancel-rate");
-    cancelRate.value = parseFloat(cancelData.cancelRate.toFixed(2));
-    cancelGrowthRate.value = parseFloat(cancelData.growthRate.toFixed(2));
+    cancelRate.value        = Math.round(cancelData.cancelRate * 100) / 100;
+    cancelGrowthRate.value  = Math.round(cancelData.growthRate * 100) / 100;
   } catch (err) {
     console.error("📌 통계 데이터 불러오기 실패:", err);
   }

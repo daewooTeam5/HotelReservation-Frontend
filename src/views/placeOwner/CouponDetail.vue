@@ -63,10 +63,12 @@
           <!-- 새로고침 버튼 -->
           <button
             @click="refreshUsageHistory"
-            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg flex items-center text-sm"
+            :disabled="loading"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg flex items-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <i class="pi pi-refresh mr-2"></i>
-            새로고침
+            <i v-if="loading" class="pi pi-spinner pi-spin mr-2"></i>
+            <i v-else class="pi pi-refresh mr-2"></i>
+            {{ loading ? '불러오는 중...' : '새로고침' }}
           </button>
 
           <!-- 정렬 -->
@@ -162,6 +164,8 @@ import { apiClient } from '@/utils/axiosClient'
 const route = useRoute()
 const couponId = route.params.id
 
+const loading = ref(false)
+
 // 쿠폰 정보
 const coupon = ref(null)
 
@@ -197,6 +201,7 @@ const fetchCouponDetail = async () => {
 // 사용 내역 조회
 const fetchUsageHistory = async () => {
   try {
+    loading.value = true
     const res = await apiClient.get(`/v1/owner/coupons/${couponId}/history`, {
       params: { page: page.value, size: size.value, sort: sort.value }
     })
@@ -205,6 +210,8 @@ const fetchUsageHistory = async () => {
     lastUpdated.value = new Date()
   } catch (err) {
     console.error('쿠폰 사용 내역 조회 실패:', err)
+  } finally {
+    loading.value = false
   }
 }
 

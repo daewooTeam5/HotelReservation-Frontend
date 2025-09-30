@@ -252,7 +252,7 @@ async function fetchTodayNewGuests() {
   try {
     const { data } = await apiClient.get('/v1/statistics/customers/new/today');
     todayNewGuests.value = data.todayNewGuests;
-    newGuestGrowthRate.value = data.growthRate;
+    newGuestGrowthRate.value = Math.round(data.growthRate * 100) / 100;
   } catch (err) {
     console.error('📌 신규 고객 수 데이터 불러오기 실패:', err);
   }
@@ -262,7 +262,7 @@ async function fetchTodayReturnGuests() {
   try {
     const { data } = await apiClient.get('/v1/statistics/customers/return/today');
     todayReturnGuests.value = data.todayReturnGuests;
-    returnGuestGrowthRate.value = data.growthRate;
+    returnGuestGrowthRate.value = Math.round(data.growthRate * 100) / 100;
   } catch (err) {
     console.error('📌 재방문 고객 수 데이터 불러오기 실패:', err);
   }
@@ -271,8 +271,8 @@ async function fetchTodayReturnGuests() {
 async function fetchAvgStayDuration() {
   try {
     const { data } = await apiClient.get('/v1/statistics/customers/stay-duration/monthly');
-    avgStayDuration.value = Number(data.avgStayDuration.toFixed(1));
-    stayDurationGrowthRate.value = Number(data.growthRate.toFixed(1));
+    avgStayDuration.value = Number(data.avgStayDuration.toFixed(2));
+    stayDurationGrowthRate.value = Number(data.growthRate.toFixed(2));
   } catch (err) {
     console.error('📌 평균 체류 기간 데이터 불러오기 실패:', err);
   }

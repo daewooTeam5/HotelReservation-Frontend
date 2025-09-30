@@ -1,9 +1,9 @@
 <template>
   <header
-    class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center justify-between px-6 relative"
+    class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center px-6 relative"
   >
-    <div></div>
-
+    
+    <!-- 가운데 타이틀 -->
     <h1
       class="absolute left-1/2 transform -translate-x-1/2 text-xl font-bold
              bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
@@ -13,21 +13,21 @@
       Hotel Reservation
     </h1>
 
-    <!-- 오른쪽 영역 -->
-    <div class="flex items-center space-x-3 relative">
+    <!-- 오른쪽 끝 프로필 -->
+    <div class="absolute right-6 flex items-center space-x-3">
       <UserProfile />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import UserProfile from '@/components/common/UserProfile.vue';
+import { useRouter } from "vue-router";
+import UserProfile from "@/components/common/UserProfile.vue";
 
 const router = useRouter();
 
 defineEmits<{
-  toggleSidebar: []
+  toggleSidebar: [];
 }>();
 </script>
 
