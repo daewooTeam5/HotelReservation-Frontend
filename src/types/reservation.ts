@@ -7,6 +7,34 @@ export interface ReviewableReservation {
   roomType: string;
   resevStart: string;
 }
+export interface NonMemberReservationDetail {
+  firstImageUrl: string | null;
+  firstName: string;
+  lastName: string;
+  paymentId: number;
+  paymentKey: string;
+  orderId: string;
+  status: string;
+  method: string;
+  amount: number;
+  transactionDate: string;
+  reservationId: number;
+  resevStart: string;
+  resevEnd: string;
+  request: string | null;
+  baseAmount: number;
+  finalAmount: number;
+  fixedDiscountAmount: number;
+  couponDiscountAmount: number;
+  pointDiscountAmount: number;
+  placeId: number;
+  placeName: string;
+  checkIn: string;
+  roomId: number;
+  roomType: string;
+  roomPrice: number;
+
+}
 
 export type ReservationPayment = {
   method: string;
@@ -75,4 +103,6 @@ export type PaymentDetail = {
     minOrderAmount: number;
     maxOrderAmount: number;
   };
+
 };
+
