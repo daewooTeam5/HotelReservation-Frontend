@@ -22,7 +22,7 @@ const goToStep = (step: string) => {
       router.push({ path: '/publishing/register/basic', query: baseQuery });
       break;
     case '2':
-      router.push({ path: '/publishing/register/rooms', query: baseQuery });
+      router.push({ path: '/publishing/register/address', query: baseQuery });
       break;
     case '3':
       router.push({ path: '/publishing/register/amenities', query: baseQuery });
@@ -30,9 +30,8 @@ const goToStep = (step: string) => {
     case '4':
       router.push({ path: '/publishing/register/policy', query: baseQuery });
       break;
-
     case '5':
-      router.push({ path: '/publishing/register/address', query: baseQuery });
+      router.push({ path: '/publishing/register/rooms', query: baseQuery });
       break;
     case '6':
       router.push({ path: '/publishing/register/confirm', query: baseQuery });
@@ -47,10 +46,10 @@ const goToStep = (step: string) => {
       <Stepper v-model:value="activeStep" @update:value="goToStep" :readonly="true">
         <StepList>
           <Step value="1" disabled>기본정보</Step>
-          <Step value="2" disabled>객실</Step>
+          <Step value="2" disabled>주소</Step>
           <Step value="3" disabled>편의</Step>
           <Step value="4" disabled>이용수칙</Step>
-          <Step value="5" disabled>주소</Step>
+          <Step value="5" disabled>객실</Step>
           <Step value="6" disabled>확인</Step>
         </StepList>
       </Stepper>
