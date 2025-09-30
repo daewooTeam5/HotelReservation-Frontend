@@ -1,7 +1,6 @@
 <template>
   <Menubar class="border-none border-t! border-l! border-r! rounded-0">
     <template #start>
-      <!--누르면 메인 페이지로-->
       <div @click="router.push('/')" class="text-4xl font-bold">
         Hotel Reservation
       </div>
@@ -11,9 +10,10 @@
       <div class="flex gap-4 items-center">
         <div class="relative inline-flex">
 
-          <Button v-if="!accessToken" variant="outlined" class="mr-4!">
+          <Button v-if="!accessToken" variant="outlined" class="mr-4!" @click="router.push('/guest/reservation-search')">
             비회원 예약 조회
           </Button>
+
           <Button
             @click="router.push('/owner')"
             class="mr-4!"
@@ -35,7 +35,6 @@
         </div>
         <template v-if="user">
           <div class="flex items-center gap-2">
-            <!-- 프로필 클릭 -->
             <UserProfile />
           </div>
         </template>

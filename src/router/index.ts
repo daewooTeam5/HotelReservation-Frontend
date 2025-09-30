@@ -377,6 +377,12 @@ const router = createRouter({
         },
       ]
     },
+    {
+      path: '/guest/reservation-search',
+      name: 'guest-reservation-search',
+      component: () => import('@/views/guest/ReservationInfoSearch.vue'),
+      meta: { layout: 'user' }
+    },
 
     {
       path: '/login1',
