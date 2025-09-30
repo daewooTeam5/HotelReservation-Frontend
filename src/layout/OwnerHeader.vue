@@ -2,6 +2,7 @@
   <header
     class="h-16 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/50 flex items-center px-6 relative"
   >
+    
     <!-- 가운데 타이틀 -->
     <h1
       class="absolute left-1/2 transform -translate-x-1/2 text-xl font-bold
