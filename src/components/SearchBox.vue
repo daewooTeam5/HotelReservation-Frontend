@@ -245,12 +245,13 @@ const selectSuggestion = (value: string) => {
   suggestionPopover.value?.hide()
 }
 
+// 메인 리스트 페이지
 const searchPlaces = () => {
   if (!keyword.value || !dateRange.value?.[0] || !dateRange.value?.[1]) {
-    errorMessage.value = true
-    return
+    errorMessage.value = true;
+    return;
   }
-  errorMessage.value = false
+  errorMessage.value = false;
 
   const searchData = {
     name: keyword.value,
@@ -259,21 +260,16 @@ const searchPlaces = () => {
     rooms: rooms.value.toString(),
     adults: adults.value.toString(),
     children: children.value.toString(),
-  }
+  };
 
-  // 기존 배열 불러오기
-  let recent = JSON.parse(localStorage.getItem("recentSearches") || "[]")
-  // 최신 검색 맨 앞에 추가
-  recent.unshift(searchData)
-  // 최대 5개만 유지
-  recent = recent.slice(0, 3)
-  localStorage.setItem("recentSearches", JSON.stringify(recent))
+  // recentSearches 업데이트
+  let recent = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+  recent.unshift(searchData);
+  recent = recent.slice(0, 3); // 최대 3개
+  localStorage.setItem("recentSearches", JSON.stringify(recent));
 
-  router.push({
-    name: "list",
-    query: searchData,
-  })
-}
+  router.push({ name: "list", query: searchData });
+};
 
 onMounted(() => {
   // 1. 키 이름을 'recentSearches' (복수형)로 수정

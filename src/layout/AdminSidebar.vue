@@ -59,21 +59,11 @@
       </ul>
     </nav>
 
-    <!-- 하단 영역 (사용자 정보 카드) -->
-    <div v-if="isOpen" class="p-4 border-t border-gray-700/50">
-      <div
-        class="flex items-center space-x-3 p-3 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-colors duration-200"
-        @click="$router.push('/owner/profile')"
-      >
-
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-          <i class="pi pi-user text-white"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-white truncate">관리자</p>
-          <p class="text-xs text-gray-400 truncate">admin@hotel.com</p>
-        </div>
-      </div>
+    <div
+      class="mt-auto px-4 py-3 border-t border-gray-700/50 text-xs text-gray-400"
+    >
+      ⓒ 2025 Hotel Reservation<br />
+      v1.0.0
     </div>
 
     <!-- 사이드바 열기 버튼 (닫혀있을 때) -->

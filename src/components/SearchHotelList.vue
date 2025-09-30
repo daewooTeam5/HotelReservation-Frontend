@@ -43,31 +43,34 @@
 
         <div class="flex items-end justify-between mt-4">
           <div class="flex flex-col items-end gap-1">
+            <!-- 할인율이 존재할 때 -->
             <div v-if="place.discountValue > 0">
-      <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-1">
-        {{ Math.round((place.discountValue / place.originalPrice) * 100) }}% 할인
-      </span>
+              <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-1">
+                {{ Math.round(place.discountValue) }}% 할인
+              </span>
               <div class="flex items-baseline gap-2">
-        <span class="text-gray-500 line-through text-sm">
-          {{ Number(place.originalPrice).toLocaleString() }}원
-        </span>
+                <span class="text-gray-500 line-through text-sm">
+                  {{ Number(place.originalPrice).toLocaleString() }}원
+                </span>
                 <span class="text-gray-900 font-bold text-lg">
-          {{ Number(place.finalPrice).toLocaleString() }}원
-        </span>
+                  {{ (Math.round(place.finalPrice / 100) * 100).toLocaleString() }}원
+                </span>
               </div>
             </div>
 
+            <!-- 할인율이 없을 때 -->
             <div v-else>
-      <span class="text-gray-900 font-bold text-lg">
-        {{ Number(place.originalPrice).toLocaleString() }}원
-      </span>
+              <span class="text-gray-900 font-bold text-lg">
+                {{ Number(place.originalPrice).toLocaleString() }}원
+              </span>
             </div>
           </div>
 
           <div class="flex gap-2">
             <PrimeButton variant="text" @click="toggleLike(place)">
               <i
-                :class="['pi', place.isLiked === 1 ? 'pi-heart-fill text-red-500' : 'pi-heart']"></i>
+                :class="['pi', place.isLiked === 1 ? 'pi-heart-fill text-red-500' : 'pi-heart']"
+              ></i>
             </PrimeButton>
             <PrimeButton @click="goToDetail(place.id)">상세보기</PrimeButton>
           </div>
@@ -105,8 +108,8 @@ const goDetail = (placeId: number) => {
       endDate: storedEnd || '',
       rooms: storedRooms || '1',
       adults: storedAdults || '1',
-      children: storedChildren || '0'
-    }
+      children: storedChildren || '0',
+    },
   });
 };
 
@@ -134,8 +137,8 @@ const goToDetail = (placeId: number) => {
       checkOut: route.query.checkOut,
       adults: route.query.adults,
       children: route.query.children,
-      rooms: route.query.rooms
-    }
+      rooms: route.query.rooms,
+    },
   });
 };
 </script>

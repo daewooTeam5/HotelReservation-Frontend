@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { apiClient } from '@/utils/axiosClient.ts';
 import router from '@/router';
 
@@ -112,35 +112,31 @@ const saveSearchData = () => {
 };
 
 onMounted(() => {
-  // 1. recentSearches 배열 확인
-  const recent = localStorage.getItem("recentSearches");
-  if (recent) {
-    const parsedArray = JSON.parse(recent);
-    if (Array.isArray(parsedArray) && parsedArray.length > 0) {
-      // 가장 최근 검색 사용
-      const latest = parsedArray[0];
-
-      rooms.value = Number(latest.rooms) || 1;
-      adults.value = Number(latest.adults) || 1;
-      children.value = Number(latest.children) || 0;
-
-      if (latest.checkIn && latest.checkOut) {
-        dateRange.value = [new Date(latest.checkIn), new Date(latest.checkOut)];
-      }
-
-      // 2. detailSearch에도 저장 (상세 페이지용)
-      localStorage.setItem("detailSearch", JSON.stringify(latest));
+  const detail = localStorage.getItem("detailSearch");
+  if (detail) {
+    // 이미 detailSearch가 있으면 그 값 사용 (새로고침 시 유지)
+    const parsed = JSON.parse(detail);
+    rooms.value = Number(parsed.rooms) || 1;
+    adults.value = Number(parsed.adults) || 1;
+    children.value = Number(parsed.children) || 0;
+    if (parsed.checkIn && parsed.checkOut) {
+      dateRange.value = [new Date(parsed.checkIn), new Date(parsed.checkOut)];
     }
   } else {
-    // recentSearches가 없으면 detailSearch fallback
-    const saved = localStorage.getItem("detailSearch");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      rooms.value = Number(parsed.rooms) || 1;
-      adults.value = Number(parsed.adults) || 1;
-      children.value = Number(parsed.children) || 0;
-      if (parsed.checkIn && parsed.checkOut) {
-        dateRange.value = [new Date(parsed.checkIn), new Date(parsed.checkOut)];
+    // 처음 들어왔을 때만 recentSearches 기반으로 초기화
+    const recent = localStorage.getItem("recentSearches");
+    if (recent) {
+      const parsed = JSON.parse(recent);
+      if (parsed.length > 0) {
+        const latest = parsed[0];
+        localStorage.setItem("detailSearch", JSON.stringify(latest));
+
+        rooms.value = Number(latest.rooms) || 1;
+        adults.value = Number(latest.adults) || 1;
+        children.value = Number(latest.children) || 0;
+        if (latest.checkIn && latest.checkOut) {
+          dateRange.value = [new Date(latest.checkIn), new Date(latest.checkOut)];
+        }
       }
     }
   }
@@ -197,13 +193,21 @@ const toggleGuestPopover = (e: Event) => {
 };
 
 const doSearch = () => {
-  saveSearchData();
-  emit("search", {
+  const searchData = {
     checkIn: dateRange.value?.[0] ? formatDate(dateRange.value[0]) : undefined,
     checkOut: dateRange.value?.[1] ? formatDate(dateRange.value[1]) : undefined,
     rooms: rooms.value,
     adults: adults.value,
     children: children.value,
-  });
+  };
+
+  // detailSearch만 업데이트
+  localStorage.setItem("detailSearch", JSON.stringify(searchData));
+
+  emit("search", searchData);
 };
+
+onBeforeUnmount(() => {
+  localStorage.removeItem("detailSearch");
+});
 </script>
