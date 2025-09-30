@@ -22,7 +22,7 @@
 
     <!-- 오른쪽 영역 -->
     <div class="flex items-center space-x-3 relative">
-      <UserProfile />
+      <UserProfile type="admin"/>
     </div>
   </header>
 </template>

@@ -36,7 +36,7 @@
         <template v-if="user">
           <div class="flex items-center gap-2">
             <!-- 프로필 클릭 -->
-            <UserProfile />
+            <UserProfile type="user" />
           </div>
         </template>
 

@@ -12,6 +12,10 @@ const router = useRouter();
 const menu = ref();
 const authStore = useAuthStore();
 
+const props = defineProps<{
+  type: 'user' | 'admin'
+}>()
+
 const accessToken = computed(() => authStore.accessToken);
 const user = computed<UserDto | null>(() => {
   if (!accessToken.value) return null;
@@ -41,6 +45,17 @@ const getRoleStyle = (role: string) => {
   };
   return `${styleMap[role] || 'bg-gray-500'} text-white px-2 py-0.5 rounded text-[10px] w-fit`;
 };
+const adminItems=[
+  {
+    label: '로그아웃',
+    icon: 'pi pi-sign-out',
+    command: async () => {
+      await apiClient.post('../logout');
+      authStore.setAccessToken(null);
+      await router.push('/auth/signin');
+    }
+  }
+]
 
 const profileItems = [
   {
@@ -115,7 +130,7 @@ const toggleMenu = (event: MouseEvent) => {
     </div>
 
     <!-- 드롭다운 메뉴 -->
-    <Menu ref="menu" :model="profileItems" :popup="true" />
+    <Menu  ref="menu" :model="props.type==='user'?profileItems:adminItems" :popup="true" />
   </div>
 </template>
 
