@@ -319,6 +319,12 @@ const router = createRouter({
           component: () => import('@/views/placeOwner/CouponDetail.vue'),
           props: true,
           meta: { layout: 'owner' }
+        },
+        {
+          path: 'discounts',
+          name: 'owner-discounts',
+          component: () => import('@/views/placeOwner/DiscountManagement.vue'),
+          meta: { layout: 'owner' }
         }
       ]
     },
