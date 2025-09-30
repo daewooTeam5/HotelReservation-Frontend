@@ -4,7 +4,7 @@ export type UserLegacy = {
   id: number;
 };
 
-export type Role = 'customer' | 'hotel_owner' | 'admin';
+export type Role = 'customer' | 'hotel_owner' | 'admin' | 'place_admin' | 'user_admin';
 export type Status = 'active' | 'inactive' | 'banned';
 
 export type User = {
@@ -17,6 +17,7 @@ export type User = {
   status: Status;
   updatedAt: string;
   createdAt: string;
+  review: number;
 }
 
 export type UserInfo = Partial<User | { point: number }>

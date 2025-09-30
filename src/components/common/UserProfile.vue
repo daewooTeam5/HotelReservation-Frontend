@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Menu from 'primevue/menu';
 import { Gravatar } from '@sauromates/vue-gravatar';
 import { useAuthStore } from '@/stores/authStore';
@@ -7,10 +7,21 @@ import type { UserDto } from '@/types/users';
 import { parseJwt } from '@/utils/jwtUtils';
 import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
+import { useProfileStore } from '@/stores/publishing/ProfileStore.ts';
+const profileStore = useProfileStore();
 
+onMounted(async () => {
+  if (user.value?.userId) {
+    await profileStore.fetchProfileFromApi(); // 서버에서 최신 프로필 가져오기
+  }
+});
 const router = useRouter();
 const menu = ref();
 const authStore = useAuthStore();
+
+const props = defineProps<{
+  type: 'user' | 'admin'
+}>()
 
 const accessToken = computed(() => authStore.accessToken);
 const user = computed<UserDto | null>(() => {
@@ -41,6 +52,17 @@ const getRoleStyle = (role: string) => {
   };
   return `${styleMap[role] || 'bg-gray-500'} text-white px-2 py-0.5 rounded text-[10px] w-fit`;
 };
+const adminItems=[
+  {
+    label: '로그아웃',
+    icon: 'pi pi-sign-out',
+    command: async () => {
+      await apiClient.post('../logout');
+      authStore.setAccessToken(null);
+      await router.push('/auth/signin');
+    }
+  }
+]
 
 const profileItems = [
   {
@@ -104,7 +126,7 @@ const toggleMenu = (event: MouseEvent) => {
         default="identicon"
       />
       <div class="flex flex-col">
-        <span>{{ user.name }}</span>
+        <span>{{ profileStore.profile.name }}</span>
         <span
           v-if="authStore.userAuth?.role !== 'customer'"
           :class="getRoleStyle(authStore.userAuth?.role || '')"
@@ -115,7 +137,7 @@ const toggleMenu = (event: MouseEvent) => {
     </div>
 
     <!-- 드롭다운 메뉴 -->
-    <Menu ref="menu" :model="profileItems" :popup="true" />
+    <Menu  ref="menu" :model="props.type==='user'?profileItems:adminItems" :popup="true" />
   </div>
 </template>
 

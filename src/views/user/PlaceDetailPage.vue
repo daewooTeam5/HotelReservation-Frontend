@@ -88,10 +88,10 @@
           @click="scrollToSection(tab.id)"
           class="flex-1 px-6 py-3 text-lg font-bold! text-gray-600 border-b-2 text-center"
           :class="
-        activeTab === tab.id
-          ? 'border-gray-800 text-gray-800'
-          : 'border-transparent hover:bg-gray-100'
-      "
+            activeTab === tab.id
+              ? 'border-gray-800 text-gray-800'
+              : 'border-transparent hover:bg-gray-100'
+          "
         >
           {{ tab.label }}
         </button>
@@ -138,10 +138,12 @@
             <div class="flex-1 flex flex-col justify-between">
               <div>
                 <h3 class="text-3xl font-semibold! text-gray-800 mb-2!">{{ room.roomType }}</h3>
-                <p class="font-semibold! text-xl  text-gray-500">
+                <p class="font-semibold! text-xl text-gray-500">
                   {{ room.bedType }}베드 1개 / 최대 {{ room.capacityPeople }}명
                 </p>
-                <p class="text-lg font-semibold! text-gray-400">남은 객실 수: {{ room.availableRoom }}</p>
+                <p class="text-lg font-semibold! text-gray-400">
+                  남은 객실 수: {{ room.availableRoom }}
+                </p>
 
                 <div class="mt-3! text-sm! text-gray-600 space-y-2">
                   <p v-if="room.area" class="flex items-center gap-1 text-lg">
@@ -149,7 +151,11 @@
                   </p>
                   <div v-if="room.amenities && room.amenities.length > 0">
                     <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2!">
-                      <span v-for="amenity in room.amenities" :key="amenity.name" class="flex items-center gap-1.5 text-xs bg-gray-100 px-2 py-1 rounded-full">
+                      <span
+                        v-for="amenity in room.amenities"
+                        :key="amenity.name"
+                        class="flex items-center gap-1.5 text-xs bg-gray-100 px-2 py-1 rounded-full"
+                      >
                         <img :src="amenity.icon" :alt="amenity.name" class="w-8 h-8" />
                         <span>{{ amenity.name }}</span>
                       </span>
@@ -161,21 +167,43 @@
                 </p>
               </div>
               <div class="flex items-center justify-between mt-4">
-                <p v-if="room.price" class="text-2xl font-semibold! text-gray-700">
-                  {{ Number(room.price).toLocaleString() }}원
-                </p>
+                <!-- 할인 있을 때 -->
+                <div v-if="room.discountValue > 0" class="flex flex-col items-end">
+                  <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-1">
+                    {{ Math.round(room.discountValue) }}% 할인
+                  </span>
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-gray-500 line-through text-sm">
+                      {{ Number(room.price).toLocaleString() }}원
+                    </span>
+                    <span class="text-gray-900 font-bold text-2xl">
+                      {{ (Math.round(room.finalPrice / 100) * 100).toLocaleString() }}원
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 할인 없을 때 -->
+                <div v-else>
+                  <span class="text-gray-900 font-bold text-2xl">
+                    {{ Number(room.price).toLocaleString() }}원
+                  </span>
+                </div>
+
                 <div class="flex gap-2">
                   <PrimeButton
                     @click="addToCart(room)"
                     icon="pi pi-shopping-cart"
                     class="px-4 py-2"
                     :disabled="room.isAvailable !== 1"
-                  >
-                  </PrimeButton>
+                  />
                   <div class="flex items-center gap-4">
                     <PrimeButton
                       class="px-4 py-2 text-white rounded-lg"
-                      :class="room.isAvailable === 1 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'"
+                      :class="
+                        room.isAvailable === 1
+                          ? 'bg-green-500 hover:bg-green-600'
+                          : 'bg-gray-400 cursor-not-allowed'
+                      "
                       :disabled="room.isAvailable !== 1"
                       @click="handleReservation(room.roomId)"
                     >
@@ -223,7 +251,11 @@
         ref="mapSection"
         v-if="place && place.sido"
         class="relative transition-all duration-500 ease-in-out"
-        :class="isMapExpanded ? 'md:col-span-2 order-2 min-h-[80vh]' : 'md:col-span-1 order-1 md:order-2 min-h-[600px]'"
+        :class="
+          isMapExpanded
+            ? 'md:col-span-2 order-2 min-h-[80vh]'
+            : 'md:col-span-1 order-1 md:order-2 min-h-[600px]'
+        "
       >
         <PrimeCard class="w-full h-full border-none! shadow-none!">
           <template #content>
@@ -233,9 +265,9 @@
               class="absolute top-16 right-4 z-10 p-2 rounded-full bg-white shadow-md hover:bg-gray-100 transition-colors"
               aria-label="지도 확장/축소"
             >
-                        <span class="material-symbols-outlined text-xl text-gray-700">
-                            {{ isMapExpanded ? 'fullscreen_exit' : 'fullscreen' }}
-                        </span>
+              <span class="material-symbols-outlined text-xl text-gray-700">
+                {{ isMapExpanded ? 'fullscreen_exit' : 'fullscreen' }}
+              </span>
             </button>
             <KakaoMapPlaceDetailPage
               ref="kakaoMap"
@@ -251,7 +283,12 @@
               {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
             </p>
             <div class="mt-4 flex flex-wrap gap-2">
-              <PrimeButton label="카카오맵에서 보기" icon="pi pi-directions" @click="openDirections" severity="secondary" />
+              <PrimeButton
+                label="카카오맵에서 보기"
+                icon="pi pi-directions"
+                @click="openDirections"
+                severity="secondary"
+              />
             </div>
           </template>
         </PrimeCard>
@@ -259,7 +296,7 @@
     </div>
 
     <section id="reviews" ref="reviewsSection" class="w-full max-w-7xl mt-8">
-      <ReviewSection :place-id="parseInt(id)"/>
+      <ReviewSection :place-id="parseInt(id)" />
     </section>
     <section id="questions" ref="questionsSection" class="w-full max-w-7xl mt-8">
       <QuestionSection :place-id="parseInt(id)" />
@@ -312,7 +349,7 @@ const error = ref('');
 const isModalOpen = ref(false);
 const isMapExpanded = ref(false);
 const kakaoMap = ref<InstanceType<typeof KakaoMapPlaceDetailPage> | null>(null);
-const placeCoords = ref<{lat: number, lng: number} | null>(null);
+const placeCoords = ref<{ lat: number; lng: number } | null>(null);
 const isDataReady = ref(false);
 const activeTab = ref('rooms');
 const isSticky = ref(false);
@@ -374,13 +411,16 @@ const fetchPlaceDetails = async () => {
 
     // 현재 검색 조건을 로컬 스토리지에 저장하여 일관성을 유지합니다.
     if (params.startDate && params.endDate) {
-      localStorage.setItem('detailSearch', JSON.stringify({
-        checkIn: params.startDate,
-        checkOut: params.endDate,
-        rooms: params.rooms,
-        adults: params.adults,
-        children: params.children
-      }));
+      localStorage.setItem(
+        'detailSearch',
+        JSON.stringify({
+          checkIn: params.startDate,
+          checkOut: params.endDate,
+          rooms: params.rooms,
+          adults: params.adults,
+          children: params.children,
+        }),
+      );
     }
 
     const res = await apiClient.get(`/v1/places/${id}`, { params });
@@ -396,7 +436,11 @@ const fetchPlaceDetails = async () => {
       }
       return {
         ...room,
-        images: images.map((img: string) => ({ itemImageSrc: img, thumbnailImageSrc: img, alt: room.roomType || '객실 이미지' })),
+        images: images.map((img: string) => ({
+          itemImageSrc: img,
+          thumbnailImageSrc: img,
+          alt: room.roomType || '객실 이미지',
+        })),
         imageUrl: images[0] || null,
       };
     });
@@ -413,7 +457,8 @@ const fetchPlaceDetails = async () => {
 
     isDataReady.value = true;
   } catch (e: any) {
-    error.value = e.response?.data?.message || e.message || '숙소 데이터를 불러오는 데 실패했습니다.';
+    error.value =
+      e.response?.data?.message || e.message || '숙소 데이터를 불러오는 데 실패했습니다.';
     place.value = null; // 오류 발생 시 기존 데이터를 비웁니다.
   } finally {
     loading.value = false;
@@ -498,24 +543,32 @@ const toggleWish = async () => {
       await apiClient.post(`/v1/wishlist/${id}`);
       place.value.isLiked = true;
     }
-  } catch (err) { console.error('찜 토글 실패:', err); }
+  } catch (err) {
+    console.error('찜 토글 실패:', err);
+  }
 };
 
 const sharePlace = (place: any) => {
   if (navigator.share) {
-    navigator.share({
-      title: place.name,
-      text: `${place.name} 숙소를 확인해보세요!`,
-      url: window.location.href,
-    }).catch((err) => console.error('공유 실패:', err));
+    navigator
+      .share({
+        title: place.name,
+        text: `${place.name} 숙소를 확인해보세요!`,
+        url: window.location.href,
+      })
+      .catch((err) => console.error('공유 실패:', err));
   } else {
     navigator.clipboard.writeText(window.location.href);
     alert('링크가 클립보드에 복사되었습니다.');
   }
 };
 
-const openModal = () => { isModalOpen.value = true; };
-const closeModal = () => { isModalOpen.value = false; };
+const openModal = () => {
+  isModalOpen.value = true;
+};
+const closeModal = () => {
+  isModalOpen.value = false;
+};
 
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId);
@@ -530,7 +583,7 @@ const toggleMapExpansion = () => {
   setTimeout(() => kakaoMap.value?.relayout(), 500);
 };
 
-const updateCoords = (coords: {lat: number, lng: number}) => {
+const updateCoords = (coords: { lat: number; lng: number }) => {
   placeCoords.value = coords;
 };
 
@@ -573,7 +626,7 @@ onMounted(async () => {
 
       // 각 섹션에 대한 관찰자 등록
       const sections = [roomsSection, infoSection, mapSection, reviewsSection, questionsSection];
-      sections.forEach(sec => {
+      sections.forEach((sec) => {
         if (sec.value) observer.observe(sec.value);
       });
     }

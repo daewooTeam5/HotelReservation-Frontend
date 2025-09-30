@@ -22,7 +22,7 @@
 
     <!-- 오른쪽 영역 -->
     <div class="flex items-center space-x-3 relative">
-      <UserProfile />
+      <UserProfile type="admin"/>
     </div>
   </header>
 </template>
@@ -30,6 +30,11 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import UserProfile from '@/components/common/UserProfile.vue';
+import { useAuthStore } from '@/stores/authStore.ts';
+import type { UserDto } from '@/types/users.ts';
+import { onMounted, ref } from 'vue';
+import { parseJwt } from '@/utils/jwtUtils.ts';
+import { apiClient } from '@/utils/axiosClient.ts';
 
 const router = useRouter();
 const { setAccessToken, accessToken, userAuth, getAccessToken } = useAuthStore();

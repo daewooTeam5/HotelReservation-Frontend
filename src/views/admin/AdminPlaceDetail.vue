@@ -33,7 +33,7 @@
               <span
                 class="px-3 py-1 rounded-full text-xs font-semibold"
                 :class="getApprovalClass(place.status)"
-                >{{ translateApproval(place.status) }}</span
+              >{{ translateApproval(place.status) }}</span
               >
               <div class="flex items-center gap-1">
                 <i class="pi pi-star-fill text-yellow-400 text-sm"></i>
@@ -114,7 +114,7 @@
             </div>
             <div class="space-y-2">
               <div>
-                <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalRevenue) }}원</p>
+                <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(thisMonthRevenue) }}원</p>
                 <p class="text-xs text-gray-500 mt-1">이번 달 총 수익</p>
               </div>
               <div class="flex items-center gap-1">
@@ -234,81 +234,72 @@
                   @click="selectedFilter = 'pending'"
                   size="small"
                 />
-                <PrimeButton
-                  label="문제 예약"
-                  :outlined="selectedFilter !== 'issue'"
-                  @click="selectedFilter = 'issue'"
-                  size="small"
-                  severity="danger"
-                />
               </div>
               <PrimeInputText placeholder="예약자 검색" class="w-64" />
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-                  <tr>
-                    <th class="p-3 text-left">예약 ID</th>
-                    <th class="p-3 text-left">예약자</th>
-                    <th class="p-3 text-left">객실</th>
-                    <th class="p-3 text-left">체크인/아웃</th>
-                    <th class="p-3 text-left">금액</th>
-                    <th class="p-3 text-left">결제상태</th>
-                    <th class="p-3 text-left">예약상태</th>
-                    <th class="p-3 text-left">액션</th>
-                  </tr>
+                <tr>
+                  <th class="p-3 text-left">예약 ID</th>
+                  <th class="p-3 text-left">예약자</th>
+                  <th class="p-3 text-left">객실</th>
+                  <th class="p-3 text-left">체크인/아웃</th>
+                  <th class="p-3 text-left">금액</th>
+                  <th class="p-3 text-left">결제상태</th>
+                  <th class="p-3 text-left">예약상태</th>
+                  <th class="p-3 text-left">액션</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="r in filteredReservations"
-                    :key="r.reservationId"
-                    class="border-b hover:bg-gray-50 transition-colors"
-                  >
-                    <td class="p-3 font-medium">#{{ r.reservationId }}</td>
-                    <td class="p-3">
-                      <div>
-                        <p class="font-medium">{{ r.userName }}</p>
-                        <p class="text-xs text-gray-500">{{ r.phone }}</p>
-                      </div>
-                    </td>
-                    <td class="p-3">스탠다드 더블</td>
-                    <td class="p-3">
-                      <div>
-                        <p class="text-xs">{{ r.resevStart }}</p>
-                        <p class="text-xs text-gray-500">→ {{ r.resevEnd }}</p>
-                      </div>
-                    </td>
-                    <td class="p-3 font-semibold">{{ formatCurrency(r.finalAmount) }}원</td>
-                    <td class="p-3">
+                <tr
+                  v-for="r in filteredReservations"
+                  :key="r.reservationId"
+                  class="border-b hover:bg-gray-50 transition-colors"
+                >
+                  <td class="p-3 font-medium">#{{ r.reservationId }}</td>
+                  <td class="p-3">
+                    <div>
+                      <p class="font-medium">{{ r.userName }}</p>
+                      <p class="text-xs text-gray-500">{{ r.phone }}</p>
+                    </div>
+                  </td>
+                  <td class="p-3">스탠다드 더블</td>
+                  <td class="p-3">
+                    <div>
+                      <p class="text-xs">{{ r.resevStart }}</p>
+                      <p class="text-xs text-gray-500">→ {{ r.resevEnd }}</p>
+                    </div>
+                  </td>
+                  <td class="p-3 font-semibold">{{ formatCurrency(r.finalAmount) }}원</td>
+                  <td class="p-3">
                       <span
                         :class="getPaymentStatusClass(r.paymentStatus)"
                         class="px-2 py-1 rounded-full text-xs font-medium"
                       >
                         {{ translatePaymentStatus(r.paymentStatus) }}
                       </span>
-                    </td>
-                    <td class="p-3">
+                  </td>
+                  <td class="p-3">
                       <span
                         :class="getReservationStatusClass(r.status)"
                         class="px-2 py-1 rounded-full text-xs font-medium"
                       >
                         {{ translateReservationStatus(r.status) }}
                       </span>
-                    </td>
-                    <td class="p-3">
-                      <div class="flex gap-1">
-                        <PrimeButton icon="pi pi-eye" text rounded size="small" />
-                        <PrimeButton icon="pi pi-pencil" text rounded size="small" />
-                        <PrimeButton
-                          icon="pi pi-trash"
-                          text
-                          rounded
-                          size="small"
-                          severity="danger"
-                        />
-                      </div>
-                    </td>
-                  </tr>
+                  </td>
+                  <td class="p-3">
+                    <div class="flex gap-1">
+                      <PrimeButton
+                        icon="pi pi-trash"
+                        text
+                        rounded
+                        size="small"
+                        severity="danger"
+                      />
+                    </div>
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -376,28 +367,28 @@
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
-                  <tr>
-                    <th class="p-3 text-left">결제 ID</th>
-                    <th class="p-3 text-left">주문 번호</th>
-                    <th class="p-3 text-left">결제 방법</th>
-                    <th class="p-3 text-left">금액</th>
-                    <th class="p-3 text-left">상태</th>
-                    <th class="p-3 text-left">결제일시</th>
-                    <th class="p-3 text-left">액션</th>
-                  </tr>
+                <tr>
+                  <th class="p-3 text-left">결제 ID</th>
+                  <th class="p-3 text-left">주문 번호</th>
+                  <th class="p-3 text-left">결제 방법</th>
+                  <th class="p-3 text-left">금액</th>
+                  <th class="p-3 text-left">상태</th>
+                  <th class="p-3 text-left">결제일시</th>
+                  <th class="p-3 text-left">액션</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="p in payments" :key="p.id" class="border-b hover:bg-gray-50">
-                    <td class="p-3 font-medium">#{{ p.id }}</td>
-                    <td class="p-3 text-xs font-mono">{{ p.orderId }}</td>
-                    <td class="p-3">
-                      <div>
-                        <p>{{ p.method }}</p>
-                        <p class="text-xs text-gray-500">{{ p.methodType }}</p>
-                      </div>
-                    </td>
-                    <td class="p-3 font-semibold">{{ formatCurrency(p.amount) }}원</td>
-                    <td class="p-3">
+                <tr v-for="p in payments" :key="p.id" class="border-b hover:bg-gray-50">
+                  <td class="p-3 font-medium">#{{ p.id }}</td>
+                  <td class="p-3 text-xs font-mono">{{ p.orderId }}</td>
+                  <td class="p-3">
+                    <div>
+                      <p>{{ p.method }}</p>
+                      <p class="text-xs text-gray-500">{{ p.methodType }}</p>
+                    </div>
+                  </td>
+                  <td class="p-3 font-semibold">{{ formatCurrency(p.amount) }}원</td>
+                  <td class="p-3">
                       <span
                         :class="
                           p.status === 'paid'
@@ -408,18 +399,18 @@
                       >
                         {{ p.status === 'paid' ? '결제완료' : '대기중' }}
                       </span>
-                    </td>
-                    <td class="p-3 text-xs">{{ formatDate(p.transactionDate) }}</td>
-                    <td class="p-3">
-                      <PrimeButton
-                        icon="pi pi-file-pdf"
-                        text
-                        rounded
-                        size="small"
-                        v-tooltip="'영수증'"
-                      />
-                    </td>
-                  </tr>
+                  </td>
+                  <td class="p-3 text-xs">{{ formatDate(p.transactionDate) }}</td>
+                  <td class="p-3">
+                    <PrimeButton
+                      icon="pi pi-file-pdf"
+                      text
+                      rounded
+                      size="small"
+                      v-tooltip="'영수증'"
+                    />
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -456,10 +447,6 @@
             <div class="bg-white rounded-xl shadow-sm p-4">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="font-semibold">리뷰 관리</h3>
-                <div class="flex gap-2">
-                  <PrimeButton label="미답변 리뷰" size="small" outlined badge="3" />
-                  <PrimeButton label="낮은 평점" size="small" outlined severity="danger" />
-                </div>
               </div>
               <div v-if="reviews && reviews.length > 0" class="space-y-4">
                 <div
@@ -697,10 +684,8 @@ const reservations = ref<any[]>([]);
 const payments = ref<any[]>([]);
 const reviews = ref<any[]>([]);
 const selectedFilter = ref('all');
-const revenueGrowth = ref(12.5);
 const statusPopover = ref();
 
-// ✅ [수정] 상태별로 호출할 소문자 endpoint를 매핑
 const statusOptions = ref([
   { code: 'APPROVED', text: '승인 완료', class: 'bg-green-500', endpoint: 'approve' },
   { code: 'REJECTED', text: '승인 거절', class: 'bg-red-500', endpoint: 'reject' },
@@ -708,28 +693,19 @@ const statusOptions = ref([
   { code: 'INACTIVE', text: '비활성', class: 'bg-gray-500', endpoint: 'inactive' },
 ]);
 
-// ✅ [수정] newStatus에 맞는 소문자 엔드포인트를 찾아 API를 호출하도록 로직 변경
 const updatePlaceStatus = async (newStatus: string) => {
   if (place.value.status === newStatus) {
     statusPopover.value.hide();
     return;
   }
-
-  // newStatus(예: 'APPROVED')에 해당하는 옵션을 찾음
   const statusOption = statusOptions.value.find((s) => s.code === newStatus);
   if (!statusOption) {
     console.error('유효하지 않은 상태입니다:', newStatus);
     return;
   }
-
   try {
-    // 옵션에 정의된 소문자 endpoint(예: 'approve')를 사용하여 API 경로를 만듦
     const endpoint = `/v1/admin/places/${route.params.id}/${statusOption.endpoint}`;
-
-    // API 호출 (요청 본문 없음)
     await apiClient.patch(endpoint);
-
-    // 성공 시 화면 상태 업데이트
     place.value.status = newStatus;
   } catch (err) {
     console.error('숙소 상태 변경 실패:', err);
@@ -812,9 +788,43 @@ const cancellationRate = computed(() => {
   if (totalThisMonth === 0) return 0;
   return (cancelledCount.value / totalThisMonth) * 100;
 });
+
+// ✅ [MODIFIED] 전체 기간 총 수익 (결제내역 탭에서 사용)
 const totalRevenue = computed(() =>
   payments.value.filter((p) => p.status === 'paid').reduce((sum, p) => sum + (p.amount || 0), 0),
 );
+
+// ✅ [ADD] 이번 달 수익 계산
+const thisMonthRevenue = computed(() => {
+  const startOfMonth = dayjs().startOf('month');
+  const endOfMonth = dayjs().endOf('month');
+  return payments.value
+    .filter(p => p.status === 'paid' && dayjs(p.transactionDate).isBetween(startOfMonth, endOfMonth, null, '[]'))
+    .reduce((sum, p) => sum + (p.amount || 0), 0);
+});
+
+// ✅ [ADD] 지난달 수익 계산
+const lastMonthRevenue = computed(() => {
+  const startOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
+  const endOfLastMonth = dayjs().subtract(1, 'month').endOf('month');
+  return payments.value
+    .filter(p => p.status === 'paid' && dayjs(p.transactionDate).isBetween(startOfLastMonth, endOfLastMonth, null, '[]'))
+    .reduce((sum, p) => sum + (p.amount || 0), 0);
+});
+
+// ✅ [MODIFIED] 전월 대비 성장률 동적 계산
+const revenueGrowth = computed(() => {
+  const current = thisMonthRevenue.value;
+  const previous = lastMonthRevenue.value;
+
+  if (previous === 0) {
+    return current > 0 ? 100 : 0;
+  }
+
+  const growth = ((current - previous) / previous) * 100;
+  return parseFloat(growth.toFixed(1));
+});
+
 const alerts = computed(() => {
   const alertList = [];
   if (pendingCount.value > 10) {
