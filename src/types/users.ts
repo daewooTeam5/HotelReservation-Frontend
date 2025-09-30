@@ -17,6 +17,7 @@ export type User = {
   status: Status;
   updatedAt: string;
   createdAt: string;
+  review: number;
 }
 
 export type UserInfo = Partial<User | { point: number }>

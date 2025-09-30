@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Menu from 'primevue/menu';
 import { Gravatar } from '@sauromates/vue-gravatar';
 import { useAuthStore } from '@/stores/authStore';
@@ -7,7 +7,14 @@ import type { UserDto } from '@/types/users';
 import { parseJwt } from '@/utils/jwtUtils';
 import { useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
+import { useProfileStore } from '@/stores/publishing/ProfileStore.ts';
+const profileStore = useProfileStore();
 
+onMounted(async () => {
+  if (user.value?.userId) {
+    await profileStore.fetchProfileFromApi(); // 서버에서 최신 프로필 가져오기
+  }
+});
 const router = useRouter();
 const menu = ref();
 const authStore = useAuthStore();
@@ -119,7 +126,7 @@ const toggleMenu = (event: MouseEvent) => {
         default="identicon"
       />
       <div class="flex flex-col">
-        <span>{{ user.name }}</span>
+        <span>{{ profileStore.profile.name }}</span>
         <span
           v-if="authStore.userAuth?.role !== 'customer'"
           :class="getRoleStyle(authStore.userAuth?.role || '')"
