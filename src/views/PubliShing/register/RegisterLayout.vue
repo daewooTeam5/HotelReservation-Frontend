@@ -43,14 +43,14 @@ const goToStep = (step: string) => {
 <template>
   <div class="flex justify-center m-6 px-2 pt-2 w-full">
     <div class="flex flex-col space-y-8 w-full max-w-[700px]">
-      <Stepper v-model:value="activeStep" @update:value="goToStep" :readonly="true">
+      <Stepper v-model:value="activeStep" @update:value="goToStep">
         <StepList>
-          <Step value="1" disabled>기본정보</Step>
-          <Step value="2" disabled>주소</Step>
-          <Step value="3" disabled>편의</Step>
-          <Step value="4" disabled>이용수칙</Step>
-          <Step value="5" disabled>객실</Step>
-          <Step value="6" disabled>확인</Step>
+          <Step value="1">기본정보</Step>
+          <Step value="2">주소</Step>
+          <Step value="3">편의</Step>
+          <Step value="4">이용수칙</Step>
+          <Step value="5">객실</Step>
+          <Step value="6">확인</Step>
         </StepList>
       </Stepper>
 

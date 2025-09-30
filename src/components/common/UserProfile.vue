@@ -95,6 +95,23 @@ const profileItems = [
     icon: 'pi pi-comments',
     command: () => router.push('/profile/comments')
   },
+  {
+    label: '리뷰 조회',
+    icon: 'pi pi-thumbs-up',
+    command: () => router.push('/profile/review-list')
+  },
+  {
+    label: '포인트',
+    icon: 'pi pi-circle',
+    command: () => router.push('/auth/point')
+
+  },
+  {
+    label: '업주 신청',
+    icon: 'pi pi-headphones',
+    command: () => router.push('profile/owner-request')
+
+  },
   { separator: true },
   {
     label: '로그아웃',

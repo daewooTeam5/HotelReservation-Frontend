@@ -59,6 +59,11 @@ const items = ref([
         icon: 'pi pi-circle',
         command: () => router.push('/auth/point')
       },
+      {
+        label: '내 리뷰 조회',
+        icon: 'pi pi-thumbs-up',
+        command: () => router.push('/profile/review-list')
+      },
        {
         label: '숙박업소 업주신청',
         icon: 'pi pi-headphones',
