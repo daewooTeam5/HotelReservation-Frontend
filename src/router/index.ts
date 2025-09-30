@@ -50,7 +50,12 @@ const router = createRouter({
           path: '/auth/coupon',
           name: 'coupon',
           component: () => import('@/views/auth/MyCouponView.vue')
-        }
+        },
+        {
+          path: 'owner-request',
+          name: 'OwnerRequest',
+          component: () => import('../views/user/RequestOwnerPage.vue')
+        },
 
       ]
     },
@@ -231,7 +236,6 @@ const router = createRouter({
       name: 'Amenties',
       component: () => import('../views/PubliShing/Amenities.vue')
     },
-
     // 오너 영역
     {
       path: '/owner',
@@ -363,6 +367,7 @@ const router = createRouter({
         }
       ]
     },
+
     {
       path: '/login1',
       name: 'admin-login',
