@@ -203,9 +203,9 @@
             <p v-if="errors.maxOrderAmount" class="text-sm text-red-500 mt-1">{{ errors.maxOrderAmount }}</p>
           </div>
 
-
           <!-- 만료일 -->
           <div>
+            <span>만료일</span>
             <input v-model="form.expiredAt" type="date" :min="today" class="w-full border p-2 rounded"
                    :class="{ 'border-red-500': errors.expiredAt }" />
             <p v-if="errors.expiredAt" class="text-sm text-red-500 mt-1">{{ errors.expiredAt }}</p>
