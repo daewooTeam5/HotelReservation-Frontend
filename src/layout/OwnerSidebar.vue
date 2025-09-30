@@ -15,7 +15,7 @@
         <span
           class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
         >
-          Hotel Owner
+           &nbsp;Hotel Owner
         </span>
       </div>
     </div>

@@ -6,12 +6,30 @@
         <h1 class="text-2xl font-bold text-gray-900">쿠폰 관리</h1>
         <p class="text-gray-600 mt-1">숙소 쿠폰을 생성하고 관리하세요</p>
       </div>
-      <button
-        @click="showCreate = true"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      >
-        + 쿠폰 생성
-      </button>
+
+      <div class="flex items-center gap-3">
+        <!-- 마지막 업데이트 표시 -->
+        <span class="text-sm text-gray-500">
+      마지막 업데이트: {{ timeAgo }}
+    </span>
+
+        <!-- 새로고침 -->
+        <button
+          @click="refreshData"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center"
+        >
+          <i class="pi pi-refresh mr-2"></i>
+          새로고침
+        </button>
+
+        <!-- 쿠폰 생성 -->
+        <button
+          @click="showCreate = true"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          + 쿠폰 생성
+        </button>
+      </div>
     </div>
 
     <!-- 쿠폰 리스트 -->
@@ -29,6 +47,8 @@
             <option value="createdAt,asc">생성일 오래된순</option>
             <option value="expiredAt,asc">만료일 빠른순</option>
             <option value="expiredAt,desc">만료일 늦은순</option>
+            <option value="usedCount,desc">사용 횟수 많은순</option>
+            <option value="usedCount,asc">사용 횟수 적은순</option>
           </select>
         </div>
       </div>
@@ -57,10 +77,23 @@
           >
             <td class="p-3">{{ coupon.couponName }}</td>
             <td class="p-3">{{ coupon.couponCode }}</td>
-            <td class="p-3">{{ coupon.couponType }}</td>
-            <td class="p-3">{{ coupon.amount }}</td>
-            <td class="p-3">{{ coupon.minOrderAmount ?? '-' }}</td>
-            <td class="p-3">{{ coupon.maxOrderAmount === -1 ? '무제한' : coupon.maxOrderAmount }}</td>
+            <td class="p-3">
+              {{ coupon.couponType === 'fixed' ? '정액 할인' : '정률 할인' }}
+            </td>
+            <td class="p-3">
+              <span v-if="coupon.couponType === 'fixed'">
+                {{ coupon.amount === 0 ? '없음' : coupon.amount.toLocaleString() + '원' }}
+              </span>
+              <span v-else>
+                {{ coupon.amount === 0 ? '없음' : coupon.amount + '%' }}
+              </span>
+            </td>
+            <td class="p-3">
+              {{ coupon.minOrderAmount === 0 ? '없음' : coupon.minOrderAmount.toLocaleString() + '원' }}
+            </td>
+            <td class="p-3">
+              {{ coupon.maxOrderAmount === -1 ? '무제한' : (coupon.maxOrderAmount === 0 ? '없음' : coupon.maxOrderAmount.toLocaleString() + '원') }}
+            </td>
             <td class="p-3">{{ coupon.createdAt }}</td>
             <td class="p-3">{{ coupon.expiredAt }}</td>
             <td class="p-3">{{ coupon.usedCount }}</td>
@@ -132,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '@/utils/axiosClient'
 
@@ -148,6 +181,16 @@ const totalPages = ref(0)
 
 // 쿠폰 데이터
 const coupons = ref([])
+
+// 마지막 업데이트 시간
+const lastUpdated = ref(new Date())
+const timeAgo = computed(() => {
+  const diffSec = Math.floor((Date.now() - lastUpdated.value.getTime()) / 1000)
+  if (diffSec < 60) return '방금 전'
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`
+  return `${Math.floor(diffSec / 86400)}일 전`
+})
 
 // 페이지 버튼 계산
 const visiblePages = computed(() => {
@@ -170,9 +213,15 @@ const fetchCoupons = async () => {
     })
     coupons.value = res.data.content
     totalPages.value = res.data.totalPages
+    lastUpdated.value = new Date()
   } catch (err) {
     console.error('쿠폰 불러오기 실패:', err)
   }
+}
+
+// 새로고침
+function refreshData() {
+  fetchCoupons()
 }
 
 // 페이지 이동
@@ -207,7 +256,26 @@ const createCoupon = async () => {
   }
 }
 
+// 인터벌 관리
+let intervalId1
+let intervalId2
+
 onMounted(() => {
   fetchCoupons()
+
+  // 30초마다 timeAgo 갱신
+  intervalId1 = window.setInterval(() => {
+    lastUpdated.value = new Date(lastUpdated.value)
+  }, 30000)
+
+  // 5분마다 자동 새로고침
+  intervalId2 = window.setInterval(() => {
+    refreshData()
+  }, 5 * 60 * 1000)
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId1)
+  clearInterval(intervalId2)
 })
 </script>

@@ -14,33 +14,62 @@
             </svg>
           </button>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ coupon.coupon_name }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ coupon?.couponName }}</h1>
             <p class="text-gray-500 text-sm mt-1">쿠폰 상세 정보와 사용 내역을 확인하세요</p>
           </div>
         </div>
       </div>
     </div>
+
     <!-- 쿠폰 정보 -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <h1 class="text-2xl font-bold text-gray-900">{{ coupon.coupon_name }}</h1>
-      <p class="text-gray-600 mt-1">쿠폰 상세 정보와 사용 내역을 확인하세요</p>
+    <div v-if="coupon" class="bg-white rounded-lg shadow-sm p-6">
       <div class="grid grid-cols-2 gap-4 mt-4">
-        <div><span class="font-medium">쿠폰 코드:</span> {{ coupon.coupon_code }}</div>
-        <div><span class="font-medium">할인 유형:</span> {{ coupon.coupon_type }}</div>
-        <div><span class="font-medium">할인 값:</span> {{ coupon.amount }}</div>
-        <div><span class="font-medium">최소 주문 금액:</span> {{ coupon.min_order_amount ?? '-' }}</div>
-        <div><span class="font-medium">최대 할인 금액:</span> {{ coupon.max_order_amount === -1 ? '무제한' : coupon.max_order_amount }}</div>
-        <div><span class="font-medium">생성일:</span> {{ coupon.created_at }}</div>
-        <div><span class="font-medium">만료일:</span> {{ coupon.expired_at }}</div>
-        <div><span class="font-medium">상태:</span> 사용가능</div>
+        <div><span class="font-medium">쿠폰 코드:</span> {{ coupon.couponCode }}</div>
+        <div><span class="font-medium">할인 유형:</span>
+          {{ coupon.couponType === 'fixed' ? '정액 할인' : '정률 할인' }}
+        </div>
+
+        <div><span class="font-medium">할인 값:</span>
+          <span v-if="coupon.couponType === 'fixed'">
+            {{ coupon.amount === 0 ? '없음' : coupon.amount.toLocaleString() + '원' }}
+          </span>
+          <span v-else>
+            {{ coupon.amount === 0 ? '없음' : coupon.amount + '%' }}
+          </span>
+        </div>
+        <div><span class="font-medium">최소 주문 금액:</span>
+          {{ coupon.minOrderAmount === 0 ? '없음' : coupon.minOrderAmount.toLocaleString() + '원' }}
+        </div>
+        <div><span class="font-medium">최대 할인 금액:</span>
+          {{ coupon.maxOrderAmount === -1 ? '무제한' : (coupon.maxOrderAmount === 0 ? '없음' : coupon.maxOrderAmount.toLocaleString() + '원') }}
+        </div>
+        <div><span class="font-medium">생성일:</span> {{ coupon.createdAt }}</div>
+        <div><span class="font-medium">만료일:</span> {{ coupon.expiredAt }}</div>
+        <div><span class="font-medium">사용 횟수:</span> {{ coupon.usedCount }}</div>
       </div>
     </div>
 
     <!-- 사용 내역 -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="bg-white rounded-lg shadow-sm p-6 flex flex-col gap-4">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-gray-900">사용 내역</h2>
+
         <div class="flex items-center gap-3">
+          <!-- 마지막 업데이트 -->
+          <span class="text-sm text-gray-500">
+        마지막 업데이트: {{ timeAgo }}
+      </span>
+
+          <!-- 새로고침 버튼 -->
+          <button
+            @click="refreshUsageHistory"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg flex items-center text-sm"
+          >
+            <i class="pi pi-refresh mr-2"></i>
+            새로고침
+          </button>
+
+          <!-- 정렬 -->
           <label class="text-sm font-medium text-gray-700">정렬:</label>
           <select
             v-model="sort"
@@ -49,8 +78,8 @@
           >
             <option value="usedAt,desc">사용일 최신순</option>
             <option value="usedAt,asc">사용일 오래된순</option>
-            <option value="discount,desc">할인액 높은순</option>
-            <option value="discount,asc">할인액 낮은순</option>
+            <option value="discountAmount,desc">할인액 높은순</option>
+            <option value="discountAmount,asc">할인액 낮은순</option>
             <option value="status,asc">상태 오름차순</option>
             <option value="status,desc">상태 내림차순</option>
           </select>
@@ -70,15 +99,18 @@
         </thead>
         <tbody>
         <tr
-          v-for="history in pagedHistory"
+          v-for="history in historyList"
           :key="history.id"
           class="hover:bg-gray-50"
         >
-          <td class="p-3">{{ history.user }}</td>
+          <td class="p-3">{{ history.userName }}</td>
           <td class="p-3">#{{ history.userCouponId }}</td>
           <td class="p-3">#{{ history.reservationId }}</td>
           <td class="p-3">{{ history.usedAt }}</td>
-          <td class="p-3">{{ history.discount }}</td>
+          <td class="p-3">
+            {{ history.discountAmount === 0 ? '없음' : history.discountAmount.toLocaleString() + '원' }}
+          </td>
+
           <td class="p-3">
               <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
                 {{ history.status }}
@@ -123,81 +155,93 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { apiClient } from '@/utils/axiosClient'
 
-const route = useRoute();
-const couponId = route.params.id;
+const route = useRoute()
+const couponId = route.params.id
 
-const coupon = ref({
-  id: couponId,
-  coupon_name: '여름 특별 할인',
-  coupon_code: 'UUID-456',
-  coupon_type: 'rate',
-  amount: '10%',
-  min_order_amount: null,
-  max_order_amount: -1,
-  created_at: '2025-06-01',
-  expired_at: '2025-08-31'
-});
+// 쿠폰 정보
+const coupon = ref(null)
 
-// 전체 사용 내역 (하드코딩 예시, 실제는 API 응답 데이터)
-const allHistory = [
-  { id: 1, user: '홍길동', reservationId: 101, usedAt: '2025-07-01', discount: 10000, status: 'used' },
-  { id: 2, user: '이몽룡', reservationId: 102, usedAt: '2025-07-05', discount: 5000, status: 'refunded' },
-  { id: 3, user: '성춘향', reservationId: 103, usedAt: '2025-07-10', discount: 15000, status: 'used' },
-  { id: 4, user: '변학도', reservationId: 104, usedAt: '2025-07-15', discount: 7000, status: 'canceled' },
-  { id: 5, user: '임꺽정', reservationId: 105, usedAt: '2025-07-20', discount: 12000, status: 'used' },
-  { id: 6, user: '장보고', reservationId: 106, usedAt: '2025-07-25', discount: 8000, status: 'refunded' },
-  { id: 7, user: '강감찬', reservationId: 107, usedAt: '2025-07-28', discount: 11000, status: 'used' },
-  { id: 8, user: '을지문덕', reservationId: 108, usedAt: '2025-07-29', discount: 6000, status: 'canceled' },
-  { id: 9, user: '최영', reservationId: 109, usedAt: '2025-07-30', discount: 9000, status: 'used' },
-  { id: 10, user: '이순신', reservationId: 110, usedAt: '2025-08-01', discount: 20000, status: 'used' },
-  { id: 11, user: '김유신', reservationId: 111, usedAt: '2025-08-02', discount: 7500, status: 'refunded' }
-];
+// 사용 내역
+const historyList = ref([])
+const page = ref(0)
+const size = ref(10)
+const totalPages = ref(0)
+const sort = ref('usedAt,desc')
 
-// 정렬, 페이징 상태
-const sort = ref('usedAt,desc');
-const page = ref(0);
-const size = ref(10); // ✅ 한 페이지당 10개
-const totalPages = ref(Math.ceil(allHistory.length / size.value));
+// 마지막 업데이트 시간
+const lastUpdated = ref(new Date())
 
-// 화면에 보여줄 데이터
-const pagedHistory = ref([]);
+// 사람이 읽기 좋은 시간 계산
+const timeAgo = computed(() => {
+  const diffSec = Math.floor((Date.now() - lastUpdated.value.getTime()) / 1000)
+  if (diffSec < 60) return "방금 전"
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`
+  return `${Math.floor(diffSec / 86400)}일 전`
+})
 
-// 정렬 + 페이징 처리
-const fetchUsageHistory = () => {
-  let sorted = [...allHistory];
-  const [field, direction] = sort.value.split(',');
-  sorted.sort((a, b) => {
-    if (direction === 'asc') return (a[field] > b[field] ? 1 : -1);
-    else return (a[field] < b[field] ? 1 : -1);
-  });
+// 쿠폰 상세 조회
+const fetchCouponDetail = async () => {
+  try {
+    const res = await apiClient.get(`/v1/owner/coupons/${couponId}`)
+    coupon.value = res.data
+  } catch (err) {
+    console.error('쿠폰 상세 조회 실패:', err)
+  }
+}
 
-  const start = page.value * size.value;
-  const end = start + size.value;
-  pagedHistory.value = sorted.slice(start, end);
+// 사용 내역 조회
+const fetchUsageHistory = async () => {
+  try {
+    const res = await apiClient.get(`/v1/owner/coupons/${couponId}/history`, {
+      params: { page: page.value, size: size.value, sort: sort.value }
+    })
+    historyList.value = res.data.content
+    totalPages.value = res.data.totalPages
+    lastUpdated.value = new Date()
+  } catch (err) {
+    console.error('쿠폰 사용 내역 조회 실패:', err)
+  }
+}
 
-  totalPages.value = Math.ceil(sorted.length / size.value);
-};
-
-// 페이지 버튼 계산
-const visiblePages = computed(() => {
-  const pages = [];
-  const start = Math.max(0, page.value - 2);
-  const end = Math.min(totalPages.value - 1, page.value + 2);
-  for (let i = start; i <= end; i++) pages.push(i);
-  return pages;
-});
+// 새로고침 함수
+const refreshUsageHistory = () => {
+  fetchUsageHistory()
+}
 
 // 페이지 이동
 const goToPage = (p) => {
   if (p >= 0 && p < totalPages.value) {
-    page.value = p;
-    fetchUsageHistory();
+    page.value = p
+    fetchUsageHistory()
   }
-};
+}
 
-// 초기 로드
-fetchUsageHistory();
+// 인터벌 관리
+let intervalId1
+let intervalId2
+
+onMounted(() => {
+  fetchCouponDetail()
+  fetchUsageHistory()
+
+  // 30초마다 timeAgo 갱신
+  intervalId1 = setInterval(() => {
+    lastUpdated.value = new Date(lastUpdated.value)
+  }, 30000)
+
+  // 5분마다 자동 새로고침
+  intervalId2 = setInterval(() => {
+    refreshUsageHistory()
+  }, 5 * 60 * 1000)
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId1)
+  clearInterval(intervalId2)
+})
 </script>
