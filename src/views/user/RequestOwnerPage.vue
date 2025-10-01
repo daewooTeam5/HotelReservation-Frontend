@@ -86,15 +86,15 @@ const getStatusText = (status: string) => {
       </template>
 
       <template #content>
-        <div class="p-6 space-y-4">
+        <div class="p-6 space-y-6">
           <div class="flex flex-col gap-2">
             <span class="text-gray-600 font-semibold">사업장 이름</span>
-            <span class="text-lg">{{ data.data.user?.name }}</span>
+            <span class="text-lg font-bold text-gray-800">{{ data.data.user?.name }}</span>
           </div>
 
           <div class="flex flex-col gap-2">
             <span class="text-gray-600 font-semibold">사업자 등록번호</span>
-            <span class="text-lg">{{ data.data.businessNumber }}</span>
+            <span class="text-lg font-mono text-blue-700">{{ data.data.businessNumber }}</span>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -104,6 +104,16 @@ const getStatusText = (status: string) => {
               :severity="getStatusSeverity(data.data.status)"
               class="text-base px-3 py-1 w-fit"
             />
+          </div>
+
+          <!-- 승인 상태 안내 및 버튼 -->
+          <div v-if="data.data.status === 'APPROVED'" class="mt-6 p-4 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center gap-3">
+            <i class="pi pi-check-circle text-emerald-500 text-2xl"></i>
+            <div class="flex-1">
+              <div class="font-bold text-emerald-700 text-lg mb-1">호텔 오너로 인증되었습니다!</div>
+              <div class="text-gray-700 text-sm">이제 호텔 관리 서비스를 이용하실 수 있습니다.</div>
+            </div>
+            <PrimeButton label="내 호텔 관리하러 가기" icon="pi pi-home" severity="success" @click="$router.push('/owner')" class="ml-4" />
           </div>
 
           <!-- 거절 상태일 때만 거절 사유 표시 버튼 -->

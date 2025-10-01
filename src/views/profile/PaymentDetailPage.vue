@@ -44,13 +44,13 @@ const nights = computed(() => {
   return d > 0 ? d : 1;
 });
 
-const statusLabel = computed(() => {
+const statusTag = computed(() => {
   const s = (payment.value?.status || '').toLowerCase();
-  if (s.includes('cancel')) return '취소됨';
-  if (s === 'paid' || s === 'success') return '결제 완료';
-  if (s === 'pending' || s === 'ready') return '결제 대기';
-  if (s === 'failed' || s === 'fail') return '결제 실패';
-  return payment.value?.status || '상태 확인 필요';
+  if (s.includes('cancel')) return { label: '취소됨', severity: 'danger' };
+  if (s === 'paid' || s === 'success') return { label: '결제 완료', severity: 'success' };
+  if (s === 'pending' || s === 'ready') return { label: '결제 대기', severity: 'info' };
+  if (s === 'failed' || s === 'fail') return { label: '결제 실패', severity: 'warning' };
+  return { label: payment.value?.status || '상태 확인 필요', severity: 'secondary' };
 });
 
 // 쿠폰 타입/금액 파생값 및 표시 문자열
@@ -124,6 +124,12 @@ const copy = async (val?: string, label?: string) => {
     toast.add({ severity: 'warn', summary: '복사 실패', detail: '클립보드 권한을 확인해주세요.', life: 2200 });
   }
 };
+
+// 프로모션 할인률 계산 (반올림)
+const promoDiscountPercent = computed(() => {
+  if (!payment.value?.fixedDiscountAmount || !payment.value?.baseAmount) return null;
+  return Math.round((payment.value.fixedDiscountAmount / payment.value.baseAmount) * 100);
+});
 </script>
 
 <template>
@@ -163,7 +169,6 @@ const copy = async (val?: string, label?: string) => {
               <div class="text-sm text-gray-700">객실: {{ payment.roomType }} (ID: {{ payment.roomId }})</div>
               <div class="text-sm text-gray-700">예약 기간: {{ payment.resevStart }} ~ {{ payment.resevEnd }} ({{ nights }}박)</div>
               <div class="text-sm text-gray-500">주문번호: {{ payment.orderId }} <button class="text-blue-600 hover:underline ml-1" @click="copy(payment.orderId, '주문번호')">복사</button></div>
-              <div class="text-sm text-gray-500">결제키: <span class="truncate inline-block align-bottom max-w-xs">{{ payment.paymentKey }}</span> <button class="text-blue-600 hover:underline ml-1" @click="copy(payment.paymentKey, '결제키')">복사</button></div>
             </div>
           </div>
         </template>
@@ -228,7 +233,9 @@ const copy = async (val?: string, label?: string) => {
 
               <!-- Other discounts -->
               <div class="flex justify-between" v-if="payment.fixedDiscountAmount">
-                <span class="text-gray-600">프로모션 할인</span>
+                <span class="text-gray-600">프로모션 할인
+                  <span v-if="promoDiscountPercent !== null" class="ml-1 text-xs text-blue-500 font-semibold">({{ promoDiscountPercent }}%)</span>
+                </span>
                 <span class="text-blue-700">-{{ payment.fixedDiscountAmount.toLocaleString() }}원</span>
               </div>
               <div class="flex justify-between" v-if="payment.pointDiscountAmount">
@@ -254,7 +261,11 @@ const copy = async (val?: string, label?: string) => {
           <template #content>
             <div class="p-4 space-y-2 text-sm">
               <div class="flex justify-between"><span class="text-gray-600">결제 수단</span><span class="font-medium">{{ payment.method }}</span></div>
-              <div class="flex justify-between"><span class="text-gray-600">결제 상태</span><span class="font-medium">{{ statusLabel }}</span></div>
+              <div class="flex justify-between"><span class="text-gray-600">결제 상태</span>
+                <span class="font-medium">
+                  <Tag :value="statusTag.label" :severity="statusTag.severity" rounded class="px-3 py-1 text-base" />
+                </span>
+              </div>
               <div class="flex justify-between"><span class="text-gray-600">결제 일시</span><span>{{ new Date(payment.transactionDate).toLocaleString() }}</span></div>
               <div class="flex justify-between"><span class="text-gray-600">Payment ID</span><span>{{ payment.paymentId }}</span></div>
               <div class="flex justify-between"><span class="text-gray-600">Reservation ID</span><span>{{ payment.reservationId }}</span></div>
@@ -267,7 +278,6 @@ const copy = async (val?: string, label?: string) => {
       <!-- Actions -->
       <div class="flex justify-end gap-3">
         <PrimeButton label="주문번호 복사" icon="pi pi-copy" severity="secondary" @click="copy(payment.orderId, '주문번호')" />
-        <PrimeButton label="결제키 복사" icon="pi pi-copy" severity="secondary" @click="copy(payment.paymentKey, '결제키')" />
         <PrimeButton v-if="isCancelable" label="결제 취소" icon="pi pi-times" severity="danger" :loading="!cancelMutation.isPending" @click="cancel" />
       </div>
     </div>

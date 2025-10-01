@@ -12,6 +12,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.ts';
+import { apiClient } from '@/utils/axiosClient.ts';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -33,16 +34,6 @@ const items = ref([
         label: '위시리스트',
         icon: 'pi pi-heart',
         command: () => router.push('/profile/wishlist')
-      },
-      {
-        label: '설정',
-        icon: 'pi pi-cog',
-        command: () => router.push('/profile/settings')
-      },
-      {
-        label: '로그아웃',
-        icon: 'pi pi-sign-out',
-        command: () => router.push('/auth/signin')
       },
       {
         label: '문의',
@@ -68,7 +59,21 @@ const items = ref([
         label: '숙박업소 업주신청',
         icon: 'pi pi-headphones',
         command: () => router.push('/profile/owner-request')
-      }
+      },
+      {
+        label: '설정',
+        icon: 'pi pi-cog',
+        command: () => router.push('/profile/settings')
+      },
+      {
+        label: '로그아웃',
+        icon: 'pi pi-sign-out',
+        command: async () =>{
+          await apiClient.post('../logout');
+          authStore.setAccessToken(null);
+          await router.push('/auth/signin');
+        }
+      },
     ]
   }
 ]);

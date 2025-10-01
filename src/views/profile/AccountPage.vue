@@ -3,22 +3,13 @@
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl py-6 px-8">
       <div v-if="user" class="flex items-center gap-2">
         <!-- 프로필 클릭 -->
-
         <Gravatar
           class="rounded-full w-30 h-30"
           :email="user.email as `${string}@${string}.${string}`"
           :size="1200"
           default="identicon"
         />
-        <div class="flex flex-col">
-          <span
-            v-if="authStore.userAuth?.role !== 'customer'"
-            :class="getRoleStyle(authStore.userAuth?.role || '')"
-          >
-            {{ getRoleText(authStore.userAuth?.role || '') }}
-          </span>
-        </div>
-
+        <div class="flex flex-col"></div>
         <div class="flex-1 pt-8">
           <h2 style="margin-bottom: 5px" class="text-3xl font-bold text-gray-800 mb-2">
             {{ profile.name }}
@@ -33,48 +24,51 @@
               <span style="margin-left: 8px">{{ profile.phone }}</span>
             </div>
             <div class="flex items-center">
-              <i class="pi pi-lock mr-2 text-indigo-500"></i>
-              <span style="margin-left: 8px">{{ profile.role }}</span>
-            </div>
-            <div class="flex items-center"><!--여기는 jwt토큰 번역됨-->
-              <i class="pi pi-info-circle mr-2 text-indigo-500"></i>
-              <span style="margin-left: 8px">유저 아이디: {{ profile.id }}</span>
+              <i class="pi pi-lock mr-2 text-indigo-500 mr-2! "></i>
+              <span :class="getRoleStyle(authStore.userAuth?.role || '')">
+                {{ getRoleText(authStore.userAuth?.role || '') }}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <h3 class="text-2xl font-semibold text-gray-700 mb-6 pt-6">프로필 정보 수정</h3>
-      <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
-        <div>
-          <label class="block text-gray-700 font-medium mb-2">이름</label>
-          <InputText v-model="profile.name" class="w-full p-inputtext-lg" />
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-2">이메일</label>
-          <InputText v-model="profile.email" class="w-full p-inputtext-lg" />
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-2">전화번호</label>
-          <InputText v-model="profile.phone" class="w-full p-inputtext-lg" />
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-2">유저 권한</label>
-          <InputText v-model="profile.role" class="w-full p-inputtext-lg" disabled />
-        </div>
+      <!-- 수정 모드가 아닐 때: 프로필 카드만, 수정하기 버튼만 노출 -->
+      <div v-if="!editMode" class="flex justify-end mt-6">
+        <Button label="수정하기" class="p-button-info" @click="editMode = true" />
       </div>
 
-      <div class="mt-6 pt-6 flex justify-end gap-4">
-        <Button label="취소" class="p-button-secondary p-button-outlined" @click="router.back()" />
-        <Button @click="submit" label="변경 사항 저장" icon="pi pi-check" class="p-button-info" />
+      <!-- 수정 모드일 때: 인풋 폼 노출 -->
+      <div v-if="editMode">
+        <h3 class="text-2xl font-semibold text-gray-700 mb-6 pt-6">프로필 정보 수정</h3>
+        <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">이름</label>
+            <InputText v-model="editProfile.name" class="w-full p-inputtext-lg" />
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">이메일</label>
+            <InputText v-model="editProfile.email" class="w-full p-inputtext-lg" />
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">전화번호</label>
+            <InputText v-model="editProfile.phone" class="w-full p-inputtext-lg" />
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">유저 권한</label>
+            <InputText :value="getRoleText(authStore.userAuth?.role || '')" class="w-full p-inputtext-lg" disabled />
+          </div>
+        </div>
+        <div class="mt-6 pt-6 flex justify-end gap-4">
+          <Button label="취소" class="p-button-secondary p-button-outlined" @click="cancelEdit" />
+          <Button @click="submit" label="변경 사항 저장" icon="pi pi-check" class="p-button-info" />
+        </div>
       </div>
-
-
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue';
+import { onMounted, computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import InputText from 'primevue/inputtext';
@@ -85,6 +79,7 @@ import { Gravatar } from '@sauromates/vue-gravatar';
 import { useProfileStore, type UserUpdateDTO } from '@/stores/publishing/ProfileStore';
 import { useAuthStore } from '@/stores/authStore';
 import { parseJwt } from '@/utils/jwtUtils';
+import { cloneDeep } from 'lodash-es';
 
 const router = useRouter();
 const store = useProfileStore();
@@ -98,9 +93,20 @@ const user = computed(() => {
 
 const { profile, images } = storeToRefs(store);
 
+const editMode = ref(false);
+const editProfile = ref({ name: '', email: '', phone: '' });
+
 onMounted(() => {
   if (user.value?.userId) {
     store.fetchProfileFromApi(); // userId 기준으로 DB에서 불러오기
+  }
+  // 최초 editProfile 동기화
+  editProfile.value = { ...profile.value };
+});
+
+watch(profile, (newVal) => {
+  if (!editMode.value) {
+    editProfile.value = { ...newVal };
   }
 });
 
@@ -147,27 +153,27 @@ const handleImageUpload = (event: Event) => {
 
 const removeImage = (index: number) => store.removeImage(index);
 
+const cancelEdit = () => {
+  editProfile.value = { ...profile.value };
+  editMode.value = false;
+};
+
 // 저장
 const submit = async () => {
   try {
     const updateDto: UserUpdateDTO = {
-      name: profile.value.name || '',
-      email: profile.value.email || '',
-      phone: profile.value.phone || '',
+      name: editProfile.value.name || '',
+      email: editProfile.value.email || '',
+      phone: editProfile.value.phone || '',
       images: images.value,
     };
-
     await store.updateProfileApi(updateDto);
-
-    // 로컬 스토리지에도 반영
     store.updateProfile(updateDto);
-
     alert('성공적으로 저장되었습니다.');
-    router.back();
+    editMode.value = false;
   } catch (error) {
     console.error('저장 중 에러 발생:', error);
     alert('저장 중 문제가 발생했습니다.');
   }
 };
-
 </script>

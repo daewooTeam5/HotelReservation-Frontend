@@ -7,7 +7,10 @@ import { ref, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/authStore'; // ✅ 로그인 체크용
 import SignInModal from '@/components/auth/SignInModal.vue';
 
-const props = defineProps<{ orderAmount: number }>();
+const props = defineProps<{
+  orderAmount: number;
+  maxUsablePoints?: number;
+}>();
 const emit = defineEmits<{ (e: 'point-change', value: number): void }>();
 
 // ✅ 로그인 여부 체크
@@ -74,6 +77,14 @@ watch(() => props.orderAmount, () => {
 
 const canUsePoint = computed(() => userPoint.value >= MIN_POINT_USAGE);
 const showLoginModal = ref(false);
+
+// 10% 한도 관련
+const maxPointUsageLimit = computed(() => Math.floor(props.orderAmount * 0.1));
+watch(pointToUse, (newVal) => {
+  if (newVal > maxPointUsageLimit.value) {
+    pointToUse.value = maxPointUsageLimit.value;
+  }
+});
 </script>
 
 <template>
@@ -160,6 +171,11 @@ const showLoginModal = ref(false);
               <span class="font-bold text-primary">
                 -{{ pointToUse.toLocaleString() }}원
               </span>
+            </div>
+
+            <!-- 10% 한도 안내 -->
+            <div class="text-xs text-gray-500 mt-1">
+              최종 결제금액의 10%까지만 포인트 사용 가능 (최대 {{ maxUsablePoints.toLocaleString() }}P)
             </div>
           </div>
         </div>

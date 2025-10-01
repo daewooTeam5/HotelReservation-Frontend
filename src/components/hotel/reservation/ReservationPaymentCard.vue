@@ -2,11 +2,12 @@
 import { computed } from 'vue';
 
 const props = defineProps<{
-  price: number | undefined;
-  roomCount:number |undefined;
+  price: number | undefined; // 원가
+  finalPrice?: number | undefined; // 할인된 가격
+  roomCount: number | undefined;
   checkIn: string;
   checkOut: string;
-  discount?: number; // 총 할인 금액(쿠폰 등)
+  discount?: number; // 쿠폰 할인 금액
   pointsDiscount?: number; // 포인트 할인 금액
 }>();
 
@@ -21,18 +22,30 @@ const nights = computed(() => {
   return Math.ceil(timeDiff / (1000 * 3600 * 24));
 });
 
-// 총 결제 금액(할인 전)
-const subtotal = computed(() => {
+// 원가 기준 총액 (할인 전)
+const originalTotal = computed(() => {
   const base = (props.price || 0) * nights.value;
   const rooms = props.roomCount ?? 1;
   return base * rooms;
 });
 
-// 할인 적용 후 금액
+// 객실 할인 적용 후 총액 (finalPrice 기준)
+const roomDiscountedTotal = computed(() => {
+  const base = (props.finalPrice || props.price || 0) * nights.value;
+  const rooms = props.roomCount ?? 1;
+  return base * rooms;
+});
+
+// 객실 자체 할인 금액
+const roomDiscount = computed(() => {
+  return originalTotal.value - roomDiscountedTotal.value;
+});
+
+// 최종 결제 금액 (쿠폰, 포인트 할인 추가 적용)
 const grandTotal = computed(() => {
   const coupon = props.discount || 0;
   const points = props.pointsDiscount || 0;
-  const total = subtotal.value - coupon - points;
+  const total = roomDiscountedTotal.value - coupon - points;
   return total > 0 ? total : 0;
 });
 
@@ -57,27 +70,49 @@ const formatCurrency = (amount: number): string => {
       <div class="p-4 space-y-4">
         <!-- 요금 세부 내역 -->
         <div class="space-y-3">
+          <!-- 원가 표시 -->
           <div class="flex justify-between items-center text-sm">
-            <span class="text-gray-600">객실 요금</span>
-            <span class="font-medium">{{ formatCurrency(price || 0) }}</span>
+            <span class="text-gray-600">객실 요금 (원가)</span>
+            <div class="text-right">
+              <span class="font-medium text-gray-500 line-through">{{ formatCurrency(price || 0) }}</span>
+            </div>
+          </div>
+
+          <!-- 할인된 객실 요금 -->
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">객실 요금 (할인적용)</span>
+            <div class="text-right">
+              <span class="font-medium text-green-600">{{ formatCurrency(finalPrice || price || 0) }}</span>
+              <span v-if="roomDiscount > 0" class="text-xs text-red-500 ml-1">
+                ({{ Math.round(((roomDiscount / originalTotal) * 100)) }}% 할인)
+              </span>
+            </div>
           </div>
 
           <div class="flex justify-between items-center text-sm">
             <span class="text-gray-600">숙박 일수</span>
-            <span class="font-medium">{{ nights }}박 (객실수 {{props.roomCount}})</span>
+            <span class="font-medium">{{ nights }}박 × {{ roomCount }}객실</span>
+          </div>
+
+          <!-- 객실 할인이 있는 경우만 표시 -->
+          <div v-if="roomDiscount > 0" class="flex justify-between items-center text-sm text-red-600">
+            <span class="">객실 할인</span>
+            <span class="font-medium">-{{ formatCurrency(roomDiscount) }}</span>
           </div>
 
           <div class="flex justify-between items-center text-sm">
-            <span class="text-gray-600">소계</span>
-            <span class="font-medium">{{ formatCurrency(subtotal) }}</span>
+            <span class="text-gray-600">소계 (객실 할인 적용)</span>
+            <span class="font-medium">{{ formatCurrency(roomDiscountedTotal) }}</span>
           </div>
 
+          <!-- 쿠폰 할인 -->
           <div v-if="(discount || 0) > 0" class="flex justify-between items-center text-sm text-blue-700">
             <span class="">쿠폰 할인</span>
             <span class="font-medium">-{{ formatCurrency(discount || 0) }}</span>
           </div>
 
-          <div v-if="(pointsDiscount || 0) > 0" class="flex justify-between items-center text-sm text-blue-700">
+          <!-- 포인트 할인 -->
+          <div v-if="(pointsDiscount || 0) > 0" class="flex justify-between items-center text-sm text-purple-700">
             <span class="">포인트 할인</span>
             <span class="font-medium">-{{ formatCurrency(pointsDiscount || 0) }}</span>
           </div>

@@ -79,6 +79,13 @@
           <span class="font-semibold text-gray-700">기본 금액</span>
           <span class="font-bold text-gray-800">₩{{ reservationData?.baseAmount.toLocaleString() }}</span>
         </div>
+        <!-- 할인 금액 및 할인률 -->
+        <div v-if="discountAmount > 0" class="flex justify-between pb-2">
+          <span class="font-semibold text-gray-700">할인 금액</span>
+          <span class="font-bold text-blue-600">-₩{{ discountAmount.toLocaleString() }}
+            <span class="ml-2 text-xs text-blue-500">({{ discountPercent }}%)</span>
+          </span>
+        </div>
 
         <div class="border-t border-gray-200 pt-4"></div>
 
@@ -252,6 +259,20 @@ const nights = computed(() => {
 const rooms = computed(() =>
   parseInt((route.query.rooms as string) ?? '1')
 );
+
+// 할인 금액 및 할인률 계산
+const discountAmount = computed(() => {
+  if (!reservationData.value) return 0;
+  const base = reservationData.value.baseAmount || 0;
+  const final = reservationData.value.finalAmount || 0;
+  return base > final ? base - final : 0;
+});
+const discountPercent = computed(() => {
+  if (!reservationData.value) return 0;
+  const base = reservationData.value.baseAmount || 0;
+  if (base === 0) return 0;
+  return Math.round((discountAmount.value / base) * 100);
+});
 </script>
 
 <style scoped>
