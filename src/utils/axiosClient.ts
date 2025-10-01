@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore.ts';
 
-
+console.log(import.meta.env.VITE_SERVER_URL);
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_MODE==='development'?"http://localhost:8080/api":import.meta.env.VITE_SERVER_URL,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true
 });
