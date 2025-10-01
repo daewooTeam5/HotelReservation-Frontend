@@ -355,7 +355,7 @@
                 <div class="flex items-center gap-3">
                   <button @click.stop="openEdit(r)" class="text-green-600 hover:text-green-700 font-medium">수정</button>
                   <button
-                    v-if="r.status === 'pending' || r.status === 'confirmed'"
+                    v-if="r.status === 'confirmed'"
                     @click.stop="handleCancel(r)"
                     class="text-red-600 hover:text-red-700 font-medium"
                   >
