@@ -27,11 +27,13 @@
         />
         <ReservationPointCard
           :order-amount="subtotal"
+          :max-usable-points="maxUsablePoints"
           @point-change="onPointChange"
         />
         <ReservationPaymentCard
           :room-count="parseInt(rooms)"
-          :price="roomInfo?.finalPrice"
+          :price="roomInfo?.price"
+          :final-price="roomInfo?.finalPrice"
           :check-in="checkIn"
           :check-out="checkOut"
           :discount="discount"
@@ -143,9 +145,18 @@ const onCouponChange = (coupon: AvailablePlaceCoupon | null) => {
   selectedCoupon.value = coupon;
 };
 
-// 포인트 사용 변경
+// 쿠폰/프로모션 할인 적용 후 결제금액의 10%까지만 포인트 사용 가능
+const maxUsablePoints = computed(() => {
+  // 쿠폰/프로모션 할인 적용 후 금액
+  const discounted = subtotal.value - discount.value;
+  // 10% 계산, 소수점 버림
+  return Math.floor(discounted * 0.1);
+});
+
+// 포인트 사용 변경 (10% 초과 입력 시 자동 조정)
 const onPointChange = (points: number) => {
-  usedPoints.value = points;
+  const max = maxUsablePoints.value;
+  usedPoints.value = Math.min(points, max);
 };
 
 // 예약 유효성 검사
@@ -181,6 +192,14 @@ const subtotal = computed(() => {
   return info.finalPrice * nightCount.value * (isNaN(roomCount) ? 1 : roomCount);
 });
 
+// 원가(할인 전): price × 박수 × 객실 수
+const totalOrigin = computed(() => {
+  const info = props.roomInfo;
+  if (!info || !info.price || nightCount.value <= 0) return 0;
+  const roomCount = parseInt(props.rooms || '1');
+  return info.price * nightCount.value * (isNaN(roomCount) ? 1 : roomCount);
+});
+
 // 쿠폰 할인 금액
 const discount = computed(() => {
   const coupon = selectedCoupon.value;
@@ -194,6 +213,11 @@ const discount = computed(() => {
 const finalAmount = computed(() => {
   const total = subtotal.value - discount.value;
   return Math.max(total - usedPoints.value, 0);
+});
+
+// 전체 할인 금액 (원가 - 최종 결제 금액)
+const discountAmount = computed(() => {
+  return totalOrigin.value - finalAmount.value;
 });
 
 // 폼 ref (노출 메서드 타입 정의)
@@ -213,6 +237,7 @@ const completeStep1 = async () => {
 
   try {
     isProcessing.value = true;
+    console.log(discount);
 
     // 백엔드에 예약 정보 저장 요청 (couponId는 바디에 포함, 가격 대신 숙박일수 전달)
     const response = await apiClient.post('/v1/payment/process', {
@@ -227,7 +252,8 @@ const completeStep1 = async () => {
       roomId: props.roomId,
       roomCount: props.rooms,
       couponId: selectedCoupon.value?.id,
-      usedPoints:usedPoints.value
+      usedPoints:usedPoints.value,
+      discountAmount: discountAmount.value, // <-- 전체 할인 금액 전달
     });
 
     // 예약 ID를 부모 컴포넌트로 전달 (couponId도 함께 전달)

@@ -43,7 +43,7 @@ import Skeleton from 'primevue/skeleton';
 import Textarea from 'primevue/textarea';
 import Dialog from 'primevue/dialog';
 import VCalendar from "v-calendar";
-import { Avatar, DatePicker, Message, Tag } from 'primevue';
+import { Avatar, DatePicker, Message, Tag, ToggleSwitch } from 'primevue';
 import { useTheme } from '@primeuix/themes';
 import Divider from 'primevue/divider';
 import DataTable from 'primevue/datatable';
@@ -97,6 +97,7 @@ app.component('Column', Column);
 app.component('Message', Message);
 app.component('Avatar', Avatar);
 app.component('Tag', Tag);
+app.component('ToggleSwitch',ToggleSwitch)
 app.component('InputNumber', InputNumber);
 app.component('Textarea', Textarea);
 app.component('Dialog', Dialog);

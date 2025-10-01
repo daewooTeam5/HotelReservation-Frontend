@@ -3,56 +3,48 @@
     <h1 class="text-2xl font-bold mb-6">환경 설정</h1>
 
     <div class="bg-white rounded shadow p-6 max-w-xl space-y-6">
-      <!-- 언어 설정 -->
-      <div>
-        <label class="block mb-2 font-medium">언어</label>
-        <Dropdown v-model="settings.language" :options="languages" class="w-full" />
-      </div>
-
-      <!-- 테마 설정 -->
-      <div>
-        <label class="block mb-2 font-medium">테마</label>
-        <Dropdown v-model="settings.theme" :options="themes" class="w-full" />
-      </div>
-
-      <!-- 알림 설정 -->
-      <div>
-        <label class="block mb-2 font-medium">알림 수신</label>
-        <div class="flex flex-col gap-2">
-          <div>
-            <Checkbox inputId="popup" value="팝업" v-model="settings.notifications" />
-            <label for="popup" class="ml-2">팝업</label>
-          </div>
-          <div>
-            <Checkbox inputId="email" value="이메일" v-model="settings.notifications" />
-            <label for="email" class="ml-2">이메일</label>
-          </div>
+      <!-- 푸시 알림 설정 -->
+      <div class="flex items-center justify-between py-4 border-b">
+        <div>
+          <label class="block font-medium text-lg mb-1">푸시 알림 수신</label>
+          <span class="text-gray-500 text-sm">예약, 혜택 등 주요 알림을 푸시로 받아보세요.</span>
         </div>
+        <ToggleSwitch v-model="pushEnabled" inputId="push" class="scale-125" />
       </div>
-
-      <!-- 저장 버튼 -->
-      <div class="flex justify-end gap-3">
-        <Button label="취소" class="p-button-text" />
-        <Button label="저장" icon="pi pi-check" class="p-button-primary" />
+      <div v-if="pushEnabled" class="mt-2 text-green-600 text-sm flex items-center gap-1">
+        <i class="pi pi-check-circle"></i>
+        푸시 알림이 활성화되어 있습니다.
+      </div>
+      <div v-else class="mt-2 text-gray-400 text-sm flex items-center gap-1">
+        <i class="pi pi-times-circle"></i>
+        푸시 알림이 꺼져 있습니다.
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import Dropdown from "primevue/dropdown";
-import Checkbox from "primevue/checkbox";
-import Button from "primevue/button";
+import { ref, watch } from "vue";
 
-const settings = ref({
-  language: "한국어",
-  theme: "라이트",
-  notifications: ["팝업"],
+const PUSH_KEY = 'pushEnabled';
+const pushEnabled = ref(false);
+
+// 초기값 로드
+if (typeof window !== 'undefined') {
+  const saved = localStorage.getItem(PUSH_KEY);
+  if (saved !== null) pushEnabled.value = saved === 'true';
+}
+
+// 변경 시 로컬스토리지에 저장
+watch(pushEnabled, (val) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(PUSH_KEY, String(val));
+  }
 });
-
-const languages = ["한국어", "영어"];
-const themes = ["라이트", "다크"];
 </script>
 
-
+<style scoped>
+.bg-white {
+  background: #fff;
+}
+</style>
