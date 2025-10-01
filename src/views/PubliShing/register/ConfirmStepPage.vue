@@ -5,6 +5,10 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { computed, ref, onMounted } from 'vue';
 import Button from 'primevue/button';
+import { useQuery } from '@tanstack/vue-query';
+import { httpFetcher } from '@/utils/httpFetcher';
+import type { ApiResult } from '@/types/ApiResult';
+import type { Amenity } from '@/types/amenity';
 
 const store = useRegisterStore();
 const authstore = useAuthStore();
@@ -16,6 +20,20 @@ const token = localStorage.getItem('accessToken');
 // 이미지 URL들을 저장할 반응형 데이터
 const hotelImageUrls = ref<string[]>([]);
 const roomImageUrls = ref<{ [key: number]: string[] }>({});
+
+// 💡 [추가] 객실 편의시설 데이터 조회
+const { data: roomAmenitiesData } = useQuery<ApiResult<Amenity[]>>({
+  queryKey: ['v1', 'amenities', 'room'],
+  queryFn: httpFetcher
+});
+
+// 💡 [추가] 객실 편의시설 이름들을 가져오는 함수
+const getRoomAmenityNames = (amenityIds: number[]) => {
+  if (!roomAmenitiesData.value?.data || !amenityIds) return [];
+  return roomAmenitiesData.value.data
+    .filter(amenity => amenityIds.includes(amenity.id))
+    .map(amenity => amenity.name);
+};
 
 // 💡 [추가] 수정/등록 모드에 따라 버튼의 라벨을 동적으로 변경합니다.
 const submitButtonLabel = computed(() => store.editingPlaceId ? '수정 완료' : '등록 완료');
@@ -70,7 +88,8 @@ const submit = async () => {
         isPublic: r.isPublic,
         bedType: r.selectedBed,
         roomImageCount: r.images.length, // 각 객실의 이미지 개수
-        capacityRoom: r.capacityRoom
+        capacityRoom: r.capacityRoom,
+        amenityIds: r.amenityIds || [] // 💡 객실별 편의시설 ID 추가
       })),
       userId: authstore.userAuth?.id
     };
@@ -96,7 +115,7 @@ const submit = async () => {
 
     if (store.editingPlaceId) {
       // 수정 모드: PUT 요청
-      await apiClient.put(`/hotel/publishing/update/${store.editingPlaceId}`, formData, config);
+      // await apiClient.put(`/hotel/publishing/update/${store.editingPlaceId}`, formData, config);
       alert('수정이 완료되었습니다.');
     } else {
       // 등록 모드: POST 요청
@@ -183,9 +202,38 @@ onMounted(async () => {
       <h2 class="text-lg font-bold mb-2">추가된 객실 목록</h2>
       <div v-for="(room, idx) in store.addedRooms" :key="idx" class="border p-4 rounded-md">
         <div class="flex justify-between items-center mb-2 pb-2 border-b">
-          <span class="font-semibold">객실 {{ idx + 1 }}. {{ room.roomType }}</span>
+          <span class="font-semibold">객실 {{ idx + 1 }}. {{ room.roomType }} ({{ room.capacityRoom }}개)</span>
           <span>1박당 {{ room.price }} 원</span>
         </div>
+
+        <!-- 💡 [추가] 객실 상세 정보 표시 -->
+        <div class="mb-3 text-sm text-gray-600">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <span class="font-medium">면적:</span> {{ room.width?.toFixed(2) || 0 }}m²
+            </div>
+            <div>
+              <span class="font-medium">최대인원:</span> {{ room.capacityPeople }}명
+            </div>
+            <div>
+              <span class="font-medium">침대:</span> {{ room.selectedBed || '선택 안됨' }}
+            </div>
+            <div>
+              <span class="font-medium">객실 개수:</span> {{ room.capacityRoom }}개
+            </div>
+          </div>
+
+          <!-- 💡 [추가] 객실 편의시설 표시 -->
+          <div v-if="room.amenityIds && room.amenityIds.length > 0" class="mt-2">
+            <span class="font-medium">편의시설:</span>
+            <span class="ml-1">{{ getRoomAmenityNames(room.amenityIds).join(', ') }}</span>
+          </div>
+          <div v-else class="mt-2">
+            <span class="font-medium">편의시설:</span>
+            <span class="ml-1 text-gray-400">선택된 편의시설 없음</span>
+          </div>
+        </div>
+
         <div>
           <p class="font-semibold mb-1">객실 사진</p>
           <div class="grid grid-cols-5 gap-2">
@@ -196,6 +244,9 @@ onMounted(async () => {
               :alt="`객실 ${idx + 1} 이미지 ${imgIdx + 1}`"
               class="w-20 h-20 object-cover rounded border"
             />
+          </div>
+          <div v-if="!roomImageUrls[idx] || roomImageUrls[idx].length === 0" class="text-gray-400 text-sm">
+            등록된 객실 사진이 없습니다.
           </div>
         </div>
       </div>

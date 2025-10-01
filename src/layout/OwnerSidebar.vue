@@ -83,6 +83,7 @@ const menuItems = computed(() => [
   { name: "리뷰 관리", path: "/owner/reviews", icon: "pi pi-star" },
   { name: "문의 관리", path: "/owner/inquiries", icon: "pi pi-question-circle" },
   { name: "쿠폰 관리", path: "/owner/coupons", icon: "pi pi-ticket" },
+  { name: "할인 관리", path: "/owner/discounts", icon: "pi pi-tags" },
   { name: "통계", path: "/owner/statistics", icon: "pi pi-chart-bar" }
 ]);
 </script>

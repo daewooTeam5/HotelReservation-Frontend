@@ -49,7 +49,7 @@ import Divider from 'primevue/divider';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputNumber from 'primevue/inputnumber';
-
+import ConfirmationService from 'primevue/confirmationservice'
 const app = createApp(App);
 
 const koreanLocale = {
@@ -122,5 +122,5 @@ app.component('FileUpload', FileUpload);
 app.component('PrimeSelect', Select);
 app.directive('tooltip', Tooltip);
 app.use(VCalendar, {});
-
+app.use(ConfirmationService);
 app.mount('#app');
