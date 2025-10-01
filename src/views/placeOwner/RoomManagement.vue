@@ -212,11 +212,11 @@ onUnmounted(() => {
 
     <!-- 다이얼로그 -->
     <RoomDialog
-      v-if="showDialog"
-      :key="selectedRoom ? selectedRoom.id : 'new'"
+      :visible="showDialog"
       :room="selectedRoom"
       @close="closeDialog"
       @save="fetchRooms"
     />
+
   </div>
 </template>
