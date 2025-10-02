@@ -60,7 +60,7 @@ const router = createRouter({
           path: 'review-list',
           name: 'reviewList',
           component: () => import('../views/user/reviews/ReviewList.vue')
-        },
+        }
 
       ]
     },
@@ -210,7 +210,12 @@ const router = createRouter({
       component: () => import('@/views/auth/EmailOtpView.vue'),
       meta: { layout: 'user' }
     },
-    // 숙소 관리자 영역
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('@/views/profile/NotificationView.vue'),
+      meta: { layout: 'user' }
+    },
     {
 
       path: '/HotelRegister-old',
@@ -361,24 +366,24 @@ const router = createRouter({
           component: () => import('@/views/admin/AdminPlaceDetail.vue'),
           meta: { layout: 'admin' }
         },
-          {
-            path: 'review',
-            name: 'admin-review',
-            component: () => import('@/views/admin/AdminReview.vue'),
-            meta: { layout: 'admin' }
-          },
         {
-          path: "payment",
-          name: "admin-payment",
+          path: 'review',
+          name: 'admin-review',
+          component: () => import('@/views/admin/AdminReview.vue'),
+          meta: { layout: 'admin' }
+        },
+        {
+          path: 'payment',
+          name: 'admin-payment',
           component: () => import('@/views/admin/AdminPayment.vue'),
-          meta: { layout: "admin" },
+          meta: { layout: 'admin' }
         },
         {
-          path: "statistics",
-          name: "admin-statistics",
+          path: 'statistics',
+          name: 'admin-statistics',
           component: () => import('@/views/admin/AdminStatistics.vue'),
-          meta: { layout: "admin" },
-        },
+          meta: { layout: 'admin' }
+        }
       ]
     },
     {
@@ -402,46 +407,46 @@ const router = createRouter({
   scrollBehavior
 });
 
-import { useAuthStore } from "@/stores/authStore"
+import { useAuthStore } from '@/stores/authStore';
 
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
-  const token = authStore.accessToken
-  let role: string | null = null
+  const authStore = useAuthStore();
+  const token = authStore.accessToken;
+  let role: string | null = null;
 
   if (token) {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      role = JSON.parse(payload.sub).role
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      role = JSON.parse(payload.sub).role;
     } catch (e) {
-      console.error("JWT 파싱 실패:", e)
+      console.error('JWT 파싱 실패:', e);
     }
   }
 
-  if (to.path.startsWith("/admin")) {
-    setTimeout(()=>{
+  if (to.path.startsWith('/admin')) {
+    setTimeout(() => {
 
 
-    console.log("token:", token)
-    console.log("parsed role:", role)
+      console.log('token:', token);
+      console.log('parsed role:', role);
 
-    if (!token) {
-      console.log("➡️ 토큰 없음 → admin-login으로 이동")
-      return next({ name: "home" })
-    }
+      if (!token) {
+        console.log('➡️ 토큰 없음 → admin-login으로 이동');
+        return next({ name: 'home' });
+      }
 
-    if (!role || !["admin", "place_admin", "user_admin"].includes(role)) {
-      console.log("➡️ 권한 없음 → home으로 이동")
-      return next({ name: "home" })
-    }
-    },0)
+      if (!role || !['admin', 'place_admin', 'user_admin'].includes(role)) {
+        console.log('➡️ 권한 없음 → home으로 이동');
+        return next({ name: 'home' });
+      }
+    }, 0);
   }
 
-  if (to.name === "admin-login" && token) {
-    return next({ name: "admin-dashboard" })
+  if (to.name === 'admin-login' && token) {
+    return next({ name: 'admin-dashboard' });
   }
 
-  next()
-})
+  next();
+});
 
 export default router;
