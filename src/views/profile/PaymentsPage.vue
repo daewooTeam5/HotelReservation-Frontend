@@ -59,8 +59,8 @@ const goDetails = (id: number) => {
 // 취소 뮤테이션
 const cancelMutation = useMutation({
   mutationKey: ['v1', 'payment', 'cancel'],
-  mutationFn: async (id: number) => {
-    const res = await apiClient.post<ApiResult<unknown>>(`/v1/payment/${id}/cancel`);
+  mutationFn: async (paymentKey: string) => {
+    const res = await apiClient.post<ApiResult<unknown>>(`/v1/payment/${paymentKey}/cancel`);
     return res.data;
   },
   onSuccess: async (res) => {
@@ -80,47 +80,96 @@ const cancelMutation = useMutation({
   }
 });
 
-const cancelPayment = (id: number) => {
-  if (!cancelMutation.isPending) return;
+const cancelPayment = (paymentKey: string) => {
+  if (cancelMutation.isPending) return;
   if (!window.confirm('해당 결제를 취소하시겠습니까?')) return;
-  cancelMutation.mutate(id);
+  if (!paymentKey) return;
+  cancelMutation.mutate(paymentKey);
 };
 </script>
 
 <template>
-  <section class="max-w-6xl mx-auto p-4">
-    <h2 class="text-xl font-semibold mb-4">결제 내역</h2>
+  <div class="max-w-4xl mx-auto p-6">
+    <!-- 헤더 -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">결제 내역</h1>
+      <p class="text-gray-600 mt-1">예약 및 결제 정보를 확인하실 수 있습니다.</p>
+    </div>
 
+    <!-- 로딩 상태 -->
     <div v-if="isLoading" class="space-y-4">
-      <Skeleton v-for="i in 4" :key="i" height="8rem" class="w-full" />
+      <div v-for="i in 3" :key="i" class="animate-pulse">
+        <div class="border rounded-lg p-4 bg-white">
+          <div class="flex gap-4">
+            <div class="w-20 h-20 bg-gray-200 rounded-lg"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+              <div class="h-3 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div v-else-if="isError" class="p-4 border rounded text-red-600 bg-red-50">
-      {{ (error as Error)?.message || '결제 내역을 불러오지 못했습니다.' }}
+    <!-- 에러 상태 -->
+    <div v-else-if="isError" class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="flex items-center gap-2 text-red-800">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span class="font-medium">오류 발생</span>
+      </div>
+      <p class="text-red-700 mt-1">
+        {{ (error as Error)?.message || '결제 내역을 불러오지 못했습니다.' }}
+      </p>
     </div>
 
+    <!-- 데이터 표시 -->
     <div v-else>
-      <div v-if="items.length === 0" class="p-6 text-gray-500 border rounded">표시할 내역이 없습니다.</div>
+      <!-- 빈 상태 -->
+      <div v-if="items.length === 0" class="text-center py-12">
+        <i class="pi pi-credit-card text-4xl text-gray-400 mb-3"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">결제 내역이 없습니다</h3>
+        <p class="text-gray-600">아직 결제한 내역이 없습니다.</p>
+      </div>
 
-      <div v-else class="space-y-4 flex flex-col gap-3 w-full!">
+      <!-- 결제 내역 리스트 -->
+      <div v-else class="space-y-4">
         <PaymentCard
-          v-for="p in items"
-          :key="p.paymentId"
-          :payment="p"
+          v-for="payment in items"
+          :key="payment.paymentId"
+          :payment="payment"
           :showActions="true"
           @details="goDetails"
-          @cancel="cancelPayment"
+          @cancelled="queryClient.invalidateQueries({ queryKey: ['v1', 'users', 'my'] })"
         />
       </div>
 
-      <!-- Pager -->
-      <div class="mt-6 flex justify-between items-center">
-        <PrimeButton label="이전" icon="pi pi-chevron-left" severity="secondary" :disabled="isFirst" @click="prev" />
-        <div class="text-sm text-gray-600">{{ page }} / {{ totalPages }}</div>
-        <PrimeButton label="다음" iconPos="right" icon="pi pi-chevron-right" :disabled="isLast" @click="next" />
+      <!-- 페이지네이션 -->
+      <div v-if="totalPages > 1" class="flex justify-center items-center gap-4 mt-8">
+        <button
+          @click="prev"
+          :disabled="isFirst"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <i class="pi pi-chevron-left text-xs"></i>
+          이전
+        </button>
+
+        <span class="text-sm text-gray-700">
+          {{ page }} / {{ totalPages }}
+        </span>
+
+        <button
+          @click="next"
+          :disabled="isLast"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          다음
+          <i class="pi pi-chevron-right text-xs"></i>
+        </button>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped>

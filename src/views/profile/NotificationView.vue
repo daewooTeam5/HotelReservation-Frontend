@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { httpFetcher } from '@/utils/httpFetcher.ts';
 import type { Page } from '@/types/Page.ts';
@@ -10,20 +10,34 @@ import Chip from 'primevue/chip';
 import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
 import { apiClient } from '@/utils/axiosClient.ts';
+import Paginator from 'primevue/paginator';
 
-const { isLoading, data, isError, error } = useQuery<ApiResult<Page<Notification>>>({
-  queryKey: ['v1', 'notification', 'my'],
+const page = ref(1); // 1-based
+const size = ref(10);
+
+const { isLoading, data, isError, error, refetch } = useQuery<ApiResult<Page<Notification>>>({
+  queryKey: ['v1', 'notification', `my?page=${page.value}`],
   queryFn: httpFetcher
 });
 
 // 알림 목록
 const notifications = computed(() => data.value?.data?.content || []);
+const totalElements = computed(() => data.value?.data?.totalElements || 0);
+const totalPages = computed(() => data.value?.data?.totalPages || 1);
 
-onMounted(async ()=>{
-  const data  = await apiClient.post("/v1/notification/my/read")
+const onPageChange = (e: any) => {
+  page.value = e.page + 1;
+};
+
+watch([page, size], () => {
+  refetch();
+});
+
+onMounted(async () => {
+  const data = await apiClient.post('/v1/notification/my/read');
   console.log(data);
 
-})
+});
 // 알림 타입별 스타일 정의
 const getNotificationStyle = (type: string) => {
   const styles = {
@@ -105,8 +119,8 @@ const formatDate = (dateString: string) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-6">
-    <div class="max-w-4xl mx-auto px-4">
+  <div class="h-full bg-gray-50 py-6">
+    <div class="w-full px-4">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">알림</h1>
         <p class="text-gray-600">받은 알림을 확인하세요</p>
@@ -133,7 +147,8 @@ const formatDate = (dateString: string) => {
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-3">
                   <div class="flex-shrink-0">
-                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                    <div
+                      class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
                       <i :class="getNotificationStyle(notification.notificationType).iconClass"></i>
                     </div>
                   </div>
@@ -161,6 +176,16 @@ const formatDate = (dateString: string) => {
             </div>
           </template>
         </Card>
+        <div class="flex justify-center mt-8">
+          <Paginator
+            :rows="size"
+            :totalRecords="totalElements"
+            :first="(page-1)*size"
+            :rowsPerPageOptions="[10, 20, 50]"
+            @page="onPageChange"
+            template="PrevPageLink PageLinks NextPageLink"
+          />
+        </div>
       </div>
 
       <div v-else class="text-center py-12 text-gray-400">

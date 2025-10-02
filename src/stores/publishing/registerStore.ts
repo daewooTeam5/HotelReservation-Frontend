@@ -354,6 +354,22 @@ export const useRegisterStore = defineStore('registerStore', {
       }
     },
 
+    // 모든 호텔 이미지 파일 가져오기
+    async getAllHotelImageFiles(): Promise<File[]> {
+      try {
+        const files = await Promise.all(
+          this.hotelImages.map(async (id) => {
+            const imageData = await imageDB.getImage(id);
+            return imageData?.file || null;
+          })
+        );
+        return files.filter(file => file !== null) as File[];
+      } catch (error) {
+        console.error('호텔 이미지 파일들 가져오기 실패:', error);
+        return [];
+      }
+    },
+
     // 객실 이미지 관련 함수들 (IndexedDB 사용)
     async addRoomImage(file: File) {
       try {
@@ -394,73 +410,26 @@ export const useRegisterStore = defineStore('registerStore', {
       }
     },
 
-    // 모든 객실 이미지 URL 가져오기
+    // 모든 객실 이미지의 URL 배열 반환
     async getAllRoomImageUrls(): Promise<string[]> {
-      try {
-        const urls = await Promise.all(
-          this.images.map(async (id) => {
-            const url = await this.getRoomImageUrl(id);
-            return url || '';
-          })
-        );
-        return urls.filter(url => url !== '');
-      } catch (error) {
-        console.error('객실 이미지 URL들 가져오기 실패:', error);
-        return [];
+      if (!this.images || this.images.length === 0) return [];
+      const urls: string[] = [];
+      for (const imageId of this.images) {
+        const url = await this.getRoomImageUrl(imageId);
+        if (url) urls.push(url);
       }
+      return urls;
     },
 
-    // 모든 이미지 정리 (호텔 등록 완료 시 호출)
-    async clearAllImages() {
-      try {
-        await imageDB.clearCategory('hotel');
-        await imageDB.clearCategory('room');
-        this.hotelImages = [];
-        this.images = [];
-        this.autoSave();
-        console.log('모든 이미지가 정리되었습니다.');
-      } catch (error) {
-        console.error('이미지 정리 실패:', error);
-      }
-    },
-
-    // 💡 [추가] 실제 이미지 파일을 가져오는 메서드들
-    // 호텔 이미지 파일 가져오기
-    async getHotelImageFile(imageId: string): Promise<File | null> {
-      try {
+    // IndexedDB에 저장된 imageId 배열로부터 File 객체 배열 반환
+    async getAllRoomImageFiles(): Promise<File[]> {
+      if (!this.images || this.images.length === 0) return [];
+      const files: File[] = [];
+      for (const imageId of this.images) {
         const imageData = await imageDB.getImage(imageId);
-        return imageData?.file || null;
-      } catch (error) {
-        console.error('호텔 이미지 파일 가져오기 실패:', error);
-        return null;
+        if (imageData?.file) files.push(imageData.file);
       }
-    },
-
-    // 모든 호텔 이미지 파일 가져오기
-    async getAllHotelImageFiles(): Promise<File[]> {
-      try {
-        const files = await Promise.all(
-          this.hotelImages.map(async (id) => {
-            const file = await this.getHotelImageFile(id);
-            return file;
-          })
-        );
-        return files.filter(file => file !== null) as File[];
-      } catch (error) {
-        console.error('호텔 이미지 파일들 가져오기 실패:', error);
-        return [];
-      }
-    },
-
-    // 객실 이미지 파일 가져오기
-    async getRoomImageFile(imageId: string): Promise<File | null> {
-      try {
-        const imageData = await imageDB.getImage(imageId);
-        return imageData?.file || null;
-      } catch (error) {
-        console.error('객실 이미지 파일 가져오기 실패:', error);
-        return null;
-      }
+      return files;
     },
 
     // 특정 객실의 모든 이미지 파일 가져오기
@@ -468,8 +437,8 @@ export const useRegisterStore = defineStore('registerStore', {
       try {
         const files = await Promise.all(
           imageIds.map(async (id) => {
-            const file = await this.getRoomImageFile(id);
-            return file;
+            const imageData = await imageDB.getImage(id);
+            return imageData?.file || null;
           })
         );
         return files.filter(file => file !== null) as File[];
@@ -477,6 +446,20 @@ export const useRegisterStore = defineStore('registerStore', {
         console.error('객실 이미지 파일들 가져오기 실패:', error);
         return [];
       }
-    }
+    },
+
+    // 모든 이미지(호텔/객실)와 상태를 초기화하는 액션
+    async clearAllImages() {
+      try {
+        await imageDB.clearCategory('hotel');
+        await imageDB.clearCategory('room');
+        this.hotelImages = [];
+        this.images = [];
+        this.autoSave();
+        console.log('모든 이미지(호텔/객실)가 IndexedDB와 상태에서 삭제되었습니다.');
+      } catch (error) {
+        console.error('이미지 전체 삭제 실패:', error);
+      }
+    },
   }
 });

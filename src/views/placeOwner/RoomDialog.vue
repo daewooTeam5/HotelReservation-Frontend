@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-import { useRegisterStore } from '@/stores/publishing/registerStore';
 import { useQuery } from '@tanstack/vue-query';
 import { httpFetcher } from '@/utils/httpFetcher';
 import type { ApiResult } from '@/types/ApiResult';
@@ -13,15 +12,18 @@ import { apiClient } from '@/utils/axiosClient';
 const props = defineProps<{ room?: any; visible: boolean }>();
 const emits = defineEmits(['close', 'save']);
 
-
-const store = useRegisterStore();
-
-// 면적
+// 폼 데이터
 const pyeongWidth = ref<string | number>('');
-// 편의시설 선택
+const roomType = ref<string>('');
+const capacityPeople = ref<number>(1);
+const capacityRoom = ref<number>(1);
+const price = ref<number>(0);
+const selectedBed = ref<string>('');
 const selectedRoomAmenities = ref<number[]>([]);
-// 이미지 URL
-const roomImageUrls = ref<string[]>([]);
+
+// 이미지 파일들 (File 객체 직접 관리)
+const imageFiles = ref<File[]>([]);
+const imageUrls = ref<string[]>([]);
 
 // 편의시설 데이터
 const { data: roomAmenitiesData, isLoading, isError } = useQuery<ApiResult<Amenity[]>>({
@@ -30,78 +32,78 @@ const { data: roomAmenitiesData, isLoading, isError } = useQuery<ApiResult<Ameni
 });
 
 // 초기값 세팅
-onMounted(async () => {
+onMounted(() => {
   if (props.room) {
     pyeongWidth.value = Math.round(props.room.width / 3.3);
-    store.rooms.roomType = props.room.roomType;
-    store.rooms.capacityPeople = props.room.capacityPeople;
-    store.rooms.capacityRoom = props.room.capacityRoom;
-    store.rooms.price = props.room.price;
-    store.rooms.selectedBed = props.room.bedType;
-    store.images = [...props.room.images];
+    roomType.value = props.room.roomType;
+    capacityPeople.value = props.room.capacityPeople;
+    capacityRoom.value = props.room.capacityRoom;
+    price.value = props.room.price;
+    selectedBed.value = props.room.bedType;
     selectedRoomAmenities.value = props.room.amenityIds || [];
+    // 기존 이미지 URL들 (수정 모드일 때)
+    imageUrls.value = props.room.images || [];
   }
-  await loadRoomImages();
 });
-
-const loadRoomImages = async () => {
-  try {
-    roomImageUrls.value = await store.getAllRoomImageUrls();
-  } catch (e) {
-    console.error('이미지 로딩 실패:', e);
-  }
-};
 
 // 이미지 업로드/삭제
 const fileInput = ref<HTMLInputElement | null>(null);
 const triggerFileInput = () => fileInput.value?.click();
 
-const handleImageUpload = async (event: Event) => {
+const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (!target.files) return;
+
   for (let i = 0; i < target.files.length; i++) {
-    await store.addRoomImage(target.files[i]);
+    const file = target.files[i];
+    imageFiles.value.push(file);
+
+    // 미리보기를 위한 URL 생성
+    const url = URL.createObjectURL(file);
+    imageUrls.value.push(url);
   }
   target.value = '';
-  await loadRoomImages();
 };
 
-const removeImage = async (index: number) => {
-  await store.removeRoomImage(index);
-  await loadRoomImages();
+const removeImage = (index: number) => {
+  // URL 해제 (메모리 누수 방지)
+  if (imageUrls.value[index].startsWith('blob:')) {
+    URL.revokeObjectURL(imageUrls.value[index]);
+  }
+
+  imageFiles.value.splice(index, 1);
+  imageUrls.value.splice(index, 1);
 };
 
 // 저장
 const saveRoom = async () => {
-  if (!store.rooms.roomType || !pyeongWidth.value) {
+  if (!roomType.value || !pyeongWidth.value) {
     alert("필수 항목을 입력해주세요.");
     return;
   }
 
-  //  DTO에 맞게 필드명 변환
   const payload = {
-    roomNumber: store.rooms.roomNumber ?? 1, // 없으면 기본값 1
-    roomType: store.rooms.roomType,
-    capacityPeople: store.rooms.capacityPeople,
-    minPrice: store.rooms.price,             // DTO는 price가 아니라 minPrice
-    extraPrice: store.rooms.extraPrice ?? 0, // 기본 0
-    bedType: store.rooms.selectedBed,
-    //isPublic: true,                          // 고정 true
-    capacityRoom: store.rooms.capacityRoom,
+    roomNumber: 1,
+    roomType: roomType.value,
+    capacityPeople: capacityPeople.value,
+    minPrice: price.value,
+    extraPrice: 0,
+    bedType: selectedBed.value,
+    capacityRoom: capacityRoom.value,
     amenityIds: [...selectedRoomAmenities.value],
   };
 
-  //  FormData 생성
-  const formData = new FormData();
-  formData.append(
-    "data",
-    JSON.stringify(payload)
-  );
+  console.log('selectedRoomAmenities:', selectedRoomAmenities.value);
+  console.log('payload.amenityIds:', payload.amenityIds);
 
-  store.images.forEach((file: File) => {
+  // FormData 생성
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(payload));
+
+  // 이미지 파일들을 FormData에 직접 추가
+  imageFiles.value.forEach((file) => {
     formData.append("roomImages", file);
   });
-  console.log(formData);
 
   try {
     if (props.room) {
@@ -109,10 +111,18 @@ const saveRoom = async () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
     } else {
-      await apiClient.post(`/v1/owner/rooms`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await apiClient.post(`/v1/owner/rooms/register`, formData, {
+        headers: { "Content-Type": "multipart/form-data"}
       });
     }
+
+    // 성공 시 이미지 URL들 정리 (메모리 누수 방지)
+    imageUrls.value.forEach(url => {
+      if (url.startsWith('blob:')) {
+        URL.revokeObjectURL(url);
+      }
+    });
+
     emits("save");
     emits("close");
   } catch (e) {
@@ -141,7 +151,7 @@ const saveRoom = async () => {
     <!-- 룸 유형 -->
     <div class="flex flex-col">
       <p class="font-semibold mb-2">룸 유형</p>
-      <select v-model="store.rooms.roomType" class="w-1/2 border rounded p-2">
+      <select v-model="roomType" class="w-1/2 border rounded p-2">
         <option value="">선택</option>
         <option value="single">싱글룸</option>
         <option value="double">더블룸</option>
@@ -158,18 +168,18 @@ const saveRoom = async () => {
     <div class="flex gap-6">
       <div>
         <p class="font-semibold mb-2">정원</p>
-        <InputText v-model.number="store.rooms.capacityPeople" type="number" />
+        <InputText v-model.number="capacityPeople" type="number" />
       </div>
       <div>
         <p class="font-semibold mb-2">객실 개수</p>
-        <InputText v-model.number="store.rooms.capacityRoom" type="number" />
+        <InputText v-model.number="capacityRoom" type="number" />
       </div>
     </div>
 
     <!-- 침대 선택 -->
     <div class="flex flex-col">
       <p class="font-semibold mb-2">제공되는 침대 선택</p>
-      <select v-model="store.rooms.selectedBed" class="w-1/2 border rounded p-2">
+      <select v-model="selectedBed" class="w-1/2 border rounded p-2">
         <option value="">선택</option>
         <option value="싱글침대 (90~130cm)">싱글침대 (90~130cm)</option>
         <option value="더블침대 (131~150cm)">더블침대 (131~150cm)</option>
@@ -189,7 +199,7 @@ const saveRoom = async () => {
         <span class="text-gray-400">클릭하여 업로드</span>
       </div>
       <div class="grid grid-cols-3 gap-2 mt-2">
-        <div v-for="(img, idx) in roomImageUrls" :key="idx" class="relative border rounded">
+        <div v-for="(img, idx) in imageUrls" :key="idx" class="relative border rounded">
           <img :src="img" class="w-full h-24 object-cover" />
           <button
             @click.stop="removeImage(idx)"
@@ -204,7 +214,7 @@ const saveRoom = async () => {
     <!-- 요금 -->
     <div>
       <p class="font-semibold mb-2">1박 요금</p>
-      <InputText v-model.number="store.rooms.price" type="number" class="w-1/2" />
+      <InputText v-model.number="price" type="number" class="w-1/2" />
     </div>
 
     <!-- 편의시설 -->
