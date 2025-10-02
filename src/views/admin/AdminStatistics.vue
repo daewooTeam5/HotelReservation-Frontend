@@ -3,7 +3,6 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
       <div>
         <h1 class="text-3xl font-bold! text-gray-900">통계</h1>
-        <p class="text-gray-600 mt-1!">숙소 예약/매출 현황을 확인하세요</p>
       </div>
     </div>
 
@@ -24,7 +23,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div class="bg-white p-4! rounded-xl shadow-lg">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4! gap-4">
                   <h3 class="text-lg font-semibold! text-gray-800">{{ titles.reservations }}</h3>
                   <PrimeSelect v-model="periods.reservations" :options="periodOptions" optionLabel="label" optionValue="value" class="w-full md:w-32"/>
                 </div>

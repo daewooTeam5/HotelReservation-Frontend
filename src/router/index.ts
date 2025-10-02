@@ -32,6 +32,11 @@ const router = createRouter({
           meta: { layout: 'profile' }
         },
         {
+          path: 'comment',
+          name: 'comment',
+          component: () => import('@/views/profile/QuestionPage.vue')
+        },
+        {
           path: 'wishlist',
           name: 'wishlist',
           component: () => import('@/views/profile/WishList.vue')
