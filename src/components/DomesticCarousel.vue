@@ -1,6 +1,6 @@
 <template>
   <div class="card max-w-7xl mx-auto! px-4 sm:px-6 lg:px-8 mt-20!">
-    <h2 class="text-3xl font-bold! ml-17!">국내 여행지</h2>
+    <h2 class="text-xl font-bold! ml-17!">인기 여행지</h2>
 
     <PrimeCarousel
       :value="domesticCities"
