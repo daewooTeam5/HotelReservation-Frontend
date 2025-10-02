@@ -93,7 +93,7 @@ const profileItems = [
   {
     label: '문의',
     icon: 'pi pi-comments',
-    command: () => router.push('/profile/comments')
+    command: () => router.push('/profile/comment')
   },
   {
     label: '리뷰 조회',

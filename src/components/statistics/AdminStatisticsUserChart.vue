@@ -2,9 +2,8 @@
   <Card class="border-0 shadow-lg">
     <template #title>
       <div class="flex items-center justify-between p-2">
-        <div class="flex items-center space-x-2">
-          <i class="pi pi-chart-line text-blue-600"></i>
-          <span class="text-lg font-semibold text-gray-900">{{ title }}</span>
+        <div class="flex items-center space-x-2!">
+          <span class="text-lg font-semibold! text-gray-900">{{ title }}</span>
         </div>
         <PrimeSelect v-model="period" :options="periodOptions" optionLabel="label" optionValue="value" class="w-28"/>
       </div>
