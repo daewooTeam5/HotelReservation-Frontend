@@ -21,6 +21,8 @@
             v-model="dateRange"
             selectionMode="range"
             numberOfMonths="2"
+            :min-date="minDate"
+            :max-date="maxDate"
             dateFormat="yy-mm-dd"
             inline
           />
@@ -91,6 +93,13 @@ const emit = defineEmits<{
     children: number
   }): void
 }>();
+
+const minDate = ref(new Date());
+const maxDate = ref<Date>();
+const today = new Date();
+const futureDate = new Date(today);
+futureDate.setMonth(futureDate.getMonth() + 3);
+maxDate.value = futureDate;
 
 // 날짜 포맷 (yyyy-mm-dd)
 const formatDate = (date: Date | null) => {
