@@ -166,7 +166,6 @@
         <PrimeTab value="2">포인트 관리</PrimeTab>
         <PrimeTab value="3">쿠폰 관리</PrimeTab>
         <PrimeTab value="4">리뷰 관리</PrimeTab>
-        <PrimeTab value="5" v-if="user.role === 'hotel_owner'">소유 숙소</PrimeTab>
       </PrimeTabList>
 
       <PrimeTabPanels>
@@ -200,7 +199,6 @@
                   severity="danger"
                 />
               </div>
-              <PrimeInputText placeholder="숙소명 검색" class="w-64" />
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
@@ -212,8 +210,6 @@
                   <th class="p-3 text-left">금액</th>
                   <th class="p-3 text-left">결제상태</th>
                   <th class="p-3 text-left">예약상태</th>
-                  <th class="p-3 text-left">예약일</th>
-                  <th class="p-3 text-left">액션</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -252,20 +248,6 @@
                         {{ translateReservationStatus(reservation.status) }}
                       </span>
                   </td>
-                  <td class="p-3 text-xs">{{ formatDate(reservation?.createdAt) }}</td>
-                  <td class="p-3">
-                    <div class="flex gap-1">
-                      <PrimeButton icon="pi pi-eye" text rounded size="small" />
-                      <PrimeButton
-                        icon="pi pi-ban"
-                        text
-                        rounded
-                        size="small"
-                        severity="danger"
-                        v-if="reservation.status === 'confirmed'"
-                      />
-                    </div>
-                  </td>
                 </tr>
                 </tbody>
               </table>
@@ -278,11 +260,6 @@
             <div class="p-4 border-b">
               <div class="flex items-center justify-between">
                 <h3 class="font-semibold">결제 내역</h3>
-                <div class="flex gap-2">
-                  <PrimeDatePicker placeholder="시작일" />
-                  <PrimeDatePicker placeholder="종료일" />
-                  <PrimeButton label="조회" icon="pi pi-search" />
-                </div>
               </div>
             </div>
             <div class="overflow-x-auto">
@@ -295,7 +272,6 @@
                   <th class="p-3 text-left">금액</th>
                   <th class="p-3 text-left">상태</th>
                   <th class="p-3 text-left">결제일시</th>
-                  <th class="p-3 text-left">액션</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -318,20 +294,6 @@
                       </span>
                   </td>
                   <td class="p-3 text-xs">{{ formatDate(payment.transactionDate) }}</td>
-                  <td class="p-3">
-                    <div class="flex gap-1">
-                      <PrimeButton icon="pi pi-file-pdf" text rounded size="small" v-tooltip="'영수증'" />
-                      <PrimeButton
-                        icon="pi pi-refresh"
-                        text
-                        rounded
-                        size="small"
-                        severity="danger"
-                        v-if="payment.status === 'paid'"
-                        v-tooltip="'환불'"
-                      />
-                    </div>
-                  </td>
                 </tr>
                 </tbody>
               </table>
@@ -477,21 +439,17 @@
         <PrimeTabPanel value="4">
           <div class="bg-white rounded-xl shadow-sm mt-4 p-6">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="font-semibold">작성한 리뷰</h3>
-              <div class="flex gap-2">
-                <PrimeButton label="평점 높은순" size="small" outlined />
-                <PrimeButton label="최신순" size="small" outlined />
-              </div>
+              <h3 class="font-semibold!">작성한 리뷰</h3>
             </div>
             <div v-if="reviews.length > 0" class="space-y-4">
               <div
                 v-for="review in reviews"
                 :key="review.reviewId"
-                class="border rounded-lg p-4 hover:bg-gray-50"
+                class="shadow-sm rounded-lg p-4! hover:bg-gray-50"
               >
-                <div class="flex justify-between items-start mb-2">
+                <div class="flex justify-between items-start mb-2!">
                   <div>
-                    <p class="font-semibold">{{ review.place_name || '숙소명' }}</p>
+                    <p class="font-semibold!">{{ review.place_name || '숙소명' }}</p>
                     <div class="flex items-center gap-1 mt-1">
                       <i
                         v-for="i in 5"
@@ -512,10 +470,6 @@
                 <div v-if="getOwnerComment(review.reviewId)" class="bg-blue-50 rounded-lg p-3">
                   <p class="text-xs font-semibold text-blue-700 mb-1">숙소 답변</p>
                   <p class="text-sm">{{ getOwnerComment(review.reviewId) }}</p>
-                </div>
-                <div class="flex gap-2 mt-3">
-                  <PrimeButton label="숨기기" size="small" outlined severity="danger" />
-                  <PrimeButton label="신고하기" size="small" outlined />
                 </div>
               </div>
             </div>

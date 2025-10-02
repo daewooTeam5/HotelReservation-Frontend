@@ -235,7 +235,6 @@
                   size="small"
                 />
               </div>
-              <PrimeInputText placeholder="예약자 검색" class="w-64" />
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
@@ -248,7 +247,6 @@
                   <th class="p-3 text-left">금액</th>
                   <th class="p-3 text-left">결제상태</th>
                   <th class="p-3 text-left">예약상태</th>
-                  <th class="p-3 text-left">액션</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -287,17 +285,6 @@
                       >
                         {{ translateReservationStatus(r.status) }}
                       </span>
-                  </td>
-                  <td class="p-3">
-                    <div class="flex gap-1">
-                      <PrimeButton
-                        icon="pi pi-trash"
-                        text
-                        rounded
-                        size="small"
-                        severity="danger"
-                      />
-                    </div>
                   </td>
                 </tr>
                 </tbody>
@@ -343,10 +330,6 @@
                   <span class="text-gray-500">오늘 점유율:</span>
                   <span class="font-semibold ml-1">{{ getOccupancyRateForRoom(room) }}%</span>
                 </div>
-                <div class="flex gap-2">
-                  <PrimeButton label="가격 수정" size="small" outlined />
-                  <PrimeButton label="상태 변경" size="small" />
-                </div>
               </div>
             </div>
           </div>
@@ -357,11 +340,6 @@
             <div class="p-4 border-b">
               <div class="flex items-center justify-between">
                 <h3 class="font-semibold">결제 내역</h3>
-                <div class="flex gap-2">
-                  <PrimeDatePicker placeholder="시작일" />
-                  <PrimeDatePicker placeholder="종료일" />
-                  <PrimeButton label="조회" icon="pi pi-search" />
-                </div>
               </div>
             </div>
             <div class="overflow-x-auto">
@@ -374,7 +352,6 @@
                   <th class="p-3 text-left">금액</th>
                   <th class="p-3 text-left">상태</th>
                   <th class="p-3 text-left">결제일시</th>
-                  <th class="p-3 text-left">액션</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -401,15 +378,6 @@
                       </span>
                   </td>
                   <td class="p-3 text-xs">{{ formatDate(p.transactionDate) }}</td>
-                  <td class="p-3">
-                    <PrimeButton
-                      icon="pi pi-file-pdf"
-                      text
-                      rounded
-                      size="small"
-                      v-tooltip="'영수증'"
-                    />
-                  </td>
                 </tr>
                 </tbody>
               </table>
@@ -452,7 +420,7 @@
                 <div
                   v-for="review in reviews"
                   :key="review.reviewId"
-                  class="border rounded-lg p-4 hover:bg-gray-50"
+                  class="shadow-sm rounded-lg p-4 hover:bg-gray-50"
                 >
                   <div class="flex justify-between items-start mb-2">
                     <div>
@@ -475,8 +443,6 @@
                   </div>
                   <p class="text-sm text-gray-700 mb-3">{{ review.comment }}</p>
                   <div v-if="!review.ownerComment" class="flex gap-2">
-                    <PrimeButton label="답글 작성" size="small" icon="pi pi-reply" />
-                    <PrimeButton label="신고" size="small" outlined severity="danger" />
                   </div>
                   <div v-else class="bg-blue-50 rounded-lg p-3 mt-3">
                     <p class="text-xs font-semibold text-blue-700 mb-1">숙소 답변</p>

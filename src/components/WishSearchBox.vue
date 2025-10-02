@@ -28,7 +28,6 @@
       </div>
     </div>
 
-    <!-- 인원 / 객실 -->
     <div class="flex flex-col">
       <PrimeInputText
         :value="`성인 ${adults}명 · 아동 ${children}명 · 객실 ${rooms}개`"
@@ -42,13 +41,13 @@
             <div class="flex items-center gap-2">
               <PrimeButton icon="pi pi-minus" text @click="rooms > 1 && rooms--" />
               <span>{{ rooms }}</span>
-              <PrimeButton icon="pi pi-plus" text @click="rooms++" />
+              <PrimeButton icon="pi pi-plus" text @click="(adults + children) > rooms && rooms++" />
             </div>
           </div>
           <div class="flex justify-between items-center">
             <span class="font-medium">성인</span>
             <div class="flex items-center gap-2">
-              <PrimeButton icon="pi pi-minus" text @click="adults > 1 && adults--" />
+              <PrimeButton icon="pi pi-minus" text @click="decreaseAdults" />
               <span>{{ adults }}</span>
               <PrimeButton icon="pi pi-plus" text @click="adults++" />
             </div>
@@ -56,7 +55,7 @@
           <div class="flex justify-between items-center">
             <span class="font-medium">아동</span>
             <div class="flex items-center gap-2">
-              <PrimeButton icon="pi pi-minus" text @click="children > 0 && children--" />
+              <PrimeButton icon="pi pi-minus" text @click="decreaseChildren" />
               <span>{{ children }}</span>
               <PrimeButton icon="pi pi-plus" text @click="children++" />
             </div>
@@ -65,7 +64,6 @@
       </PrimePopover>
     </div>
 
-    <!-- 검색 버튼 -->
     <PrimeButton icon="pi pi-search" @click="doSearch" />
   </div>
 </template>
@@ -100,6 +98,28 @@ const formatDate = (date: Date | null) => {
   return date.toISOString().split("T")[0];
 };
 
+// [ADD] 성인 인원 감소 및 객실 수 유효성 검사
+const decreaseAdults = () => {
+  if (adults.value > 1) {
+    adults.value--;
+    // 총 인원수보다 객실 수가 많으면 객실 수를 총 인원수에 맞춤
+    if (rooms.value > adults.value + children.value) {
+      rooms.value = adults.value + children.value;
+    }
+  }
+};
+
+// [ADD] 아동 인원 감소 및 객실 수 유효성 검사
+const decreaseChildren = () => {
+  if (children.value > 0) {
+    children.value--;
+    // 총 인원수보다 객실 수가 많으면 객실 수를 총 인원수에 맞춤
+    if (rooms.value > adults.value + children.value) {
+      rooms.value = adults.value + children.value;
+    }
+  }
+};
+
 const saveSearchData = () => {
   const searchData = {
     checkIn: dateRange.value?.[0] ? formatDate(dateRange.value[0]) : undefined,
@@ -114,7 +134,6 @@ const saveSearchData = () => {
 onMounted(() => {
   const detail = localStorage.getItem("detailSearch");
   if (detail) {
-    // 이미 detailSearch가 있으면 그 값 사용 (새로고침 시 유지)
     const parsed = JSON.parse(detail);
     rooms.value = Number(parsed.rooms) || 1;
     adults.value = Number(parsed.adults) || 1;
@@ -123,7 +142,6 @@ onMounted(() => {
       dateRange.value = [new Date(parsed.checkIn), new Date(parsed.checkOut)];
     }
   } else {
-    // 처음 들어왔을 때만 recentSearches 기반으로 초기화
     const recent = localStorage.getItem("recentSearches");
     if (recent) {
       const parsed = JSON.parse(recent);
@@ -143,14 +161,12 @@ onMounted(() => {
 });
 
 const handleWishSearchClick = async (id: number) => {
-  // 스토리지에서 값 가져오기
   const checkIn = localStorage.getItem("checkIn");
   const checkOut = localStorage.getItem("checkOut");
   const rooms = localStorage.getItem("rooms");
   const adults = localStorage.getItem("adults");
   const children = localStorage.getItem("children");
 
-  // API 호출
   const res = await apiClient.get(`/v1/places/${id}`, {
     params: { startDate: checkIn, endDate: checkOut, rooms, adults, children },
   });
@@ -174,11 +190,10 @@ const handleWishSearchClick = async (id: number) => {
     };
   });
 
-  // detail 페이지로 이동하면서 데이터 전달
   router.push({
     name: "PlaceDetail",
     params: { id },
-    state: { placeData: rawData }, // Vue Router 4에서 history state 가능
+    state: { placeData: rawData },
   });
 };
 
@@ -201,7 +216,6 @@ const doSearch = () => {
     children: children.value,
   };
 
-  // detailSearch만 업데이트
   localStorage.setItem("detailSearch", JSON.stringify(searchData));
 
   emit("search", searchData);

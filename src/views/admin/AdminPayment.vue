@@ -5,6 +5,7 @@
     </div>
 
     <div class="flex flex-wrap gap-4 items-center">
+      <InputText v-model="filters.name" placeholder="사용자 이름" />
       <InputText v-model="filters.orderId" placeholder="주문번호" />
       <InputText v-model="filters.paymentKey" placeholder="결제 키" />
       <PrimeSelect
@@ -15,7 +16,7 @@
         placeholder="상태 선택"
         class="w-40"
       />
-      <Button label="검색" @click="fetchPayments" />
+      <Button label="검색" icon="pi pi-search" @click="fetchPayments" />
     </div>
 
     <DataTable
@@ -26,6 +27,7 @@
       @row-click="onRowClick"
     >
       <Column field="id" header="결제 ID" style="min-width: 80px" />
+      <Column field="userName" header="사용자 이름" style="min-width: 120px" />
       <Column field="orderId" header="주문번호" style="min-width: 120px" />
       <Column field="paymentKey" header="결제키" style="min-width: 150px" />
       <Column field="amount" header="금액" style="min-width: 100px">
@@ -62,9 +64,9 @@
       <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
       <p>상세 내역을 불러오는 중...</p>
     </div>
-    <div v-else-if="paymentHistory && paymentHistory.paymentInfo" class="space-y-4">
-      <div>
-        <h3 class="font-bold text-lg border-b pb-2 mb-2">주문 정보 ({{ paymentHistory.paymentInfo.orderId }})</h3>
+    <div v-else-if="paymentHistory" class="space-y-6">
+      <div v-if="paymentHistory.paymentInfo">
+        <h3 class="font-bold text-lg border-b pb-2 mb-3">주문 정보 ({{ paymentHistory.paymentInfo.orderId }})</h3>
         <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <p><strong>결제 키:</strong> {{ paymentHistory.paymentInfo.paymentKey }}</p>
           <p><strong>상태:</strong> {{ paymentHistory.paymentInfo.status }}</p>
@@ -81,6 +83,30 @@
           </p>
         </div>
       </div>
+
+      <div v-if="paymentHistory.payment?.reservation">
+        <h3 class="font-bold text-lg border-b pb-2 mb-3">결제 금액 상세</h3>
+        <div class="space-y-2 text-sm p-2 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">주문 금액</span>
+            <span>{{ paymentHistory.payment.reservation.baseAmount?.toLocaleString() }}원</span>
+          </div>
+          <div v-if="paymentHistory.payment.reservation.couponDiscountAmount > 0" class="flex justify-between items-center text-red-600">
+            <span>쿠폰 할인</span>
+            <span>- {{ paymentHistory.payment.reservation.couponDiscountAmount?.toLocaleString() }}원</span>
+          </div>
+          <div v-if="paymentHistory.payment.reservation.pointDiscountAmount > 0" class="flex justify-between items-center text-red-600">
+            <span>포인트 사용</span>
+            <span>- {{ paymentHistory.payment.reservation.pointDiscountAmount?.toLocaleString() }}원</span>
+          </div>
+          <div class="border-t my-2"></div>
+          <div class="flex justify-between items-center font-bold text-base">
+            <span>최종 결제 금액</span>
+            <span class="text-blue-600">{{ paymentHistory.payment.reservation.finalAmount?.toLocaleString() }}원</span>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div v-else class="text-center p-4">
       <p>상세 내역을 불러오지 못했습니다.</p>
@@ -89,37 +115,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { apiClient } from '@/utils/axiosClient';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import PrimeSelect from 'primevue/select';
-import PrimeDialog from 'primevue/dialog'; // [ADD] Dialog 임포트
+import PrimeDialog from 'primevue/dialog';
 
 // --- 상태 변수 ---
 const payments = ref<any[]>([]);
-const filters = ref({ orderId: '', paymentKey: '', status: '' });
+// [MODIFIED] filters 객체에 name 속성 추가
+const filters = ref({ orderId: '', paymentKey: '', status: '', name: '' });
 const statusOptions = [
   { label: "결제 완료", value: "paid" },
   { label: "취소됨", value: "cancelled" },
   { label: "환불됨", value: "refunded" },
 ];
 
-// [ADD] 모달 및 상세내역 관련 상태
 const isHistoryModalVisible = ref(false);
 const isHistoryLoading = ref(false);
-const paymentHistory = ref<any | null>(null); // 단일 객체를 저장하므로 배열이 아님
+const paymentHistory = ref<any | null>(null);
 
 // --- API 호출 ---
 const fetchPayments = async () => {
   try {
+    // [MODIFIED] API 요청 파라미터에 name 추가
     const res = await apiClient.get('/v1/payment/all', {
       params: {
         orderId: filters.value.orderId || undefined,
         paymentKey: filters.value.paymentKey || undefined,
         status: filters.value.status || undefined,
+        name: filters.value.name || undefined,
       },
     });
     payments.value = res.data;
@@ -128,7 +156,6 @@ const fetchPayments = async () => {
   }
 };
 
-// [ADD] 특정 결제의 상세 내역을 불러오는 함수
 const fetchPaymentHistory = async (paymentId: number) => {
   isHistoryLoading.value = true;
   paymentHistory.value = null;
@@ -136,7 +163,6 @@ const fetchPaymentHistory = async (paymentId: number) => {
     const res = await apiClient.get(`/v1/payment/${paymentId}/history`);
     const historyData = res.data;
 
-    // paymentInfo가 JSON 문자열이므로 객체로 파싱
     if (historyData && historyData.paymentInfo) {
       try {
         historyData.paymentInfo = JSON.parse(historyData.paymentInfo);
@@ -154,7 +180,6 @@ const fetchPaymentHistory = async (paymentId: number) => {
   }
 };
 
-// [수정] row 클릭 → 상세 페이지 이동 대신 모달 열기
 const onRowClick = (event: any) => {
   const paymentId = event.data.id;
   isHistoryModalVisible.value = true;
@@ -184,5 +209,7 @@ const formatDate = (dateStr: string) => {
 };
 
 // 페이지 로드 시 자동 실행
-fetchPayments();
+onMounted(() => {
+  fetchPayments();
+});
 </script>

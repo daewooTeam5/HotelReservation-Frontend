@@ -29,18 +29,18 @@
           >
             관리자 페이지
           </Button>
-          <Button
-            variant="outlined"
-            rounded
-            icon="pi pi-shopping-cart"
-            @click="router.push('/cart')"
-          />
-          <PrimeBadge
-            v-if="cartCount > 0"
-            :value="cartCount"
-            severity="danger"
-            class="absolute -top-0 -right-0 !rounded-full"
-          />
+<!--          <Button-->
+<!--            variant="outlined"-->
+<!--            rounded-->
+<!--            icon="pi pi-shopping-cart"-->
+<!--            @click="router.push('/cart')"-->
+<!--          />-->
+<!--          <PrimeBadge-->
+<!--            v-if="cartCount > 0"-->
+<!--            :value="cartCount"-->
+<!--            severity="danger"-->
+<!--            class="absolute -top-0 -right-0 !rounded-full"-->
+<!--          />-->
         </div>
         <template v-if="user">
           <div class="flex items-center gap-2">

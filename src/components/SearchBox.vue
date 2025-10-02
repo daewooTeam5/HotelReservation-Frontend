@@ -25,10 +25,8 @@
           호텔 이름을 입력해주세요.
         </span>
 
-        <!-- 자동완성 팝오버 -->
         <PrimePopover ref="suggestionPopover" :dismissable="false">
           <div v-if="regions.length > 0 || places.length > 0" class="w-64 max-h-96 overflow-y-auto p-2">
-            <!-- 도시/지역 -->
             <div v-if="regions.length > 0" class="mb-3">
               <h4 class="font-bold text-gray-600 text-sm mb-2 px-2">도시/지역</h4>
               <ul>
@@ -47,7 +45,6 @@
               </ul>
             </div>
 
-            <!-- 숙소 -->
             <div v-if="places.length > 0">
               <h4 class="font-bold text-gray-600 text-sm mb-2 px-2">숙소</h4>
               <ul>
@@ -66,10 +63,8 @@
         </PrimePopover>
       </div>
 
-      <!-- 구분선 -->
       <div class="border-l h-8 mx-4"></div>
 
-      <!-- 체크인/체크아웃 -->
       <div class="flex flex-col relative">
         <div class="flex items-center">
           <div ref="checkinWrapperRef">
@@ -107,14 +102,12 @@
           v-if="errorMessage && (!dateRange || !dateRange[0] || !dateRange[1])"
           class="text-red-500 text-sm mt-1 absolute -bottom-6"
         >
-          날짜를 선택해주세요.
-        </span>
+      날짜를 선택해주세요.
+    </span>
       </div>
 
-      <!-- 구분선 -->
       <div class="border-l h-8 mx-4"></div>
 
-      <!-- 인원/객실 -->
       <div class="flex flex-col relative">
         <PrimeIconField>
           <PrimeInputIcon class="pi pi-user" />
@@ -132,25 +125,25 @@
               <div class="flex items-center gap-2">
                 <PrimeButton icon="pi pi-minus" text @click="rooms > 1 && rooms--" />
                 <span>{{ rooms }}</span>
-                <PrimeButton icon="pi pi-plus" text @click="rooms++" />
+                <PrimeButton icon="pi pi-plus" text @click="(adults + children) > rooms && rooms++" />
               </div>
             </div>
             <div class="flex justify-between items-center">
-              <span class="font-medium">
-                성인 <span class="text-sm text-gray-500">(18세 이상)</span>
-              </span>
+          <span class="font-medium">
+            성인 <span class="text-sm text-gray-500">(18세 이상)</span>
+          </span>
               <div class="flex items-center gap-2">
-                <PrimeButton icon="pi pi-minus" text @click="adults > 1 && adults--" />
+                <PrimeButton icon="pi pi-minus" text @click="decreaseAdults" />
                 <span>{{ adults }}</span>
                 <PrimeButton icon="pi pi-plus" text @click="adults++" />
               </div>
             </div>
             <div class="flex justify-between items-center">
-              <span class="font-medium">
-                아동 <span class="text-sm text-gray-500">(0 ~ 17세)</span>
-              </span>
+          <span class="font-medium">
+            아동 <span class="text-sm text-gray-500">(0 ~ 17세)</span>
+          </span>
               <div class="flex items-center gap-2">
-                <PrimeButton icon="pi pi-minus" text @click="children > 0 && children--" />
+                <PrimeButton icon="pi pi-minus" text @click="decreaseChildren" />
                 <span>{{ children }}</span>
                 <PrimeButton icon="pi pi-plus" text @click="children++" />
               </div>
@@ -160,7 +153,6 @@
       </div>
     </div>
 
-    <!-- 검색 버튼 -->
     <PrimeButton
       icon="pi pi-search"
       @click="searchPlaces"
@@ -168,8 +160,6 @@
     />
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
@@ -239,6 +229,27 @@ const fetchSuggestions = async (e?: Event) => {
     suggestionPopover.value?.hide()
   }
 }
+
+const decreaseAdults = () => {
+  if (adults.value > 1) {
+    adults.value--;
+// 총 인원수보다 객실 수가 많으면 객실 수를 총 인원수에 맞춤
+    if (rooms.value > adults.value + children.value) {
+      rooms.value = adults.value + children.value;
+    }
+  }
+};
+
+// [ADD] 아동 인원 감소 및 객실 수 유효성 검사
+const decreaseChildren = () => {
+  if (children.value > 0) {
+    children.value--;
+// 총 인원수보다 객실 수가 많으면 객실 수를 총 인원수에 맞춤
+    if (rooms.value > adults.value + children.value) {
+      rooms.value = adults.value + children.value;
+    }
+  }
+};
 
 const selectSuggestion = (value: string) => {
   keyword.value = value

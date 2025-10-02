@@ -190,12 +190,6 @@
                 </div>
 
                 <div class="flex gap-2">
-                  <PrimeButton
-                    @click="addToCart(room)"
-                    icon="pi pi-shopping-cart"
-                    class="px-4 py-2"
-                    :disabled="room.isAvailable !== 1"
-                  />
                   <div class="flex items-center gap-4">
                     <PrimeButton
                       class="px-4 py-2 text-white rounded-lg"
