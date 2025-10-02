@@ -46,12 +46,6 @@ onMounted(() => loadWishlist());
 <template>
   <div class="wishlist-page flex">
     <div class="content flex-1 p-6">
-      <!-- 검색창: 가운데 정렬 -->
-      <div class="flex justify-center mb-6!">
-        <WishSearchBox @search="loadWishlist" />
-      </div>
-
-      <!-- 상태 표시 -->
       <div v-if="isLoading" class="mt-6 text-center">불러오는 중...</div>
       <div v-else-if="isError" class="mt-6 text-center text-red-500">❌ {{ error }}</div>
       <div v-else-if="!places.length" class="mt-6 text-center text-gray-500">
