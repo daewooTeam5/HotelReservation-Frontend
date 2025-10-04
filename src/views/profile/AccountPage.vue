@@ -3,12 +3,17 @@
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl py-6 px-8">
       <div v-if="user" class="flex items-center gap-2">
         <!-- 프로필 클릭 -->
+
+
         <Gravatar
-          class="rounded-full w-30 h-30"
+
+          class="rounded-full w-30 h-30 cursor-pointer"
           :email="user.email as `${string}@${string}.${string}`"
           :size="1200"
           default="identicon"
+          @click="editMode && triggerFileInput()"
         />
+
         <div class="flex flex-col"></div>
         <div class="flex-1 pt-8">
           <h2 style="margin-bottom: 5px" class="text-3xl font-bold text-gray-800 mb-2">

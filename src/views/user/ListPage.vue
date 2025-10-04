@@ -226,7 +226,8 @@ const updateFiltersDebounced = () => {
 };
 
 const fetchAllPlaces = async () => {
-  const res = await apiClient.get('http://localhost:8080/api/v1/places', {
+  const res = await apiClient.get('http://localhost:8080/api/v1/places',
+    {
     params: {
       start: 1,
     },

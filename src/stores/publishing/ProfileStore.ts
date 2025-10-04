@@ -12,7 +12,7 @@ export interface UserUpdateDTO {
   images?: string[];
 }
 
-
+const images = ref<string[]>([]);
 
 export const useProfileStore = defineStore('profile', () => {
   const profile = ref<User>({
@@ -26,6 +26,7 @@ export const useProfileStore = defineStore('profile', () => {
     createdAt: '',
     phone: '',
     review: 0,
+
   });
 
   const images = ref<string[]>([]);
@@ -80,6 +81,7 @@ export const useProfileStore = defineStore('profile', () => {
     saveToStorage();
   }
 
+
   function removeImage(index: number) {
     if (index > -1 && index < images.value.length) {
       images.value.splice(index, 1);
@@ -124,6 +126,7 @@ export const useProfileStore = defineStore('profile', () => {
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         review: data.review ?? 0,
+
       };
 
       images.value = data.images ?? [];
