@@ -11,7 +11,13 @@
           :email="user.email as `${string}@${string}.${string}`"
           :size="1200"
           default="identicon"
-          @click="editMode && triggerFileInput()"
+          @click="triggerFileInput"
+        />
+        <input
+          type="file"
+          ref="fileInput"
+          class="hidden"
+          @change="handleImageUpload"
         />
 
         <div class="flex flex-col"></div>
