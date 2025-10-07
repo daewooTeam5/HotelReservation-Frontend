@@ -3,21 +3,32 @@
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl py-6 px-8">
       <div v-if="user" class="flex items-center gap-2">
         <!-- 프로필 클릭 -->
-
-
+        <div
+          class="w-30 h-30 rounded-full overflow-hidden"
+          :class="{ 'cursor-pointer ring-2 ring-indigo-500': editMode }"
+          @click="editMode ? triggerFileInput() : null"
+        >
+        <img
+          v-if="previewImage"
+          :src="previewImage"
+          :size="1200"
+          alt="프로필 이미지"
+          class="w-full h-full object-cover"
+        />
         <Gravatar
-
-          class="rounded-full w-30 h-30 cursor-pointer"
+          v-else
           :email="user.email as `${string}@${string}.${string}`"
           :size="1200"
           default="identicon"
-          @click="triggerFileInput"
         />
+
+        </div>
         <input
           type="file"
           ref="fileInput"
           class="hidden"
-          @change="handleImageUpload"
+          @change="handleFileChange"
+          accept="image/*"
         />
 
         <div class="flex flex-col"></div>
@@ -109,12 +120,12 @@ const editProfile = ref({ name: '', email: '', phone: '' });
 
 onMounted(() => {
   if (user.value?.userId) {
-    store.fetchProfileFromApi(); // userId 기준으로 DB에서 불러오기
+    store.fetchProfileFromApi().then(() => {
+      previewImage.value = images.value[0] || null;
+      editProfile.value = { ...profile.value };
+    });
   }
-  // 최초 editProfile 동기화
-  editProfile.value = { ...profile.value };
 });
-
 watch(profile, (newVal) => {
   if (!editMode.value) {
     editProfile.value = { ...newVal };
@@ -162,6 +173,23 @@ const handleImageUpload = (event: Event) => {
   target.value = '';
 };
 
+const selectedFile = ref<File | null>(null);
+
+const previewImage = ref<string | null>(null);
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (!target.files || !target.files[0]) return;
+
+  selectedFile.value = target.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    previewImage.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(target.files[0]);
+};
+
+
 const removeImage = (index: number) => store.removeImage(index);
 
 const cancelEdit = () => {
@@ -172,16 +200,36 @@ const cancelEdit = () => {
 // 저장
 const submit = async () => {
   try {
-    const updateDto: UserUpdateDTO = {
-      name: editProfile.value.name || '',
-      email: editProfile.value.email || '',
-      phone: editProfile.value.phone || '',
-      images: images.value,
-    };
-    await store.updateProfileApi(updateDto);
-    store.updateProfile(updateDto);
+    // API 함수로 수정된 프로필 정보와 선택된 파일을 전달합니다.
+    const response = await store.updateProfileApi(editProfile.value, selectedFile.value);
+
+    // 1. API 응답으로 받은 최신 사용자 데이터(DTO)를 가져옵니다.
+    const updatedUserDto = response.data?.data;
+
+    if (updatedUserDto) {
+      // 2. Pinia 스토어의 상태를 업데이트합니다. (이름, 이메일 등 텍스트 정보)
+      store.updateProfile({
+        name: updatedUserDto.name,
+        email: updatedUserDto.email,
+        phone: updatedUserDto.phone,
+      });
+
+      // 3. 컴포넌트의 미리보기 이미지(previewImage)를 새로 받은 URL로 교체합니다.
+      //    이 코드가 화면의 이미지를 즉시 변경해줍니다.
+      previewImage.value = updatedUserDto.profileImageUrl;
+
+      // 4. (선택) Pinia 스토어의 이미지 리스트 상태도 업데이트
+      if (updatedUserDto.profileImageUrl) {
+        store.images = [updatedUserDto.profileImageUrl];
+      } else {
+        store.images = [];
+      }
+    }
+
     alert('성공적으로 저장되었습니다.');
     editMode.value = false;
+    selectedFile.value = null; // 파일 선택 상태 초기화
+
   } catch (error) {
     console.error('저장 중 에러 발생:', error);
     alert('저장 중 문제가 발생했습니다.');

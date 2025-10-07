@@ -41,6 +41,7 @@ const getRoleText = (role: string) => {
   return roleMap[role] || role;
 };
 
+const profileImageUrl = computed(() => profileStore.images?.[0]);
 // Role에 따른 색상 설정
 const getRoleStyle = (role: string) => {
   const styleMap: Record<string, string> = {
@@ -131,17 +132,26 @@ const toggleMenu = (event: MouseEvent) => {
 
 <template>
   <div v-if="user" class="flex items-center gap-2">
-    <!-- 프로필 클릭 -->
     <div
       @click="toggleMenu"
       class="cursor-pointer flex items-center gap-2"
     >
-      <Gravatar
-        class="rounded-full w-10 h-10"
-        :email="user.email as `${string}@${string}.${string}`"
-        :size="80"
-        default="identicon"
-      />
+      <div class="rounded-full w-10 h-10 overflow-hidden flex-shrink-0 bg-gray-200">
+        <img
+          v-if="profileImageUrl"
+          :src="profileImageUrl"
+          alt="프로필 이미지"
+          class="w-full h-full object-cover"
+        />
+        <Gravatar
+          v-else
+          class="w-full h-full"
+          :email="user.email as `${string}@${string}.${string}`"
+          :size="80"
+          default="identicon"
+        />
+      </div>
+
       <div class="flex flex-col">
         <span>{{ profileStore.profile.name }}</span>
         <span
@@ -153,8 +163,7 @@ const toggleMenu = (event: MouseEvent) => {
       </div>
     </div>
 
-    <!-- 드롭다운 메뉴 -->
-    <Menu  ref="menu" :model="props.type==='user'?profileItems:adminItems" :popup="true" />
+    <Menu ref="menu" :model="props.type==='user'?profileItems:adminItems" :popup="true" />
   </div>
 </template>
 
