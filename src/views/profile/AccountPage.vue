@@ -4,7 +4,7 @@
       <div v-if="user" class="flex items-center gap-2">
         <!-- 프로필 클릭 -->
         <div
-          class="w-30 h-30 rounded-full overflow-hidden"
+          class="w-30 h-30 rounded-full overflow-hidden border border-gray-300"
           :class="{ 'cursor-pointer ring-2 ring-indigo-500': editMode }"
           @click="editMode ? triggerFileInput() : null"
         >
