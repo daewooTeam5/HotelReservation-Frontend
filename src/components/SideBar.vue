@@ -1,4 +1,5 @@
 <template>
+  <ConfirmDialog></ConfirmDialog>
   <aside
     class="w-64 bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#1e293b] text-white flex flex-col border-r border-gray-700"
   >
@@ -56,13 +57,38 @@ import { useAuthStore } from '@/stores/authStore';
 import { apiClient } from '@/utils/axiosClient';
 import { useProfileStore } from '@/stores/publishing/ProfileStore';
 import { storeToRefs } from 'pinia';
+import { useConfirm } from 'primevue/useconfirm';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const { profile } = storeToRefs(useProfileStore());
 const router = useRouter();
 const authStore = useAuthStore();
+const confirm = useConfirm();
 
 const hoverItem = ref<string | null>(null);
 const activeItem = ref<string | null>(null);
+
+const handleLogout = () => {
+  confirm.require({
+    message: '정말 로그아웃 하시겠습니까?',
+    header: '로그아웃 확인',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '취소',
+    acceptLabel: '로그아웃',
+    accept: async () => {
+      try {
+        await apiClient.post('../logout');
+        authStore.setAccessToken(null);
+        await router.push('/auth/signin');
+      } catch (error) {
+        console.error('로그아웃 실패:', error);
+      }
+    },
+    reject: () => {
+      // 취소 시 아무 동작 안함
+    }
+  });
+};
 
 const items = [
   { label: '계정', icon: 'pi pi-user', command: () => router.push('/profile/account') },
@@ -89,11 +115,7 @@ const items = [
   {
     label: '로그아웃',
     icon: 'pi pi-sign-out',
-    command: async () => {
-      await apiClient.post('../logout');
-      authStore.setAccessToken(null);
-      await router.push('/auth/signin');
-    },
+    command: handleLogout,
   },
 ];
 </script>
