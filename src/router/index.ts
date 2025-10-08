@@ -167,6 +167,18 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/oauth/google',
+      name: 'oauth-google',
+      component: () => import('@/views/auth/RedirectGoogleView.vue'),
+      meta: { layout: 'user' }
+    },
+    {
+      path: '/oauth/kakao',
+      name: 'oauth-kakao',
+      component: () => import('@/views/auth/RedirectKakaoView.vue'),
+      meta: { layout: 'user' }
+    },
+    {
       path: '/',
       name: 'home',
       component: () => import('@/views/user/MainPage.vue'),
