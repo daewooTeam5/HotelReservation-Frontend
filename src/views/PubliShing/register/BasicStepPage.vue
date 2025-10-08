@@ -5,6 +5,7 @@ import { useRegisterStore } from '@/stores/publishing/registerStore';
 import { useRouter,useRoute } from 'vue-router';
 import { ref, onMounted, computed, watch } from 'vue';
 import HotelRegistrationRestore from '@/components/hotel/HotelRegistrationRestore.vue';
+import CategorySelect from '@/components/hotel/CategorySelect.vue';
 
 const store = useRegisterStore();
 const router = useRouter();
@@ -129,14 +130,7 @@ onMounted(async () => {
       <p class="font-semibold my-2 text-gray-700 dark:text-gray-200">
         <span class="text-red-500 mr-1">*</span>숙소 유형
       </p>
-      <select v-model.number="store.categoryId" class="w-[55%] border rounded p-2 dark:bg-gray-700 dark:border-gray-600">
-        <option value="">선택</option>
-        <option value="1">호텔</option>
-        <option value="2">리조트</option>
-        <option value="3">게스트하우스/비앤비</option>
-        <option value="4">아파트/펜션</option>
-        <option value="5">모텔</option>
-      </select>
+      <CategorySelect v-model="store.categoryId" class="w-[55%]" />
     </div>
 
     <div class="p-4 bg-white dark:bg-gray-100 rounded-md space-y-4 flex flex-col items-center">
