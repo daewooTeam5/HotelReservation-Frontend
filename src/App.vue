@@ -66,6 +66,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <Toast/>
   <div v-if="authStore.isTokenReady" class="flex flex-col h-screen overflow-hidden">
     <!-- Owner Layout -->
     <OwnerLayout v-if="route.meta.layout === 'owner'">

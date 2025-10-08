@@ -313,7 +313,7 @@ const rejectOwnerRequest = async () => {
 // --- API 호출 ---
 const fetchUsers = async () => {
   try {
-    const res = await apiClient.get("/v1/admin/users", { params: { start: 0, size: 20 } });
+    const res = await apiClient.get("/v1/admin/users", { params: { start: 0, size: 100 } });
     users.value = res.data.data.content;
   } catch(e) { console.error("유저 목록 조회 실패:", e); }
 };
