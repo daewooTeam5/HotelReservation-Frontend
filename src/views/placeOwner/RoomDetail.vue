@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { apiClient } from "@/utils/axiosClient";
 
@@ -7,8 +7,8 @@ import { apiClient } from "@/utils/axiosClient";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 
-// VCalendar
-import { format, addDays } from "date-fns";
+// date-fns
+import { format, addDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths } from "date-fns";
 
 // Custom
 import RoomDialog from "./RoomDialog.vue";
@@ -18,14 +18,53 @@ const router = useRouter();
 
 const room = ref<any>(null);
 
-// ✅ 상태 분리
-const showCalendarDialog = ref(false); // 달력 팝업
-const showRoomDialog = ref(false);     // 객실 수정 다이얼로그
+// 상태 분리
+const showCalendarDialog = ref(false);
+const showRoomDialog = ref(false);
 const selectedDay = ref<{ date: string; available: number; total: number } | null>(null);
 
 const allDays = ref<Record<string, { date: string; available: number; total: number }>>({});
 const loading = ref(false);
 const errorMsg = ref<string | null>(null);
+
+// 캘린더 UI 상태
+const currentDate = ref(new Date());
+const selectedYear = ref(new Date().getFullYear());
+const selectedMonth = ref(new Date().getMonth() + 1);
+const showDatePicker = ref(false);
+const pickerYear = ref(new Date().getFullYear());
+
+const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+
+const currentYear = computed(() => currentDate.value.getFullYear());
+const currentMonth = computed(() => currentDate.value.getMonth() + 1);
+
+// 달력 날짜 생성
+const calendarDays = computed(() => {
+  const start = startOfWeek(startOfMonth(currentDate.value));
+  const end = endOfWeek(endOfMonth(currentDate.value));
+
+  const days = [];
+  let current = start;
+
+  while (current <= end) {
+    const dateStr = format(current, 'yyyy-MM-dd');
+    const isCurrentMonth = current.getMonth() === currentDate.value.getMonth();
+
+    if (isCurrentMonth) {
+      days.push({
+        day: current.getDate(),
+        dateStr: dateStr,
+      });
+    } else {
+      days.push(null);
+    }
+
+    current = addDays(current, 1);
+  }
+
+  return days;
+});
 
 const formatPrice = (price: number) =>
   price ? `${Number(price).toLocaleString()}원` : "-";
@@ -60,7 +99,6 @@ function makeDateRange(from: Date, to: Date): string[] {
   return out;
 }
 
-// 3년 전 ~ 3년 후 데이터 프리로드
 const preloadSevenYears = async () => {
   const nowYear = new Date().getFullYear();
   const startYear = nowYear - 3;
@@ -69,7 +107,6 @@ const preloadSevenYears = async () => {
     Array.from({ length: endYear - startYear + 1 }, (_, i) => fetchInventory(startYear + i))
   );
 
-  // 누락 날짜를 기본 total=capacityRoom, available=total로 채움
   if (!room.value) return;
   const from = new Date(startYear, 0, 1);
   const to = new Date(endYear, 11, 31);
@@ -85,17 +122,17 @@ const preloadSevenYears = async () => {
 
 function getColorByDateStr(dateStr: string): string {
   const day = allDays.value[dateStr];
-  if (!day) return "bg-gray-200";
-  if (!day.total) return "bg-gray-200";
+  if (!day) return "bg-gray-200 text-gray-700";
+  if (!day.total) return "bg-gray-200 text-gray-700";
 
   const ratio = (day.available / day.total) * 100;
-  if (ratio === 100) return "bg-green-500";
-  if (ratio >= 80) return "bg-green-300";
-  if (ratio >= 60) return "bg-yellow-300";
-  if (ratio >= 40) return "bg-orange-300";
-  if (ratio >= 20) return "bg-orange-500";
-  if (ratio > 0) return "bg-red-400";
-  return "bg-red-700";
+  if (ratio === 100) return "bg-green-500 text-white";
+  if (ratio >= 80) return "bg-green-300 text-gray-900";
+  if (ratio >= 60) return "bg-yellow-300 text-gray-900";
+  if (ratio >= 40) return "bg-orange-300 text-gray-900";
+  if (ratio >= 20) return "bg-orange-500 text-white";
+  if (ratio > 0) return "bg-red-400 text-white";
+  return "bg-red-700 text-white";
 }
 
 function openDialogByDateStr(dateStr: string) {
@@ -105,7 +142,25 @@ function openDialogByDateStr(dateStr: string) {
     const total = Number(room.value?.capacityRoom ?? 0);
     selectedDay.value = { date: dateStr, available: total, total };
   }
-  showCalendarDialog.value = true; // ✅ 달력 팝업만 열림
+  showCalendarDialog.value = true;
+}
+
+function changeMonth(delta: number) {
+  currentDate.value = addMonths(currentDate.value, delta);
+  selectedYear.value = currentDate.value.getFullYear();
+  selectedMonth.value = currentDate.value.getMonth() + 1;
+  pickerYear.value = selectedYear.value;
+}
+
+function changePickerYear(delta: number) {
+  pickerYear.value += delta;
+}
+
+function selectMonthYear(month: number) {
+  selectedMonth.value = month;
+  selectedYear.value = pickerYear.value;
+  currentDate.value = new Date(selectedYear.value, selectedMonth.value - 1, 1);
+  showDatePicker.value = false;
 }
 
 const openRoomDialog = () => (showRoomDialog.value = true);
@@ -117,6 +172,9 @@ onMounted(async () => {
   try {
     await fetchRoom();
     await preloadSevenYears();
+    selectedYear.value = currentDate.value.getFullYear();
+    selectedMonth.value = currentDate.value.getMonth() + 1;
+    pickerYear.value = selectedYear.value;
   } catch (e) {
     console.error("재고 캘린더 로드 실패", e);
     errorMsg.value = "재고 데이터를 불러오는 중 오류가 발생했습니다.";
@@ -182,39 +240,143 @@ onMounted(async () => {
 
     <!-- 재고 관리 캘린더 -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">객실 가용률 캘린더</h2>
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">객실 가용률 캘린더</h2>
 
-      <div v-if="errorMsg" class="mb-2 text-red-600 text-sm">{{ errorMsg }}</div>
-      <div v-if="loading" class="mb-2 text-gray-500 text-sm">데이터 불러오는 중...</div>
+      <div v-if="errorMsg" class="mb-4 text-red-600 text-sm">{{ errorMsg }}</div>
+      <div v-if="loading" class="mb-4 text-gray-500 text-sm">데이터 불러오는 중...</div>
 
-      <!-- ✅ 가운데 정렬을 유지하되, 살짝 오른쪽으로 이동 (md 이상) -->
-      <div class="max-w-5xl mx-auto flex justify-center">
-        <VCalendar
-          title-position="center"
-          class="inline-block h-[700px] md:ml-6"
-        >
-          <template #day-content="{ day }">
-            <div
-              class="w-20 h-20 flex flex-col items-center justify-center rounded-lg cursor-pointer font-bold text-gray-900"
-              :class="getColorByDateStr(format(day.date, 'yyyy-MM-dd'))"
-              @click="openDialogByDateStr(format(day.date, 'yyyy-MM-dd'))"
+      <!-- 개선된 캘린더 UI -->
+      <div class="max-w-5xl mx-auto">
+        <!-- 월/연도 네비게이션 -->
+        <div class="mb-6 flex items-center justify-between">
+          <button
+            @click="changeMonth(-1)"
+            class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <i class="pi pi-chevron-left"></i>
+          </button>
+
+          <div class="relative">
+            <button
+              @click="showDatePicker = !showDatePicker"
+              class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors px-4 py-2 rounded-lg hover:bg-gray-100"
             >
-              <!-- 날짜 숫자 -->
-              <span class="text-base">{{ day.day }}</span>
+              {{ selectedYear }}년 {{ selectedMonth }}월
+            </button>
 
-              <!-- 남은 객실/총 객실 -->
-              <span class="text-xs mt-1 font-medium">
-        {{
-                  allDays[format(day.date, "yyyy-MM-dd")]
-                    ? allDays[format(day.date, "yyyy-MM-dd")].available +
-                    "/" +
-                    allDays[format(day.date, "yyyy-MM-dd")].total
-                    : "-"
-                }}
-      </span>
+            <!-- 날짜 선택 모달 -->
+            <div
+              v-if="showDatePicker"
+              @click.stop
+              class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-6 z-50 w-80"
+            >
+              <!-- 연도 선택 -->
+              <div class="flex items-center justify-between mb-4">
+                <button @click="changePickerYear(-1)" class="p-2 hover:bg-gray-100 rounded-lg">
+                  <i class="pi pi-chevron-left text-sm"></i>
+                </button>
+                <span class="text-lg font-bold">{{ pickerYear }}</span>
+                <button @click="changePickerYear(1)" class="p-2 hover:bg-gray-100 rounded-lg">
+                  <i class="pi pi-chevron-right text-sm"></i>
+                </button>
+              </div>
+
+              <!-- 월 선택 그리드 -->
+              <div class="grid grid-cols-3 gap-2">
+                <button
+                  v-for="month in 12"
+                  :key="month"
+                  @click="selectMonthYear(month)"
+                  class="py-3 px-4 rounded-lg font-semibold transition-all"
+                  :class="month === selectedMonth && pickerYear === selectedYear
+                    ? 'bg-blue-500 text-white'
+                    : 'hover:bg-gray-100 text-gray-700'"
+                >
+                  {{ month }}월
+                </button>
+              </div>
             </div>
-          </template>
-        </VCalendar>
+          </div>
+
+          <button
+            @click="changeMonth(1)"
+            class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- 요일 헤더 -->
+        <div class="grid grid-cols-7 gap-3 mb-3">
+          <div
+            v-for="day in weekDays"
+            :key="day"
+            class="text-center text-sm font-semibold text-gray-600 py-2"
+          >
+            {{ day }}
+          </div>
+        </div>
+
+        <!-- 날짜 그리드 -->
+        <div class="grid grid-cols-7 gap-3 mb-6">
+          <div
+            v-for="(day, index) in calendarDays"
+            :key="index"
+            class="flex items-center justify-center"
+          >
+            <button
+              v-if="day"
+              @click="openDialogByDateStr(day.dateStr)"
+              class="w-full h-full min-h-[80px] rounded-lg font-semibold transition-all border-2 flex flex-col items-center justify-center text-base"
+              :class="[
+                getColorByDateStr(day.dateStr),
+                'border-transparent hover:border-gray-300 hover:scale-105'
+              ]"
+            >
+              <span class="text-base">{{ day.day }}</span>
+              <span class="text-xs mt-1 font-medium">
+                {{ allDays[day.dateStr]
+                ? allDays[day.dateStr].available + '/' + allDays[day.dateStr].total
+                : '-' }}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 범례 -->
+        <div class="pt-6 border-t">
+          <p class="text-sm font-semibold text-gray-700 mb-3">객실 가용률</p>
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-green-500 rounded"></div>
+              <span class="text-sm text-gray-600">100%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-green-300 rounded"></div>
+              <span class="text-sm text-gray-600">80%+</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-yellow-300 rounded"></div>
+              <span class="text-sm text-gray-600">60%+</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-orange-300 rounded"></div>
+              <span class="text-sm text-gray-600">40%+</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-orange-500 rounded"></div>
+              <span class="text-sm text-gray-600">20%+</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-red-400 rounded"></div>
+              <span class="text-sm text-gray-600">1~20%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-red-700 rounded"></div>
+              <span class="text-sm text-gray-600">0%</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
