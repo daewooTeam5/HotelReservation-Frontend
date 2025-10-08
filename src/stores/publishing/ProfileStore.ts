@@ -12,7 +12,6 @@ export interface UserUpdateDTO {
   images?: string[];
 }
 
-const images = ref<string[]>([]);
 
 export const useProfileStore = defineStore('profile', () => {
   const profile = ref<User>({
@@ -117,7 +116,7 @@ export const useProfileStore = defineStore('profile', () => {
   async function fetchProfileFromApi() {
     try {
       const token = authStore.accessToken;
-      if (!token) throw new Error('로그인 토큰이 없습니다.');
+      if (!token) return;
 
       const response = await apiClient.get('/v1/users/my', {
         headers: { Authorization: `Bearer ${token}` },
