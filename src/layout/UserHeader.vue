@@ -1,90 +1,94 @@
 <template>
-  <Menubar class="border-none border-t! border-l! border-r! rounded-0">
-    <template #start>
-      <div @click="router.push('/')" class="text-4xl font-bold">
-        Hotel Reservation
-      </div>
-    </template>
-
-    <template #end>
-      <div class="flex gap-4 items-center">
-        <div class="relative inline-flex items-center">
-
-          <Button v-if="!accessToken" variant="outlined" class="mr-4!" @click="router.push('/guest/reservation-search')">
-            비회원 예약 조회
-          </Button>
-
-          <Button
-            @click="router.push('/owner')"
-            class="mr-4!"
-            variant="outlined" rounded v-if="authStore.userAuth?.role==='hotel_owner'">
-            내 호텔 관리
-          </Button>
-          <Button
-            v-if="['admin', 'place_admin', 'user_admin'].includes(authStore.userAuth?.role ?? '')"
-            @click="router.push('/admin')"
-            class="mr-4!"
-            variant="outlined"
-            rounded
-          >
-            관리자 페이지
-          </Button>
-<!--          <Button-->
-<!--            variant="outlined"-->
-<!--            rounded-->
-<!--            icon="pi pi-shopping-cart"-->
-<!--            @click="router.push('/cart')"-->
-<!--          />-->
-<!--          <PrimeBadge-->
-<!--            v-if="cartCount > 0"-->
-<!--            :value="cartCount"-->
-<!--            severity="danger"-->
-<!--            class="absolute -top-0 -right-0 !rounded-full"-->
-<!--          />-->
+  <header class="h-16 bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <div class="h-full w-full px-4 md:px-6 flex items-center justify-between">
+      <!-- 왼쪽: 로고 -->
+      <div
+        class="flex items-center gap-2 cursor-pointer group"
+        @click="router.push('/')"
+      >
+        <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
         </div>
+        <h1 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+          Hotel Reservation
+        </h1>
+      </div>
+
+      <!-- 오른쪽: 액션 버튼들 -->
+      <div class="flex items-center gap-2 md:gap-3">
+        <!-- 비회원 예약 조회 -->
+        <Button
+          v-if="!accessToken"
+          @click="router.push('/guest/reservation-search')"
+          class="text-sm md:text-base px-3 md:px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg font-semibold transition-colors"
+          label="비회원 예약 조회"
+          text
+        />
+
+        <!-- 호텔 관리 버튼 (호텔 소유자) -->
+        <Button
+          v-if="authStore.userAuth?.role === 'hotel_owner'"
+          @click="router.push('/owner')"
+          class="hidden md:inline-flex text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors"
+          label="내 호텔 관리"
+          text
+        />
+
+        <!-- 관리자 페이지 버튼 -->
+        <Button
+          v-if="['admin', 'place_admin', 'user_admin'].includes(authStore.userAuth?.role ?? '')"
+          @click="router.push('/admin')"
+          class="hidden md:inline-flex text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors"
+          label="관리자 페이지"
+          text
+        />
+
+        <!-- 로그인된 경우 -->
         <template v-if="user">
-          <div class="flex items-center gap-2">
-            <!-- 알림 버튼 추가 -->
-            <div class="relative mr-4">
-              <Button
-                variant="outlined"
-                rounded
-                icon="pi pi-bell"
-                @click="router.push('/notifications')"
-              />
+          <!-- 알림 버튼 -->
+          <div class="relative">
+            <button
+              @click="router.push('/notifications')"
+              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-50 transition-colors relative"
+            >
+              <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
               <PrimeBadge
                 v-if="notificationCount > 0"
                 :value="notificationCount > 9 ? '9+' : notificationCount.toString()"
                 severity="danger"
-                class="absolute -top-1 -right-1 !rounded-full !text-xs"
+                class="absolute -top-1 -right-1 !rounded-full !text-xs !min-w-[18px] !h-[18px] !leading-[18px]"
               />
-            </div>
-            <!-- 프로필 클릭 -->
-            <UserProfile type="user" />
-
+            </button>
           </div>
+
+          <!-- 프로필 -->
+          <UserProfile type="user" />
         </template>
 
+        <!-- 로그인 안 된 경우 -->
         <template v-else>
           <RouterLink to="/auth/signin">
-            <Button
-              rounded
-              variant="outlined"
-              label="로그인/회원가입"
-              icon="pi pi-sign-in"
-              icon-pos="left"
-            />
+            <button class="px-4 md:px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+              <span class="hidden md:inline">로그인/회원가입</span>
+              <span class="md:hidden">로그인</span>
+            </button>
           </RouterLink>
         </template>
       </div>
-    </template>
-  </Menubar>
+    </div>
+  </header>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import Button from 'primevue/button';
-import Menubar from 'primevue/menubar';
 import { useAuthStore } from '@/stores/authStore';
 import type { UserDto } from '@/types/users';
 import { parseJwt } from '@/utils/jwtUtils';
@@ -100,27 +104,23 @@ const router = useRouter();
 const authStore = useAuthStore();
 const cartCount = ref(0);
 
-// accessToken, user는 computed로 관리
 const accessToken = computed(() => authStore.accessToken);
 const user = computed<UserDto | null>(() => {
   if (!accessToken.value) return null;
   return parseJwt<UserDto>(accessToken.value);
 });
 
-// 알림 개수 조회
 const {isLoading, data} = useQuery<ApiResult<number>>({
   queryKey:['v1','notification','my','count'],
   queryFn:httpFetcher,
-  enabled: computed(() => !!accessToken.value), // 로그인된 경우에만 조회
-  refetchInterval: 30000 // 30초마다 자동 갱신
+  enabled: computed(() => !!accessToken.value),
+  refetchInterval: 30000
 });
 
-// 알림 개수 computed
 const notificationCount = computed(() => {
   return data.value?.data ?? 0;
 });
 
-// accessToken 바뀔 때 장바구니 개수 동기화
 watch(
   () => accessToken.value,
   async (newToken) => {
@@ -140,7 +140,4 @@ watch(
 </script>
 
 <style scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
 </style>
