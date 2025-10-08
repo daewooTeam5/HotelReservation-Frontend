@@ -44,15 +44,15 @@
             >
               <i
                 :class="item.icon"
-                class="text-sm transition-colors duration-200"
-                :style="$route.path === item.path ? 'color: white' : ''"
+                class="text-base transition-colors duration-200 text-white"
+                :style="$route.path === item.path ? 'color: white' : 'color: white'"
               ></i>
             </div>
             <span
-              class="font-medium transition-colors duration-200"
-              :class="$route.path === item.path ? 'text-white' : ''"
+              class="font-medium text-base transition-colors duration-200"
+              :class="$route.path === item.path ? 'text-white' : 'text-white'"
             >
-              {{ item.name }}
+            {{ item.name }}
             </span>
           </router-link>
         </li>

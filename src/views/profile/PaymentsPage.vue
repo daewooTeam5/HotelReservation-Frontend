@@ -1,3 +1,99 @@
+<template>
+  <div class="max-w-6xl mx-auto p-4 md:p-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">결제 내역</h1>
+      <p class="text-gray-600">예약 및 결제 정보를 확인하실 수 있습니다.</p>
+    </div>
+
+    <!-- 로딩 상태 -->
+    <div v-if="isLoading" class="space-y-4">
+      <div v-for="i in 3" :key="i" class="animate-pulse">
+        <div class="border rounded-xl p-6 bg-white">
+          <div class="flex gap-4">
+            <div class="w-32 h-32 bg-gray-200 rounded-lg"></div>
+            <div class="flex-1 space-y-3">
+              <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 에러 상태 -->
+    <div v-else-if="isError" class="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div class="flex items-center gap-3 text-red-800">
+        <i class="pi pi-exclamation-triangle text-2xl"></i>
+        <div>
+          <p class="font-semibold text-lg">오류 발생</p>
+          <p class="text-sm mt-1">{{ (error as Error)?.message || '결제 내역을 불러오지 못했습니다.' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 데이터 표시 -->
+    <div v-else>
+      <!-- 빈 상태 -->
+      <div v-if="items.length === 0" class="text-center py-20">
+        <div class="inline-block p-6 bg-gray-100 rounded-full mb-4">
+          <i class="pi pi-credit-card text-5xl text-gray-400"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">결제 내역이 없습니다</h3>
+        <p class="text-gray-600 mb-6">아직 결제한 내역이 없습니다.</p>
+        <button
+          @click="$router.push('/')"
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+        >
+          숙소 둘러보기
+        </button>
+      </div>
+
+      <!-- 결제 내역 리스트 -->
+      <div v-else class="space-y-4">
+        <PaymentCard
+          v-for="payment in items"
+          :key="payment.paymentId"
+          :payment="payment"
+          :showActions="true"
+          @details="goDetails"
+          @cancelled="queryClient.invalidateQueries({ queryKey: ['v1', 'users', 'my'] })"
+        />
+      </div>
+
+      <!-- 페이지네이션 -->
+      <div v-if="totalPages > 1" class="flex justify-center items-center gap-4 mt-10">
+        <button
+          @click="prev"
+          :disabled="isFirst"
+          class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          <i class="pi pi-chevron-left text-xs"></i>
+          이전
+        </button>
+
+        <div class="flex items-center gap-2">
+          <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold">
+            {{ page }}
+          </span>
+          <span class="text-gray-600">/</span>
+          <span class="text-gray-600 font-medium">{{ totalPages }}</span>
+        </div>
+
+        <button
+          @click="next"
+          :disabled="isLast"
+          class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          다음
+          <i class="pi pi-chevron-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { computed, ref, watch, onMounted } from 'vue';
@@ -47,16 +143,13 @@ const prev = () => { if (!isFirst.value) page.value -= 1; };
 const next = () => { if (!isLast.value) page.value += 1; };
 
 onMounted(() => {
-  // normalize invalid page
   if (page.value < 1) page.value = 1;
 });
 
-// 상세 이동
 const goDetails = (id: number) => {
   router.push({ name: 'profile-payment-detail', params: { paymentId: String(id) } });
 };
 
-// 취소 뮤테이션
 const cancelMutation = useMutation({
   mutationKey: ['v1', 'payment', 'cancel'],
   mutationFn: async (paymentKey: string) => {
@@ -87,90 +180,6 @@ const cancelPayment = (paymentKey: string) => {
   cancelMutation.mutate(paymentKey);
 };
 </script>
-
-<template>
-  <div class="max-w-4xl mx-auto p-6">
-    <!-- 헤더 -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">결제 내역</h1>
-      <p class="text-gray-600 mt-1">예약 및 결제 정보를 확인하실 수 있습니다.</p>
-    </div>
-
-    <!-- 로딩 상태 -->
-    <div v-if="isLoading" class="space-y-4">
-      <div v-for="i in 3" :key="i" class="animate-pulse">
-        <div class="border rounded-lg p-4 bg-white">
-          <div class="flex gap-4">
-            <div class="w-20 h-20 bg-gray-200 rounded-lg"></div>
-            <div class="flex-1 space-y-2">
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-              <div class="h-3 bg-gray-200 rounded w-2/3"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 에러 상태 -->
-    <div v-else-if="isError" class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="flex items-center gap-2 text-red-800">
-        <i class="pi pi-exclamation-triangle"></i>
-        <span class="font-medium">오류 발생</span>
-      </div>
-      <p class="text-red-700 mt-1">
-        {{ (error as Error)?.message || '결제 내역을 불러오지 못했습니다.' }}
-      </p>
-    </div>
-
-    <!-- 데이터 표시 -->
-    <div v-else>
-      <!-- 빈 상태 -->
-      <div v-if="items.length === 0" class="text-center py-12">
-        <i class="pi pi-credit-card text-4xl text-gray-400 mb-3"></i>
-        <h3 class="text-lg font-medium text-gray-900 mb-1">결제 내역이 없습니다</h3>
-        <p class="text-gray-600">아직 결제한 내역이 없습니다.</p>
-      </div>
-
-      <!-- 결제 내역 리스트 -->
-      <div v-else class="space-y-4">
-        <PaymentCard
-          v-for="payment in items"
-          :key="payment.paymentId"
-          :payment="payment"
-          :showActions="true"
-          @details="goDetails"
-          @cancelled="queryClient.invalidateQueries({ queryKey: ['v1', 'users', 'my'] })"
-        />
-      </div>
-
-      <!-- 페이지네이션 -->
-      <div v-if="totalPages > 1" class="flex justify-center items-center gap-4 mt-8">
-        <button
-          @click="prev"
-          :disabled="isFirst"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <i class="pi pi-chevron-left text-xs"></i>
-          이전
-        </button>
-
-        <span class="text-sm text-gray-700">
-          {{ page }} / {{ totalPages }}
-        </span>
-
-        <button
-          @click="next"
-          :disabled="isLast"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          다음
-          <i class="pi pi-chevron-right text-xs"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 </style>

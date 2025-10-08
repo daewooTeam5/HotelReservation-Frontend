@@ -122,14 +122,13 @@ const handleCancel = () => {
             >
               상세보기
             </button>
-            <button
-              v-if="payment.status !== 'cancelled'"
-              @click="handleCancel"
-              :disabled="cancelMutation.isPending"
-              class="px-4 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ cancelMutation.isPending ? '처리중...' : '취소' }}
-            </button>
+<!--            <button-->
+<!--              v-if="payment.status !== 'cancelled'"-->
+<!--              @click="handleCancel"-->
+<!--              class="px-4 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"-->
+<!--            >-->
+<!--              {{ !cancelMutation.isPending ? '처리중...' : '취소' }}-->
+<!--            </button>-->
           </div>
         </div>
       </div>

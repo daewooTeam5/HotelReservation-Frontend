@@ -52,6 +52,29 @@
                 {{ getRoleText(authStore.userAuth?.role || '') }}
               </span>
             </div>
+
+            <!-- 정보 그리드 -->
+            <div class="w-full max-w-md space-y-4 mb-8">
+              <div class="flex items-center justify-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <i class="pi pi-envelope text-blue-600 text-xl"></i>
+                <span class="text-gray-700">{{ profile.email }}</span>
+              </div>
+
+              <div class="flex items-center justify-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <i class="pi pi-phone text-blue-600 text-xl"></i>
+                <span class="text-gray-700">{{ profile.phone }}</span>
+              </div>
+            </div>
+
+            <!-- 수정하기 버튼 -->
+            <div v-if="!editMode">
+              <Button
+                label="프로필 수정하기"
+                icon="pi pi-pencil"
+                class="px-8 py-3"
+                @click="editMode = true"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -81,28 +104,21 @@
             <label class="block text-gray-700 font-medium mb-2">유저 권한</label>
             <InputText :value="getRoleText(authStore.userAuth?.role || '')" class="w-full p-inputtext-lg" disabled />
           </div>
-        </div>
-        <div class="mt-6 pt-6 flex justify-end gap-4">
-          <Button label="취소" class="p-button-secondary p-button-outlined" @click="cancelEdit" />
-          <Button @click="submit" label="변경 사항 저장" icon="pi pi-check" class="p-button-info" />
-        </div>
-      </div>
+        </template>
+      </PrimeCard>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { onMounted, computed, ref, watch } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-
 import { Gravatar } from '@sauromates/vue-gravatar';
-
 import { useProfileStore, type UserUpdateDTO } from '@/stores/publishing/ProfileStore';
 import { useAuthStore } from '@/stores/authStore';
 import { parseJwt } from '@/utils/jwtUtils';
-import { cloneDeep } from 'lodash-es';
 
 const router = useRouter();
 const store = useProfileStore();
@@ -114,7 +130,7 @@ const user = computed(() => {
   return parseJwt<{ userId: string }>(accessToken.value);
 });
 
-const { profile, images } = storeToRefs(store);
+const { profile, images } = store;
 
 const editMode = ref(false);
 const editProfile = ref({ name: '', email: '', phone: '' });
@@ -131,9 +147,9 @@ watch(profile, (newVal) => {
   if (!editMode.value) {
     editProfile.value = { ...newVal };
   }
+  editProfile.value = { ...profile };
 });
 
-// Role 한국어 변환
 const getRoleText = (role: string) => {
   const roleMap: Record<string, string> = {
     customer: '고객',
@@ -153,7 +169,7 @@ const getRoleStyle = (role: string) => {
     place_admin: 'bg-orange-500',
     user_admin: 'bg-indigo-600',
   };
-  return `${styleMap[role] || 'bg-gray-500'} text-white px-2 py-0.5 rounded text-[10px] w-fit`;
+  return `${styleMap[role] || 'bg-gray-500'} text-white px-4 py-1 rounded-full text-sm font-semibold`;
 };
 
 // 이미지 업로드
@@ -194,11 +210,10 @@ const handleFileChange = (event: Event) => {
 const removeImage = (index: number) => store.removeImage(index);
 
 const cancelEdit = () => {
-  editProfile.value = { ...profile.value };
+  editProfile.value = { ...profile };
   editMode.value = false;
 };
 
-// 저장
 const submit = async () => {
   try {
     // API 함수로 수정된 프로필 정보와 선택된 파일을 전달합니다.

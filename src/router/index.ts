@@ -440,7 +440,7 @@ router.beforeEach((to, from, next) => {
         return next({ name: 'home' });
       }
 
-      if (!role || !['admin', 'place_admin', 'user_admin'].includes(role)) {
+      else if (!role || !['admin', 'place_admin', 'user_admin'].includes(role)) {
         console.log('➡️ 권한 없음 → home으로 이동');
         return next({ name: 'home' });
       }

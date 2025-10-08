@@ -50,6 +50,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputNumber from 'primevue/inputnumber';
 import ConfirmationService from 'primevue/confirmationservice'
+import ConfirmDialog from 'primevue/confirmdialog';
 const app = createApp(App);
 
 const koreanLocale = {
@@ -122,6 +123,7 @@ app.component('PrimeGalleria', Galleria);
 app.component('FileUpload', FileUpload);
 app.component('PrimeSelect', Select);
 app.directive('tooltip', Tooltip);
+app.component('ConfirmDialog',ConfirmDialog)
 app.use(VCalendar, {});
 app.use(ConfirmationService);
 app.mount('#app');
