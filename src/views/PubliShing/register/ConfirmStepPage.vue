@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { categoryMap, useRegisterStore } from '@/stores/publishing/registerStore';
+import { useRegisterStore } from '@/stores/publishing/registerStore';
 import { apiClient } from '@/utils/axiosClient';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.ts';
@@ -27,13 +27,18 @@ const { data: roomAmenitiesData } = useQuery<ApiResult<Amenity[]>>({
   queryFn: httpFetcher
 });
 
-// 💡 [추가] 객실 편의시설 이름들을 가져오는 함수
-const getRoomAmenityNames = (amenityIds: number[]) => {
-  if (!roomAmenitiesData.value?.data || !amenityIds) return [];
-  return roomAmenitiesData.value.data
-    .filter(amenity => amenityIds.includes(amenity.id))
-    .map(amenity => amenity.name);
-};
+// 💡 [추가] 카테고리 데이터 조회
+const { data: categoriesData } = useQuery<ApiResult<{id:number,name:string}[]>>({
+  queryKey: ['v1', 'places', 'category'],
+  queryFn: httpFetcher
+});
+
+// 💡 [추가] 선택된 카테고리 이름 가져오기
+const categoryName = computed(() => {
+  const cats = categoriesData.value?.data ?? [];
+  const cat = cats.find(c => c.id === store.categoryId);
+  return cat ? cat.name : '선택 안됨';
+});
 
 // 💡 [추가] 수정/등록 모드에 따라 버튼의 라벨을 동적으로 변경합니다.
 const submitButtonLabel = computed(() => store.editingPlaceId ? '수정 완료' : '등록 완료');
@@ -91,7 +96,8 @@ const submit = async () => {
         capacityRoom: r.capacityRoom,
         amenityIds: r.amenityIds || [] // 💡 객실별 편의시설 ID 추가
       })),
-      userId: authstore.userAuth?.id
+      userId: authstore.userAuth?.id,
+      deletedPlaceImageIds: store.deletedPlaceImageIds // 삭제된 서버 이미지 ID들 추가
     };
 
     // JSON 데이터를 FormData에 추가
@@ -147,6 +153,15 @@ const back = () => router.push('/publishing/register/rooms');
 onMounted(async () => {
   await loadImages();
 });
+
+// 💡 [추가] 객실 편의시설 이름 가져오기 함수
+const getRoomAmenityNames = (ids: number[]) => {
+  const amenities = roomAmenitiesData.value?.data ?? [];
+  return ids.map(id => {
+    const amenity = amenities.find(a => a.id === id);
+    return amenity ? amenity.name : 'Unknown';
+  });
+};
 </script>
 <template>
   <div class="p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm space-y-6">
@@ -158,7 +173,7 @@ onMounted(async () => {
       </div>
       <div class="flex justify-between items-center border-b pb-2">
         <span class="font-semibold">숙소 유형</span>
-        <span>{{ categoryMap[Number(store.categoryId)] || '선택 안됨' }}</span>
+        <span>{{ categoryName }}</span>
       </div>
       <div class="border-b pb-2">
         <p class="font-semibold mb-1">업로드된 호텔 대표 사진</p>
