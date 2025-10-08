@@ -31,6 +31,7 @@ const reviews = ref<Review[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
+
 // Pagination state
 const currentPage = ref(0);
 const totalPages = ref(0);
@@ -77,9 +78,21 @@ const changePage = (newPage: number) => {
 onMounted(() => {
   fetchMyReviews();
 });
+const deleteReview = async (reviewId: number, placeId: number) => {
+  if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+
+  try {
+    await apiClient.delete(`/v1/places/${placeId}/reviews/${reviewId}`);
+    reviews.value = reviews.value.filter(r => r.reviewId !== reviewId);
+  } catch (err: any) {
+    console.error('리뷰 삭제 실패:', err);
+    alert('리뷰 삭제 중 오류가 발생했습니다.');
+  }
+};
 </script>
 
 <template>
+
   <div class="max-w-4xl mx-auto p-4 md:p-8">
     <h1 class="text-3xl font-bold! text-gray-900 mb-8!">내가 작성한 리뷰</h1>
 
@@ -122,7 +135,16 @@ onMounted(() => {
         <p class="text-gray-700 leading-relaxed mb-4">
           {{ review.comment }}
         </p>
-
+        <div class="flex justify-end mt-4">
+          <Button
+            label="삭제"
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            @click="deleteReview(review.reviewId, review.place.placeId)"
+            class="mt-4 ml-auto"
+          />
+        </div>
         <div v-if="review.imageUrls && review.imageUrls.length > 0" class="flex gap-2 mb-4">
           <img
             v-for="(url, idx) in review.imageUrls"

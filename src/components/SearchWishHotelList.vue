@@ -1,15 +1,20 @@
 <template>
-  <main class="grid grid-cols-4 gap-6">
+  <main class="grid grid-cols-4 gap-9">
     <div v-for="place in places" :key="place.id">
-      <PrimeCard style="width: 100%; overflow: hidden">
+      <PrimeCard
+        class="transition-all duration-300 bg-white/90 backdrop-blur-sm
+         border border-gray-200 rounded-2xl shadow-md hover:shadow-[0_0_20px_rgba(59,130,246,0.5)]
+         hover:border-blue-400"
+        style="overflow: hidden;"
+      >
         <template #header>
           <img
             v-if="place.fileUrl"
             :src="place.fileUrl"
             alt="호텔 이미지"
-            class="object-cover h-48 w-full"
+            class="object-cover h-48 w-full rounded-t-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_rgba(96,165,250,0.5)]"
           />
-          <div v-else class="h-48 flex items-center justify-center bg-gray-200 text-gray-500">
+          <div v-else class="h-48 flex items-center justify-center bg-gray-300 text-gray-500">
             이미지 없음
           </div>
         </template>

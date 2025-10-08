@@ -1,10 +1,10 @@
 <template>
-  <div class="w-full lg:p-6 bg-gray-50 min-h-screen">
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl py-6 px-8">
+  <div class="w-full lg:p-7 bg-gray-50 min-h-screen">
+    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-2xl py-6 px-8">
       <div v-if="user" class="flex items-center gap-2">
         <!-- 프로필 클릭 -->
         <div
-          class="w-30 h-30 rounded-full overflow-hidden border border-gray-300"
+          class="w-40 h-40 rounded-full overflow-hidden border border-gray-300"
           :class="{ 'cursor-pointer ring-2 ring-indigo-500': editMode }"
           @click="editMode ? triggerFileInput() : null"
         >
@@ -14,6 +14,7 @@
           :size="1200"
           alt="프로필 이미지"
           class="w-full h-full object-cover"
+
         />
         <Gravatar
           v-else
@@ -56,13 +57,13 @@
       </div>
 
       <!-- 수정 모드가 아닐 때: 프로필 카드만, 수정하기 버튼만 노출 -->
-      <div v-if="!editMode" class="flex justify-end mt-6">
-        <Button label="수정하기" class="p-button-info" @click="editMode = true" />
+      <div v-if="!editMode" class="flex justify-end mt-6 ">
+        <Button label="수정하기" class="p-button-info  hover:shadow-[0_0_12px_rgba(99,102,241,0.7)] transition-all duration-200" @click="editMode = true" />
       </div>
 
       <!-- 수정 모드일 때: 인풋 폼 노출 -->
       <div v-if="editMode">
-        <h3 class="text-2xl font-semibold text-gray-700 mb-6 pt-6">프로필 정보 수정</h3>
+        <h3 style="margin-bottom: 6px;" class="text-2xl font-semibold text-gray-700 mb-6 pt-6">프로필 정보 수정</h3>
         <div class="grid md:grid-cols-2 gap-x-8 gap-y-4">
           <div>
             <label class="block text-gray-700 font-medium mb-2">이름</label>
