@@ -179,6 +179,7 @@ const handleSubmit = () => {
 
         <div class="mt-8 flex justify-end">
           <PrimeButton
+            style="margin-top: 8px;"
             type="submit"
             :loading="isPending"
             label="입점 신청하기"

@@ -144,7 +144,17 @@ const updateFiltersDebounced = () => {
   }
   debounceTimer = window.setTimeout(() => {
     updateFilters();
-  }, 300);
+  }, 200);
+};
+
+const fetchAllPlaces = async () => {
+  const res = await apiClient.get('http://localhost:8080/api/v1/places',
+    {
+    params: {
+      start: 1,
+    },
+  });
+  return res.data.data.content;
 };
 
 const fetchSearchPlaces = async () => {

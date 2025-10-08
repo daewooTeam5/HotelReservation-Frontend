@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold mb-6">환경 설정</h1>
+  <div class="p-6 lg:p-8">
+    <h1 style="margin-bottom: 8px" class="text-2xl font-bold mb-6">환경 설정</h1>
 
     <div class="bg-white rounded shadow p-6 max-w-xl space-y-6">
       <!-- 푸시 알림 설정 -->
-      <div class="flex items-center justify-between py-4 border-b">
+      <div style="margin-bottom: 8px" class="flex items-center justify-between py-4 border-b">
         <div>
           <label class="block font-medium text-lg mb-1">푸시 알림 수신</label>
           <span class="text-gray-500 text-sm">예약, 혜택 등 주요 알림을 푸시로 받아보세요.</span>

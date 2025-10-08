@@ -53,8 +53,8 @@ onMounted(() => loadWishlist());
       </div>
 
       <!-- 리스트 -->
-      <div v-else class="mt-6 flex justify-center">
-        <div class="max-w-6xl w-full px-4">
+      <div v-else class="mt-6 flex flex-col-5">
+        <div class="max-w-6xl w-full px-4 lg:p-2">
           <SearchWishHotelList :places="places" :searchNotice="searchNotice" />
         </div>
       </div>

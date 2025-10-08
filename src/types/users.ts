@@ -18,6 +18,7 @@ export type User = {
   updatedAt: string;
   createdAt: string;
   review: number;
+  profileImageUrl?: string;
 }
 
 export type UserInfo = Partial<User | { point: number }>

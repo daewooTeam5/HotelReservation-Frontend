@@ -12,7 +12,7 @@ export interface UserUpdateDTO {
   images?: string[];
 }
 
-
+const images = ref<string[]>([]);
 
 export const useProfileStore = defineStore('profile', () => {
   const profile = ref<User>({
@@ -26,6 +26,7 @@ export const useProfileStore = defineStore('profile', () => {
     createdAt: '',
     phone: '',
     review: 0,
+
   });
 
   const images = ref<string[]>([]);
@@ -80,6 +81,7 @@ export const useProfileStore = defineStore('profile', () => {
     saveToStorage();
   }
 
+
   function removeImage(index: number) {
     if (index > -1 && index < images.value.length) {
       images.value.splice(index, 1);
@@ -92,9 +94,19 @@ export const useProfileStore = defineStore('profile', () => {
     saveToStorage();
   }
 
-  async function updateProfileApi(profileData: UserUpdateDTO) {
+  async function updateProfileApi(profileData: UserUpdateDTO, file: File | null) {
     const token = authStore.accessToken;
-    return await apiClient.put('/v1/users/update', profileData, {
+    const formData = new FormData();
+
+    formData.append('dto', new Blob([JSON.stringify(profileData)], {
+      type: 'application/json'
+    }));
+
+    if (file) {
+      formData.append('file', file);
+    }
+
+    return await apiClient.put('/v1/users/update', formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -113,7 +125,9 @@ export const useProfileStore = defineStore('profile', () => {
 
       const data = response.data.data;
 
+      // profile 정보 업데이트 (이 부분은 문제 없습니다)
       profile.value = {
+        ...profile.value,
         id: data.id,
         userId: data.userId,
         name: data.name,
@@ -126,14 +140,19 @@ export const useProfileStore = defineStore('profile', () => {
         review: data.review ?? 0,
       };
 
-      images.value = data.images ?? [];
+      if (data.profileImageUrl) {
+        images.value = [data.profileImageUrl];
+      } else {
+        images.value = [];
+      }
+
       saveToStorage();
       console.log('프로필 데이터를 서버에서 불러왔습니다.');
+
     } catch (error) {
       console.error('프로필 조회 실패:', error);
     }
   }
-
   return {
     images,
     profile,
