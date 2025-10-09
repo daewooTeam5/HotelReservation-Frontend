@@ -19,12 +19,6 @@
           <option value="refunded">환불</option>
         </select>
 
-        <label class="block mb-2">체크인</label>
-        <input type="date" v-model="form.resevStart" class="border w-full p-2 mb-4" />
-
-        <label class="block mb-2">체크아웃</label>
-        <input type="date" v-model="form.resevEnd" class="border w-full p-2 mb-4" />
-
         <div class="flex justify-end gap-2">
           <button type="button" @click="$emit('close')" class="px-4 py-2 border">닫기</button>
           <button type="submit" class="px-4 py-2 bg-blue-500 text-white">저장</button>
