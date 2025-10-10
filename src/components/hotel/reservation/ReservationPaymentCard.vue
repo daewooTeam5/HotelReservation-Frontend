@@ -71,7 +71,7 @@ const formatCurrency = (amount: number): string => {
         <!-- 요금 세부 내역 -->
         <div class="space-y-3">
           <!-- 원가 표시 -->
-          <div class="flex justify-between items-center text-sm">
+          <div style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
             <span class="text-gray-600">객실 요금 (원가)</span>
             <div class="text-right">
               <span class="font-medium text-gray-500 line-through">{{ formatCurrency(price || 0) }}</span>
@@ -89,7 +89,7 @@ const formatCurrency = (amount: number): string => {
             </div>
           </div>
 
-          <div class="flex justify-between items-center text-sm">
+          <div style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
             <span class="text-gray-600">숙박 일수</span>
             <span class="font-medium">{{ nights }}박 × {{ roomCount }}객실</span>
           </div>
@@ -100,7 +100,7 @@ const formatCurrency = (amount: number): string => {
             <span class="font-medium">-{{ formatCurrency(roomDiscount) }}</span>
           </div>
 
-          <div class="flex justify-between items-center text-sm">
+          <div style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
             <span class="text-gray-600">소계 (객실 할인 적용)</span>
             <span class="font-medium">{{ formatCurrency(roomDiscountedTotal) }}</span>
           </div>
@@ -120,7 +120,7 @@ const formatCurrency = (amount: number): string => {
           <div class="border-t border-gray-200 my-2"></div>
 
           <!-- 총 결제 금액 -->
-          <div class="flex justify-between items-center pt-2">
+          <div style="margin-bottom: 4px;" class="flex justify-between items-center pt-2">
             <span class="font-semibold text-lg">총 결제 금액</span>
             <span class="font-bold text-xl text-red-600">{{ formatCurrency(grandTotal) }}</span>
           </div>

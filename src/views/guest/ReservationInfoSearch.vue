@@ -82,25 +82,25 @@ onMounted(() => {
         </template>
         <template #content>
           <form @submit.prevent="searchReservation" class="space-y-6">
-            <div>
+            <div style="margin-top: 6px; margin-bottom: 6px;">
               <label for="reservationId" class="block text-sm font-medium text-gray-700">예약 번호</label>
               <InputNumber id="reservationId" v-model="reservationId" class="w-full mt-1" placeholder="예약 번호를 입력하세요" :useGrouping="false" />
             </div>
-            <div class="flex gap-4">
-              <div class="flex-1">
+            <div style="margin-top: 6px; margin-bottom: 6px;" class="flex gap-4">
+              <div style="margin-top: 6px; margin-bottom: 6px;" class="flex-1">
                 <label for="lastName" class="block text-sm font-medium text-gray-700">성 (Last Name)</label>
                 <InputText id="lastName" v-model="lastName" class="w-full mt-1" placeholder="예약자 성" />
               </div>
-              <div class="flex-1">
+              <div style="margin-top: 6px; margin-bottom: 6px;" class="flex-1">
                 <label for="firstName" class="block text-sm font-medium text-gray-700">이름 (First Name)</label>
                 <InputText id="firstName" v-model="firstName" class="w-full mt-1" placeholder="예약자 이름" />
               </div>
             </div>
-            <div>
+            <div style="margin-top: 6px; margin-bottom: 6px;">
               <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
               <InputText id="email" type="email" v-model="email" class="w-full mt-1" placeholder="예약 시 입력한 이메일을 입력하세요" />
             </div>
-            <Button type="submit" label="예약 조회" class="w-full" :loading="isLoading" />
+            <Button style="margin-top: 10px;" type="submit" label="예약 조회" class="w-full" :loading="isLoading" />
           </form>
 
           <div v-if="error" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md text-center">

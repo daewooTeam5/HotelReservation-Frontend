@@ -30,6 +30,7 @@
                 :min="0"
                 :max="400000"
                 :step="10000"
+               style="margin-top: 10px; margin-bottom: 10px;"
                 range
                 class="w-full"
                 @change="updateFiltersDebounced"
@@ -45,6 +46,7 @@
               <div class="flex flex-col gap-2 text-sm">
                 <label v-for="cat in categories" :key="cat.value" class="flex items-center">
                   <input
+                    style="margin-right: 4px;"
                     type="checkbox"
                     :value="cat.value"
                     v-model="selectedCategories"
@@ -61,6 +63,7 @@
               <div class="flex flex-col gap-2 text-sm">
                 <label v-for="rating in ratings" :key="rating.value" class="flex items-center">
                   <input
+                    style="margin-right: 4px;"
                     type="radio"
                     name="rating"
                     :value="rating.value"

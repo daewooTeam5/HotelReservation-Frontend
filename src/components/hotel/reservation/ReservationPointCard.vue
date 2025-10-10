@@ -133,6 +133,7 @@ watch(pointToUse, (newVal) => {
 
             <!-- 최소 사용 안내 -->
             <div
+              style="margin-top: 4px;margin-bottom: 4px;"
               v-if="!canUsePoint"
               class="text-sm text-orange-500 mb-3 flex items-center gap-1"
             >

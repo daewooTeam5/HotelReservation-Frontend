@@ -74,7 +74,7 @@ const fullGuestName = computed(() => {
         </div>
       </template>
       <template #content>
-        <ul class="text-sm space-y-2">
+        <ul style="margin-top: 3px; margin-bottom: 3px;" class="text-sm space-y-2">
           <li class="flex justify-between"><span>예약 번호</span><span>#{{ reservation.reservationId }}</span></li>
           <li class="flex justify-between"><span>주문 번호</span><span>{{ reservation.orderId }}</span></li>
           <li class="flex justify-between border-t pt-2 mt-2"><span>상품 금액</span><span>{{ reservation.baseAmount.toLocaleString() }}원</span></li>

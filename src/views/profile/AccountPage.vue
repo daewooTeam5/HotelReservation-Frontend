@@ -4,6 +4,7 @@
       <div v-if="user" class="flex items-center gap-2">
         <!-- 프로필 클릭 -->
         <div
+          style="margin-right: 6px;"
           class="w-40 h-40 rounded-full overflow-hidden border border-gray-300"
           :class="{ 'cursor-pointer ring-2 ring-indigo-500': editMode }"
           @click="editMode ? triggerFileInput() : null"
@@ -34,15 +35,15 @@
           <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ profile.name }}</h2>
           <div class="grid grid-cols-2 gap-y-1 text-gray-600">
             <div class="flex items-center">
-              <i class="pi pi-envelope mr-2 text-indigo-500"></i>
+              <i style="margin-right: 6px;" class="pi pi-envelope mr-2 text-indigo-500"></i>
               <span>{{ profile.email }}</span>
             </div>
             <div class="flex items-center">
-              <i class="pi pi-phone mr-2 text-indigo-500"></i>
+              <i style="margin-right: 6px;" class="pi pi-phone mr-2 text-indigo-500"></i>
               <span>{{ profile.phone }}</span>
             </div>
             <div class="flex items-center">
-              <i class="pi pi-lock mr-2 text-indigo-500"></i>
+              <i style="margin-right: 6px;" class="pi pi-lock mr-2 text-indigo-500"></i>
               <span :class="getRoleStyle(authStore.userAuth?.role || '')">
                 {{ getRoleText(authStore.userAuth?.role || '') }}
               </span>
@@ -51,6 +52,7 @@
 
           <div v-if="!editMode" class="mt-6">
             <Button
+              style="margin-top: 8px;"
               label="프로필 수정하기"
               icon="pi pi-pencil"
               class="px-8 py-3"
@@ -87,8 +89,8 @@
         </div>
 
         <div class="flex justify-end gap-4 mt-8">
-          <Button label="취소" class="p-button-secondary" @click="cancelEdit" />
-          <Button label="저장" class="p-button-success" @click="submit" />
+          <Button style="margin-top: 8px;" label="취소" class="p-button-secondary" @click="cancelEdit" />
+          <Button style="margin-top: 8px;" label="저장" class="p-button-success" @click="submit" />
         </div>
       </div>
     </div>
@@ -129,13 +131,26 @@ const previewImage = ref<string | null>(null);
 const selectedFile = ref<File | null>(null);
 
 onMounted(() => {
-  if (user.value?.userId) {
+  const cachedProfile = localStorage.getItem("userProfile");
+
+  if (cachedProfile) {
+    const parsed = JSON.parse(cachedProfile);
+    store.profile = parsed;
+    previewImage.value = parsed.profileImageUrl || null;
+    store.images = parsed.profileImageUrl ? [parsed.profileImageUrl] : [];
+    editProfile.value = {
+      name: parsed.name,
+      email: parsed.email,
+      phone: parsed.phone || ""
+    };
+  } else if (user.value?.userId) {
+    // 로컬스토리지에 없으면 백엔드에서 불러오기
     store.fetchProfileFromApi().then(() => {
       previewImage.value = images.value[0] || null;
       editProfile.value = {
         name: profile.value.name,
         email: profile.value.email,
-        phone: profile.value.phone || ''
+        phone: profile.value.phone || ""
       };
     });
   }
@@ -207,6 +222,11 @@ const submit = async () => {
       });
       previewImage.value = updatedUserDto.profileImageUrl || null;
       store.images = updatedUserDto.profileImageUrl ? [updatedUserDto.profileImageUrl] : [];
+
+      localStorage.setItem("userProfile", JSON.stringify({
+        ...updatedUserDto,
+        profileImageUrl: updatedUserDto.profileImageUrl || null
+      }));
     }
 
     toast.add({
