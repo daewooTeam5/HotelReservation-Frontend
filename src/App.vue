@@ -18,49 +18,47 @@ const authStore = useAuthStore();
 const toast = useToast();
 let isMessageListenerAdded = false;
 onMounted(() => {
-
   void authStore.issueToken();
-  if ("Notification" in window) {
-    console.log("Current notification permission:", Notification.permission);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/firebase-messaging-sw.js")
+      .then((registration) => {
+        console.log("SW 등록 완료", registration);
 
-    Notification.requestPermission().then((permission) => {
-      console.log("알림 허용이 되어있나요:", permission);
+        if (!messaging) {
+          console.warn("Firebase Messaging is not available");
+          return;
+        }
 
-      if (permission === "granted") {
-        // FCM 토큰 요청
-        getToken(messaging, {
-          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-        })
-          .then((currentToken) => {
-            if (currentToken) {
-              console.log("requestForToken 성공!", currentToken);
-              console.log(authStore.userAuth);
-              apiClient.post("../auth/fcm-token",{
-                fcmToken:currentToken
-              })
-            } else {
-              console.log("No registration token available. Request permission to generate one.");
-            }
-          })
-          .catch((err) => {
-            console.log("An error occurred while retrieving token. ", err);
+        if (!isMessageListenerAdded) {
+          onMessage(messaging, (payload) => {
+            console.log("Foreground message:", payload.notification);
+            toast.add({
+              summary: payload.notification?.title,
+              detail: payload.notification?.body,
+              severity: "info"
+            });
           });
-      }
+          isMessageListenerAdded = true;
+        }
 
-      if (permission === "denied") {
-        console.log("알림이 거부되었어요");
-      }
-    });
-    if (!isMessageListenerAdded) {
-      onMessage(messaging, (payload) => {
-        console.log(payload.notification);
-        console.log("messageing paymload");
-        toast.add({summary: payload.notification?.title, detail: payload.notification?.body,severity:'info'});
+        // FCM 토큰 요청
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted" && messaging) {
+            getToken(messaging, {
+              vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+            }).then((currentToken) => {
+              if (currentToken) {
+                apiClient.post("/v1/auth/fcm-token", { fcmToken: currentToken });
+              }
+            }).catch((err) => {
+              console.error("FCM 토큰 가져오기 실패:", err);
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        console.error("SW 등록 실패:", err);
       });
-      isMessageListenerAdded = true;
-    }
-  } else {
-    console.log("알림이 되지 않아요!!");
   }
 });
 </script>

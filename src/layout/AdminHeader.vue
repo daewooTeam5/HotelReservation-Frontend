@@ -145,7 +145,7 @@ const navigateToSettings = () => {
 // 로그아웃
 const logout = async () => {
   try {
-    await apiClient.post('../logout', null, { withCredentials: true });
+    await apiClient.post('/v1/auth/logout', null, { withCredentials: true });
     setAccessToken(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');

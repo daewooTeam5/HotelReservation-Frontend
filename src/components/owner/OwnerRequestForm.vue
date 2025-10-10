@@ -63,7 +63,7 @@ const { mutate: submitApplication, isPending } = useMutation({
       life: 3000
     });
 
-    const result = await apiClient.post('../auth/token');
+    const result = await apiClient.post('/v1/auth/token');
     authStore.setAccessToken(result.data.data.accessToken);
 
     // 성공 후 폼 초기화

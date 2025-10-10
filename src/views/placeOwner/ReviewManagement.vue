@@ -103,7 +103,7 @@ const fetchOwnerReviews = async (sortBy: string) => {
     baseURL: apiClient.defaults.baseURL,
     withCredentials: true,
   });
-  const res1 = await refreshClient.post("../auth/token");
+  const res1 = await refreshClient.post("/v1/auth/token");
   const newAccessToken = res1.data.data.accessToken;
   authStore.setAccessToken(newAccessToken);
   // ===============================================
@@ -131,7 +131,7 @@ const { mutate: submitComment, isPending: isSubmittingComment } = useMutation({
       baseURL: apiClient.defaults.baseURL,
       withCredentials: true,
     });
-    const res1 = await refreshClient.post("../auth/token");
+    const res1 = await refreshClient.post("/v1/auth/token");
     authStore.setAccessToken(res1.data.data.accessToken);
     // ===============================================
 

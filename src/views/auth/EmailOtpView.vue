@@ -26,7 +26,7 @@ export default defineComponent({
     const route = useRoute(); // 현재 라우트 객체를 가져옵니다.
     const authCodeMutate = useMutation({
       mutationFn: async (data: { email: string, code: string }) => {
-        const result = await apiClient.post<ApiResult<LoginSuccessDto>>('../auth/code', {
+        const result = await apiClient.post<ApiResult<LoginSuccessDto>>('/v1/auth/code', {
           email: data.email,
           code: data.code
         },{

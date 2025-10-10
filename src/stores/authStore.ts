@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const issueToken = async () => {
     try {
-      const response = await apiClient.post('../auth/token');
+      const response = await apiClient.post('/v1/auth/token');
       const newAccessToken = response.data.data.accessToken;
       setAccessToken(newAccessToken);
     } catch (error) {

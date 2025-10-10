@@ -9,7 +9,7 @@ export default defineComponent({
   setup(_, { emit }) {
     const handleLogout = async () => {
       try {
-        await apiClient.post('../logout');
+        await apiClient.post('/v1/auth/logout');
         emit('logged-out');
       } catch (err) {
         console.error('로그아웃 실패:', err);

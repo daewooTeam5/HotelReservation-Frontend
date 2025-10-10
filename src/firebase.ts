@@ -15,6 +15,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Firebase Cloud Messaging and get a reference to the service
-const messaging = firebase.messaging();
+let messagingInstance: ReturnType<typeof firebase.messaging> | null = null;
 
-export { messaging };
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  try {
+    messagingInstance = firebase.messaging();
+  } catch (error) {
+    console.error('Firebase Messaging initialization error:', error);
+  }
+}
+
+export const messaging = messagingInstance;

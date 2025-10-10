@@ -50,7 +50,7 @@ export default {
 
     const login = async () => {
       try {
-        const res = await apiClient.post("../admin/login", form, { withCredentials: true })
+        const res = await apiClient.post("/v1/auth/admin/login", form, { withCredentials: true })
         const { accessToken } = res.data.data
         authStore.setAccessToken(accessToken)
         router.push("/admin")

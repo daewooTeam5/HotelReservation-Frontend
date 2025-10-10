@@ -26,7 +26,7 @@ export default defineComponent({
     });
     const emailMutate = useMutation({
       mutationFn: async (data: { email: string }) => {
-        const result = await apiClient.post<ApiResult<boolean>>('../auth', {
+        const result = await apiClient.post<ApiResult<boolean>>('/v1/auth/auth', {
           email: data.email
         });
         if (result.data.success) {

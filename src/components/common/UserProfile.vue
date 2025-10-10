@@ -58,7 +58,7 @@ const adminItems=[
     label: '로그아웃',
     icon: 'pi pi-sign-out',
     command: async () => {
-      await apiClient.post('../logout');
+      await apiClient.post('/v1/auth/logout');
       authStore.setAccessToken(null);
       await router.push('/auth/signin');
     }
@@ -118,7 +118,7 @@ const profileItems = [
     label: '로그아웃',
     icon: 'pi pi-sign-out',
     command: async () => {
-      await apiClient.post('../logout');
+      await apiClient.post('/v1/auth/logout');
       authStore.setAccessToken(null);
       await router.push('/auth/signin');
     }

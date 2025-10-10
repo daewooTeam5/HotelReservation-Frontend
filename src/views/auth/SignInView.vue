@@ -44,7 +44,7 @@ export default defineComponent({
     const emailMutate = reactive(
       useMutation({
         mutationFn: async (data: { email: string }) => {
-          const result = await apiClient.post<ApiResult<boolean>>('../auth', { email: data.email });
+          const result = await apiClient.post<ApiResult<boolean>>('/v1/auth', { email: data.email });
           if (result.data.success) return data.email;
         },
         onSuccess: (data) => {

@@ -61,7 +61,7 @@ apiClient.interceptors.response.use(
         });
 
         // 리프레시 토큰으로 새 액세스 토큰 요청
-        const res = await refreshClient.post('../auth/token');
+        const res = await refreshClient.post('v1/auth/token');
         const newAccessToken = res.data.data.accessToken;
 
         // Pinia 스토어에 새 액세스 토큰 저장

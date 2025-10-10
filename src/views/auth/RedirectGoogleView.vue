@@ -24,7 +24,7 @@ onMounted(async () => {
     // 백엔드로 Google 로그인 요청
     const redirectUri = `${window.location.origin}/oauth/google`;
 
-    const response = await apiClient.post('../auth/google', {
+    const response = await apiClient.post('/v1/auth/google', {
       code: code,
       redirectUri: redirectUri
     });

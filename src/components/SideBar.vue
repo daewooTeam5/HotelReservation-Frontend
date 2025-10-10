@@ -77,7 +77,7 @@ const handleLogout = () => {
     acceptLabel: '로그아웃',
     accept: async () => {
       try {
-        await apiClient.post('../logout');
+        await apiClient.post('/v1/auth/logout');
         authStore.setAccessToken(null);
         await router.push('/auth/signin');
       } catch (error) {

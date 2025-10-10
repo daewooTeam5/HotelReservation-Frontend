@@ -24,7 +24,7 @@ onMounted(async () => {
     // 백엔드로 Kakao 로그인 요청
     const redirectUri = `${window.location.origin}/oauth/kakao`;
 
-    const response = await apiClient.post('../auth/kakao', {
+    const response = await apiClient.post('/v1/auth/kakao', {
       code: code,
       redirectUri: redirectUri
     });
