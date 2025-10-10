@@ -136,6 +136,7 @@ export const useProfileStore = defineStore('profile', () => {
         status: data.status,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
+        profileImageUrl:data.profileImageUrl,
         review: data.review ?? 0,
       };
 
