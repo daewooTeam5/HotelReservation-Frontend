@@ -84,7 +84,6 @@ const getStorageItemNames = () => {
 </script>
 
 <template>
-  <Toast />
 
   <!-- 임시 저장 데이터 복원 다이얼로그 -->
   <Dialog

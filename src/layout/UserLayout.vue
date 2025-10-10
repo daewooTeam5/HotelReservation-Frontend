@@ -8,7 +8,6 @@
 
     <DefaultFooter />
 
-    <Toast />
   </div>
 </template>
 

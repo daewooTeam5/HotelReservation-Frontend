@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6 flex flex-col gap-4">
-    <Toast/>
     <!-- 헤더 -->
     <div class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-between">
       <div>

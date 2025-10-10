@@ -32,6 +32,13 @@ const router = createRouter({
           meta: { layout: 'profile' }
         },
         {
+          path: 'payments/:paymentId/ticket',
+          name: 'profile-eticket',
+          component: () => import('@/views/profile/ETicketPage.vue'),
+          props: true,
+          meta: { layout: 'default' }
+        },
+        {
           path: 'comment',
           name: 'comment',
           component: () => import('@/views/profile/QuestionPage.vue')
@@ -282,6 +289,12 @@ const router = createRouter({
           name: 'owner-reservation-detail',
           component: () => import('@/views/placeOwner/ReservationDetail.vue'),
           props: true,
+          meta: { layout: 'owner' }
+        },
+        {
+          path: 'checkin',
+          name: 'owner-checkin',
+          component: () => import('@/views/placeOwner/CheckInManagement.vue'),
           meta: { layout: 'owner' }
         },
         {

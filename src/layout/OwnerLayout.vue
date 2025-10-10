@@ -14,7 +14,6 @@
       <!-- Content -->
       <section class="p-6 overflow-y-auto flex-1">
         <!-- router-view에서 컴포넌트 참조 -->
-        <Toast/>
         <router-view v-slot="{ Component }">
           <component :is="Component" ref="pageRef" />
         </router-view>

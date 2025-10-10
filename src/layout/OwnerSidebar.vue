@@ -80,6 +80,7 @@ const menuItems = computed(() => [
   { name: "숙소 관리", path: "/owner/place", icon: "pi pi-building" },
   { name: "객실 관리", path: "/owner/rooms", icon: "pi pi-home" },
   { name: "예약 관리", path: "/owner/reservations", icon: "pi pi-calendar" },
+  { name: "체크인 관리", path: "/owner/checkin", icon: "pi pi-qrcode" },
   { name: "리뷰 관리", path: "/owner/reviews", icon: "pi pi-star" },
   { name: "문의 관리", path: "/owner/inquiries", icon: "pi pi-question-circle" },
   { name: "쿠폰 관리", path: "/owner/coupons", icon: "pi pi-ticket" },

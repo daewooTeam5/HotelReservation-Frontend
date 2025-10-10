@@ -5,12 +5,12 @@
 
     <!-- 가운데 타이틀 -->
     <h1
-      class="absolute left-1/2 transform -translate-x-1/2 text-xl font-bold
+      class="absolute left-1/2 transform -translate-x-1/2 text-3xl font-bold
              bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
              cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
       @click="router.push('/')"
     >
-      Hotel Reservation
+      Hotel Reservation Hotel Owner
     </h1>
 
     <!-- 오른쪽 끝 프로필 -->

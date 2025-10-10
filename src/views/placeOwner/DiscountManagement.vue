@@ -1,6 +1,5 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
-    <Toast />
     <ConfirmDialog></ConfirmDialog>
 
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
