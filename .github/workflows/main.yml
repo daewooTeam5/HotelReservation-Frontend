@@ -39,7 +39,7 @@ jobs:
 
       # 🏗️ 빌드 실행
       - name: Build project
-        run: npm run build
+        run: npm run build-only
 
       # 📤 빌드 산출물 업로드
       - name: Upload build artifact
