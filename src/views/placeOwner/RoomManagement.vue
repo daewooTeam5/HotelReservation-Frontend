@@ -116,7 +116,6 @@ onUnmounted(() => {
 
 <template>
   <div class="p-6 bg-gray-50 min-h-screen flex flex-col gap-6">
-    <Toast />
     <!-- 상단 헤더 -->
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
       <h1 class="text-2xl font-bold text-gray-900">객실 유형 관리</h1>

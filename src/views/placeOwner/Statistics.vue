@@ -1,6 +1,5 @@
 <template>
   <div class="p-6 space-y-6 flex flex-col gap-6">
-    <Toast/>
     <!-- 페이지 헤더 -->
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-gray-900">통계 대시보드</h1>

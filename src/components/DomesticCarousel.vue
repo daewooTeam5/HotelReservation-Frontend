@@ -44,7 +44,7 @@ const domesticCities = ref([
   { name: "광주", image: "/images/domestic/seoul.jpg" },
   { name: "대전", image: "/images/domestic/busan.jpg" },
   { name: "울산", image: "/images/domestic/seoul.jpg" },
-  { name: "경기도", image: "/images/domestic/busan.jpg" },
+  { name: "경기", image: "/images/domestic/busan.jpg" },
   { name: "강원도", image: "/images/domestic/seoul.jpg" },
   { name: "충청북도", image: "/images/domestic/busan.jpg" },
   { name: "충청남도", image: "/images/domestic/seoul.jpg" },

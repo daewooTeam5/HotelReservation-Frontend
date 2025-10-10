@@ -111,7 +111,6 @@ const submitCoupon = () => {
 
 <template>
   <section class="max-w-5xl mx-auto p-4">
-    <Toast/>
     <!-- 쿠폰 등록 폼 -->
     <div class="mb-6 p-4 border rounded-lg flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
       <PrimeInputText

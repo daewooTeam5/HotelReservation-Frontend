@@ -54,7 +54,6 @@ const getStatusText = (status: string) => {
 </script>
 
 <template>
-  <Toast />
 
   <!-- 로딩 상태 -->
   <div v-if="isLoading" class="bg-gray-50 h-full flex items-center justify-center p-4">

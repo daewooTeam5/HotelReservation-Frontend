@@ -94,7 +94,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <Toast />
 
   <div class="flex items-center justify-center min-h-screen bg-slate-100 font-sans p-4">
     <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-lg text-center">

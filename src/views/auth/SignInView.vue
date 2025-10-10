@@ -73,7 +73,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <Toast />
   <div class="flex justify-center items-center bg-gray-50 h-full flex-1">
     <Card class="w-full sm:w-96 shadow-lg">
       <template #title>
