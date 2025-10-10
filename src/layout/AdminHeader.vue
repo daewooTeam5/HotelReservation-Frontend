@@ -22,8 +22,51 @@
 
     <!-- 오른쪽 영역 -->
     <div class="flex items-center space-x-3 relative">
-      <UserProfile type="admin"/>
+      <!-- 🟦 전체 공지 버튼 추가 -->
+      <button
+        @click="showModal = true"
+        class="flex items-center gap-1 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+      >
+        <i class="pi pi-megaphone"></i>
+        <span>전체 공지</span>
+      </button>
+
+      <!-- 기존 프로필 -->
+      <UserProfile type="admin" />
     </div>
+
+    <!-- 📢 전체 공지 모달 -->
+    <Dialog
+      v-model:visible="showModal"
+      header="전체 공지 보내기"
+      modal
+      class="w-[90%] max-w-md"
+    >
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="text-sm text-gray-600 font-medium">제목</label>
+          <InputText
+            v-model="noticeTitle"
+            placeholder="공지 제목을 입력하세요"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label class="text-sm text-gray-600 font-medium">내용</label>
+          <Textarea
+            v-model="noticeBody"
+            rows="4"
+            placeholder="공지 내용을 입력하세요"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <Button label="취소" class="p-button-text" @click="showModal = false" />
+        <Button label="전송" icon="pi pi-send" @click="sendNotice" autofocus />
+      </template>
+    </Dialog>
   </header>
 </template>
 
@@ -36,6 +79,40 @@ import { onMounted, ref } from 'vue';
 import { parseJwt } from '@/utils/jwtUtils.ts';
 import { apiClient } from '@/utils/axiosClient.ts';
 
+// 🟦 PrimeVue UI 추가 import
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
+import Button from 'primevue/button';
+
+// 🟦 공지 모달 상태
+const showModal = ref(false);
+const noticeTitle = ref('');
+const noticeBody = ref('');
+
+// 🟦 전체 공지 전송 함수
+const sendNotice = async () => {
+  if (!noticeTitle.value || !noticeBody.value) {
+    alert('제목과 내용을 입력하세요.');
+    return;
+  }
+
+  try {
+    await apiClient.post('/admin/notice', {
+      title: noticeTitle.value,
+      body: noticeBody.value
+    });
+    alert('전체 공지가 발송되었습니다.');
+    showModal.value = false;
+    noticeTitle.value = '';
+    noticeBody.value = '';
+  } catch (e) {
+    console.error('공지 발송 실패:', e);
+    alert('공지 발송 중 오류가 발생했습니다.');
+  }
+};
+
+// 🟨 기존 코드 유지
 const router = useRouter();
 const { setAccessToken, accessToken, userAuth, getAccessToken } = useAuthStore();
 
@@ -73,7 +150,7 @@ const logout = async () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('placeId');
-    router.push('/login1');
+    router.push('/login');
   } catch (e) {
     console.error('로그아웃 실패:', e);
   } finally {
