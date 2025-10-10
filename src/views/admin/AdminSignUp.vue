@@ -66,7 +66,7 @@ export default {
       try {
         const res = await axios.post("http://localhost:8080/signup", this.form)
         this.message = res.data.message
-        this.$router.push("/login1")
+        this.$router.push("/login")
       } catch (err: any) {
         this.message = err.response?.data?.message || "회원가입 실패"
       }
