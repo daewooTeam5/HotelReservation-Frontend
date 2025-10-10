@@ -100,6 +100,7 @@ const responsiveOptions = ref([
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-2xl font-bold text-gray-800">실제 투숙객 리뷰</h2>
       <Button
+        style="margin-bottom: 8px;"
         v-if="reviews.length > 0"
         label="리뷰 작성하기"
         icon="pi pi-pencil"
@@ -108,7 +109,7 @@ const responsiveOptions = ref([
       />
     </div>
 
-    <div v-if="!isLoadingReviews && reviews.length > 0" class="flex items-center gap-8 mb-6 p-4 bg-gray-50 rounded-lg">
+    <div style="margin-bottom: 12px;" v-if="!isLoadingReviews && reviews.length > 0" class="flex items-center gap-8 mb-6 p-4 bg-gray-150 rounded-lg">
       <div class="text-center">
         <p class="text-5xl font-bold text-blue-600">{{ ratingStats.average.toFixed(1) }}</p>
         <Rating :model-value="ratingStats.average" readonly :cancel="false" />
@@ -131,12 +132,12 @@ const responsiveOptions = ref([
     <div v-else>
       <Carousel :value="reviews" :numVisible="3" :numScroll="1" :responsiveOptions="responsiveOptions" :showIndicators="false">
         <template #item="slotProps">
-          <div class="border rounded-lg p-6 m-2 h-full flex flex-col min-h-[220px]">
+          <div style="border: 1px solid lightgray; margin-right: 5px; margin-left: 5px;"
+               class="rounded-lg p-4 m-2 h-full flex flex-col min-h-[140px]">
             <div class="flex items-center gap-3 mb-4">
-              <Gravatar :email="slotProps.data.userName + '@example.com'" class="w-10 h-10 rounded-full" />
+              <Gravatar :email="slotProps.data.userName + '@example.com'" class="w-10 h-10 rounded-full" style="margin-bottom: 8px;" />
               <div>
                 <p class="font-semibold">{{ slotProps.data.userName }}</p>
-                <p class="text-sm text-gray-500">대한민국</p>
               </div>
             </div>
             <p class="text-gray-700 flex-grow line-clamp-4">"{{ slotProps.data.comment }}"</p>
@@ -147,7 +148,7 @@ const responsiveOptions = ref([
     </div>
 
     <div v-if="reviews.length > 0" class="mt-6">
-      <Button label="이용후기 모두 보기" @click="openDetailModal" outlined />
+      <Button style="margin-left: 10px; margin-top: 12px; margin-bottom: 5px; " label="이용후기 모두 보기" icon="pi pi-users" @click="openDetailModal" outlined/>
     </div>
 
     <ReviewDetailModal

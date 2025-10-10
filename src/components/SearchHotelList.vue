@@ -65,7 +65,7 @@
                 {{ Number(place.originalPrice).toLocaleString() }}원
               </span>
             </div>
-            <p class="text-xs text-gray-500">1박 기준</p>
+            <p style="margin-bottom: 6px;" class="text-xs text-gray-500">1박 기준</p>
           </div>
         </div>
         <div class="flex gap-2 mt-4 self-end">

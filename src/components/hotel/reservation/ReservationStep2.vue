@@ -101,13 +101,13 @@
         </div>
 
         <!-- 포인트 할인 -->
-        <div class="flex justify-between items-center text-green-600 mt-1">
+        <div style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-green-600 mt-1">
           <div class="flex items-center space-x-2">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
               <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
             </svg>
-            <span class="font-semibold">포인트 할인</span>
+            <span class="font-semibold" >포인트 할인</span>
           </div>
           <span class="font-bold">-₩{{ reservationData?.pointDiscountAmount.toLocaleString() || 0 }}</span>
         </div>

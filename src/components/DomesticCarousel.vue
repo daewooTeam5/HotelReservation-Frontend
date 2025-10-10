@@ -1,31 +1,30 @@
 <template>
-  <div class="card max-w-7xl mx-auto! px-4 sm:px-6 lg:px-8 mt-20!">
-    <h2 class="text-xl font-bold! ml-17!">인기 여행지</h2>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+    <h2 class="text-xl font-bold! mb-4" style="margin-bottom: 10px;margin-top: 10px;">인기 여행지</h2>
 
-    <PrimeCarousel
-      :value="domesticCities"
-      :numVisible="5"
-      :numScroll="1"
-      :responsiveOptions="responsiveOptions"
-    >
-      <template #item="slotProps">
+    <div class="overflow-x-auto scroll-smooth">
+      <div class="flex gap-8">
         <div
-          class="border border-none! rounded! m-2! p-4! cursor-pointer hover:shadow-md transition"
-          @click="goToDomestic(slotProps.data)"
+          style="margin-bottom: 10px; margin-top: 10px;"
+          v-for="city in domesticCities"
+          :key="city.name"
+          class="flex-shrink-0 w-60 cursor-pointer rounded-lg hover:shadow-md transition"
+          @click="goToDomestic(city)"
         >
-          <div class="mb-3 aspect-square">
+          <div class="aspect-square mb-2">
             <img
-              :src="slotProps.data.image"
-              :alt="slotProps.data.name"
-              class="w-full h-full object-cover rounded"
+              :src="city.image"
+
+              :alt="city.name"
+              class="w-full h-full object-cover rounded font-bold!"
             />
           </div>
-          <div class="text-center font-semibold! text-gray-800">
-            {{ slotProps.data.name }}
+          <div class="text-center font-semibold text-gray-800">
+            {{ city.name }}
           </div>
         </div>
-      </template>
-    </PrimeCarousel>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -35,59 +34,29 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-// 국내 여행지 리스트 (중복 제거 + 이미지 경로 샘플 지정)
 const domesticCities = ref([
-  { name: "서울", image: "/images/domestic/seoul.jpg" },
-  { name: "부산", image: "/images/domestic/busan.jpg" },
-  { name: "대구", image: "/images/domestic/seoul.jpg" },
-  { name: "인천", image: "/images/domestic/busan.jpg" },
-  { name: "광주", image: "/images/domestic/seoul.jpg" },
-  { name: "대전", image: "/images/domestic/busan.jpg" },
-  { name: "울산", image: "/images/domestic/seoul.jpg" },
-  { name: "경기", image: "/images/domestic/busan.jpg" },
-  { name: "강원도", image: "/images/domestic/seoul.jpg" },
-  { name: "충청북도", image: "/images/domestic/busan.jpg" },
-  { name: "충청남도", image: "/images/domestic/seoul.jpg" },
-  { name: "전라북도", image: "/images/domestic/busan.jpg" },
-  { name: "전라남도", image: "/images/domestic/seoul.jpg" },
-  { name: "경상북도", image: "/images/domestic/busan.jpg" },
-  { name: "경상남도", image: "/images/domestic/seoul.jpg" },
-  { name: "제주", image: "/images/domestic/seoul.jpg" },
+
+  { name: "서울", image: "/images/domestic/seoul2.png" },
+  { name: "부산", image: "/images/domestic/busan3.jpg" },
+  { name: "대구", image: "/images/domestic/daegoo.jpg" },
+  { name: "인천", image: "/images/domestic/incheon.jpg" },
+  { name: "광주", image: "/images/domestic/kwang-jo.jpg" },
+  { name: "대전", image: "/images/domestic/daejeon.jpg" },
+  { name: "울산", image: "/images/domestic/ulsan2.jpg" },
+  { name: "경기", image: "/images/domestic/gyong-gi.jpg" },
+  { name: "강원", image: "/images/domestic/kangwon.jpg" },
+  { name: "충북", image: "/images/domestic/chongbook.jpg" },
+  { name: "충남", image: "/images/domestic/gongju.jpg" },
+  { name: "전북", image: "/images/domestic/jeonbook.png" },
+  { name: "전남", image: "/images/domestic/jeonam.jpg" },
+  { name: "경북", image: "/images/domestic/gyuon-book.png" },
+  { name: "경남", image: "/images/domestic/pohang.jpg" },
+  { name: "제주", image: "/images/domestic/jeju.jpg" },
 ]);
 
-// Carousel 반응형 옵션
-const responsiveOptions = ref([
-  {
-    breakpoint: "1400px",
-    numVisible: 4,
-    numScroll: 1,
-  },
-  {
-    breakpoint: "1199px",
-    numVisible: 3,
-    numScroll: 1,
-  },
-  {
-    breakpoint: "767px",
-    numVisible: 2,
-    numScroll: 1,
-  },
-  {
-    breakpoint: "575px",
-    numVisible: 1,
-    numScroll: 1,
-  },
-]);
-
-// 클릭 시 최근 검색에 저장 + 이동
 const goToDomestic = (city: any) => {
   const saved = localStorage.getItem("recentSearches");
-  let base = null;
-
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    base = parsed[0] || null;
-  }
+  let base = saved ? JSON.parse(saved)[0] : null;
 
   const searchData = {
     address: city.name,
@@ -105,7 +74,7 @@ const goToDomestic = (city: any) => {
       idx ===
       self.findIndex(
         (x) =>
-          x.name === s.name &&
+          x.address === s.address &&
           x.checkIn === s.checkIn &&
           x.checkOut === s.checkOut
       )
@@ -119,3 +88,11 @@ const goToDomestic = (city: any) => {
   });
 };
 </script>
+
+<style scoped>
+/* 부드러운 스크롤 */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+</style>

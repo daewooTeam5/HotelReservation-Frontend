@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { apiClient } from '@/utils/axiosClient.ts';
 import dayjs from 'dayjs';
+import { useToast } from 'primevue/usetoast';
+const toast = useToast();
 
 interface PlaceInfo {
   placeId: number;
@@ -79,21 +81,33 @@ onMounted(() => {
   fetchMyReviews();
 });
 const deleteReview = async (reviewId: number, placeId: number) => {
-  if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
-
   try {
     await apiClient.delete(`/v1/places/${placeId}/reviews/${reviewId}`);
     reviews.value = reviews.value.filter(r => r.reviewId !== reviewId);
+
+    toast.add({
+      severity: 'success',
+      summary: '삭제 완료',
+      detail: '리뷰가 성공적으로 삭제되었습니다.',
+      life: 3000
+    });
   } catch (err: any) {
     console.error('리뷰 삭제 실패:', err);
-    alert('리뷰 삭제 중 오류가 발생했습니다.');
+    toast.add({
+      severity: 'error',
+      summary: '삭제 실패',
+      detail: '리뷰 삭제 중 문제가 발생했습니다.',
+      life: 3000
+    });
   }
 };
+
 </script>
 
 <template>
 
   <div class="max-w-4xl mx-auto p-4 md:p-8">
+    <Toast />
     <h1 class="text-3xl font-bold! text-gray-900 mb-8!">내가 작성한 리뷰</h1>
 
     <div v-if="loading" class="space-y-6!">

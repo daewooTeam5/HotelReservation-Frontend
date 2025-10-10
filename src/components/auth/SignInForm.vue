@@ -51,14 +51,14 @@ export default defineComponent({
     };
     const handleGoogleLogin = () => { emit('close'); };
     const handleKakaoLogin = () => { emit('close'); };
-    const handleNaverLogin = () => { emit('close'); };
+
     return {
       ...toRefs(state),
       emailMutate,
       handleEmailLogin,
       handleGoogleLogin,
       handleKakaoLogin,
-      handleNaverLogin
+
     };
   }
 });
@@ -70,7 +70,6 @@ export default defineComponent({
     <div class="flex flex-col gap-2 mb-4">
       <Button label="Google 로그인" icon="pi pi-google" severity="secondary" outlined @click="handleGoogleLogin" />
       <Button label="Kakao 로그인" icon="pi pi-comment" severity="warning" @click="handleKakaoLogin" />
-      <Button label="Naver 로그인" icon="pi pi-globe" severity="success" @click="handleNaverLogin" />
     </div>
     <Divider align="center">또는</Divider>
     <!-- 이메일 로그인 -->

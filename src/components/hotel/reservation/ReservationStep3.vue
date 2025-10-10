@@ -1,16 +1,17 @@
 <template>
   <PrimeCard class="shadow-md">
     <template #header>
-      <div class="bg-green-500 text-white py-4 px-6">
+      <div style="margin-bottom: 10px;" class="bg-green-500 text-white py-4 px-6">
         <h2 class="text-2xl font-bold">예약 완료</h2>
       </div>
     </template>
 
     <template #content>
       <div class="p-4 space-y-6 text-center">
-        <i class="pi pi-check-circle text-green-500 text-8xl"></i>
 
-        <h3 class="text-2xl font-bold mt-4">예약이 성공적으로 완료되었습니다!</h3>
+
+        <h3 style="margin-bottom: 10px;" class="text-2xl font-bold mt-4">
+          <i class="pi pi-check-circle text-green-500 text-8xl" style="margin-right: 6px;"></i>예약이 성공적으로 완료되었습니다!</h3>
 
         <!-- 로딩/에러 처리 -->
         <div v-if="isLoading" class="py-4">
@@ -52,20 +53,24 @@
         </div>
 
         <!-- 버튼 -->
-        <div class="mt-8 flex justify-center">
+        <div class="mt-8 flex justify-center gap-4">
+          <!-- 로그인 된 경우만 예약 목록 버튼 노출 -->
           <PrimeButton
+            v-if="isLoggedIn"
             severity="info"
-            class="px-6 py-2 mr-4"
+            class="px-6 py-2"
             @click="goToReservationList"
           >
             <i class="pi pi-list mr-2"></i>
             예약 목록으로
           </PrimeButton>
 
+          <!-- 홈 버튼은 항상 -->
           <PrimeButton
             severity="secondary"
             class="px-6 py-2"
             @click="goToHome"
+            style="margin-top: 10px;"
           >
             <i class="pi pi-home mr-2"></i>
             홈으로
@@ -77,9 +82,15 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, computed } from 'vue';
+import { computed } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import { defineProps, defineEmits } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { httpFetcher } from '@/utils/httpFetcher.ts';
+
+
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => !!authStore.accessToken);
 
 // Props
 const props = defineProps<{ reservationId: string }>();

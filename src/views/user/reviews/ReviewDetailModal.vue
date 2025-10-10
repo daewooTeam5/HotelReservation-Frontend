@@ -204,17 +204,17 @@ const onReviewSubmitted = () => {
         </div>
         <div class="flex-1 overflow-y-auto space-y-6 pr-2 review-list-container">
           <div v-for="review in reviews" :key="review.reviewId" :id="`review-${review.reviewId}`" class="border-b pb-4 scroll-mt-4">
-            <div class="flex items-start gap-3">
-              <Gravatar :email="review.userName + '@example.com'" class="w-10 h-10 rounded-full flex-shrink-0" />
+            <div style="margin-top: 6px;" class="flex items-start gap-3">
+              <Gravatar :email="review.userName + '@example.com'" class="w-10 h-10 rounded-full flex-shrink-0" style="margin-top: 12px;" />
               <div class="flex-1">
-                <div class="flex items-center">
+                <div style="margin-top: 2px;" class="flex items-center">
                   <span class="font-semibold">{{ review.userName }}</span>
-                  <span class="text-xs text-gray-500 ml-2">{{ new Date(review.createdAt).toLocaleDateString() }}</span>
+                  <span style="margin-left: 3px;" class="text-xs text-gray-500 ml-2">{{ new Date(review.createdAt).toLocaleDateString() }}</span>
                   <Button v-if="authStore.userAuth?.id === review.userId" icon="pi pi-trash" text severity="danger" @click.stop="confirmDelete(review.reviewId)" class="ml-auto w-8 h-8" />
                 </div>
-                <div class="text-xs text-gray-500">{{ review.nights }}박 · {{ review.roomType }}</div>
+                <div style="margin-top: 1px; margin-bottom: 3px;" class="text-xs text-gray-500">{{ review.nights }}박 · {{ review.roomType }}</div>
                 <Rating :model-value="review.rating" readonly :cancel="false" class="mt-1" />
-                <p class="mt-2 text-gray-700 whitespace-pre-wrap">{{ review.comment }}</p>
+                <p style="margin-top: 1px;" class="mt-2 text-gray-700 whitespace-pre-wrap">{{ review.comment }}</p>
                 <div v-if="review.imageUrls.length > 0" class="flex gap-2 mt-2 flex-wrap">
                   <img v-for="url in review.imageUrls" :key="url" :src="url" class="w-24 h-24 rounded object-cover" />
                 </div>

@@ -89,7 +89,6 @@ export default defineComponent({
             @click="handleKakaoLogin"
             class="cursor-pointer hover:opacity-80 transition-opacity"
           />
-          <Button label="Naver 로그인" icon="pi pi-globe" severity="success" />
         </div>
 
         <Divider align="center">또는</Divider>

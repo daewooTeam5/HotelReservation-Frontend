@@ -472,7 +472,7 @@ const promoDiscountPercent = computed(() => {
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-end gap-3">
+      <div style="margin-top: 10px; margin-bottom: 10px;" class="flex justify-end gap-3">
         <PrimeButton label="주문번호 복사" icon="pi pi-copy" severity="secondary" @click="copy(payment.orderId, '주문번호')" />
         <PrimeButton v-if="isCancelable" label="결제 취소" icon="pi pi-times" severity="danger" :loading="!cancelMutation.isPending" @click="cancel" />
       </div>
