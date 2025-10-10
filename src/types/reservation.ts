@@ -105,4 +105,31 @@ export type PaymentDetail = {
   };
 
 };
+export interface GuestEntity {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
 
+export interface CheckInDetail {
+  guest: GuestEntity;
+  placeName: string;
+  roomBedType: string;
+  roomType: string;
+  checkInDate: string;
+  checkOutDate: string;
+}
+
+export interface CheckInReservation {
+  id: number;
+  reservationId: string;
+  guestName: string;
+  roomName: string;
+  checkInDate: string;
+  checkOutDate: string;
+  guestCount: number;
+  phoneNumber: string;
+  status: string;
+}
