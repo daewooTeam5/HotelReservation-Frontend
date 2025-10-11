@@ -1,18 +1,28 @@
 <template>
   <ConfirmDialog></ConfirmDialog>
   <aside
-    class="w-64 bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#1e293b] text-white flex flex-col border-r border-gray-700"
+    class="w-64 bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#1e293b] text-white flex flex-col border-r border-gray-700 h-full"
   >
-    <div class="p-6 text-lg font-bold border-b border-gray-700 flex items-center space-x-2">
-      <i class="pi pi-user text-purple-400"></i>
-      <span style="margin-left: 5px">안녕하세요 {{ profile.name }}님</span>
+    <!-- 헤더 영역 (모바일 닫기 버튼 포함) -->
+    <div class="p-6 text-lg font-bold border-b border-gray-700 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="pi pi-user text-purple-400"></i>
+        <span style="margin-left: 5px">안녕하세요 {{ profile.name }}님</span>
+      </div>
+      <!-- 모바일 닫기 버튼 -->
+      <button
+        @click="$emit('close')"
+        class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+      >
+        <i class="pi pi-times text-white"></i>
+      </button>
     </div>
 
-    <nav class="flex-1 px-3 py-4 space-y-4">
+    <nav class="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
       <div
         v-for="item in items"
         :key="item.label"
-        @click="item.command"
+        @click="handleItemClick(item)"
         class="flex items-center px-4 py-2 rounded-xl cursor-pointer transition-all duration-300"
         :style="{
           backgroundColor: activeItem === item.label ? '#4f46e5' : 'transparent',
@@ -67,6 +77,15 @@ const confirm = useConfirm();
 
 const hoverItem = ref<string | null>(null);
 const activeItem = ref<string | null>(null);
+
+const emit = defineEmits<{
+  close: [];
+}>();
+
+const handleItemClick = (item: any) => {
+  item.command();
+  emit('close'); // 모바일에서 메뉴 클릭 시 사이드바 닫기
+};
 
 const handleLogout = () => {
   confirm.require({

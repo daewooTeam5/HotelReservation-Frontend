@@ -1,17 +1,28 @@
 <template>
   <header class="h-16 bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
     <div class="h-full w-full px-4 md:px-6 flex items-center justify-between">
-      <!-- 왼쪽: 로고 -->
-      <div
-        class="flex items-center gap-2 cursor-pointer group"
-        @click="router.push('/')"
-      >
-        <div class="w-12 h-12 flex items-center justify-center">
-          <img src="/images/logo.png"/>
+      <!-- 왼쪽: 햄버거 메뉴 (모바일) + 로고 -->
+      <div class="flex items-center gap-2">
+        <!-- 햄버거 메뉴 버튼 (프로필 레이아웃에서만 표시) -->
+        <button
+          v-if="showMenuButton"
+          @click="$emit('toggleSidebar')"
+          class="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <i class="pi pi-bars text-xl text-gray-700"></i>
+        </button>
+
+        <div
+          class="flex items-center gap-2 cursor-pointer group"
+          @click="router.push('/')"
+        >
+          <div class="w-12 h-12 flex items-center justify-center">
+            <img src="/images/logo.png"/>
+          </div>
+          <h1 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+            Hotel Reservation
+          </h1>
         </div>
-        <h1 class="text-lg md:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-          Hotel Reservation
-        </h1>
       </div>
 
       <!-- 오른쪽: 액션 버튼들 -->
@@ -90,7 +101,7 @@ import Button from 'primevue/button';
 import { useAuthStore } from '@/stores/authStore';
 import type { UserDto } from '@/types/users';
 import { parseJwt } from '@/utils/jwtUtils';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient.ts';
 import UserProfile from '@/components/common/UserProfile.vue';
 import { useQuery } from '@tanstack/vue-query';
@@ -99,8 +110,18 @@ import type { ApiResult } from '@/types/ApiResult';
 import PrimeBadge from 'primevue/badge';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const cartCount = ref(0);
+
+// 프로필 레이아웃에서만 햄버거 메뉴 버튼 표시
+const showMenuButton = computed(() => {
+  return route.meta.layout === 'profile';
+});
+
+defineEmits<{
+  toggleSidebar: [];
+}>();
 
 const accessToken = computed(() => authStore.accessToken);
 const user = computed<UserDto | null>(() => {
