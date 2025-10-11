@@ -10,6 +10,7 @@ import PrimeVue from 'primevue/config';
 import Tooltip from 'primevue/tooltip';
 import 'v-calendar/style.css';
 import ToastService from 'primevue/toastservice';
+import { registerSW } from 'virtual:pwa-register';
 
 import Checkbox from 'primevue/checkbox';
 import Splitter from 'primevue/splitter';
@@ -128,3 +129,22 @@ app.component('ConfirmDialog', ConfirmDialog);
 app.use(VCalendar, {});
 app.use(ConfirmationService);
 app.mount('#app');
+
+// PWA Service Worker 등록
+if ('serviceWorker' in navigator && import.meta.env.VITE_MODE === 'production') {
+  registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      console.log('새로운 버전이 있습니다. 페이지를 새로고침해주세요.');
+    },
+    onOfflineReady() {
+      console.log('오프라인에서도 사용 가능합니다.');
+    },
+    onRegistered(registration) {
+      console.log('Service Worker 등록 완료:', registration);
+    },
+    onRegisterError(error) {
+      console.error('Service Worker 등록 실패:', error);
+    }
+  });
+}
