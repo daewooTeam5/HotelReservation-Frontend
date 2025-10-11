@@ -3,10 +3,12 @@ import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { apiClient } from '@/utils/axiosClient';
 import { useAuthStore } from '@/stores/authStore';
+import { useToast } from 'primevue';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 onMounted(async () => {
   try {
@@ -16,7 +18,12 @@ onMounted(async () => {
 
     if (!code) {
       console.error('Authorization code가 없습니다.');
-      alert('로그인에 실패했습니다. 다시 시도해주세요.');
+      toast.add({
+        severity: 'error',
+        summary: '로그인 실패',
+        detail: '로그인에 실패했습니다. 다시 시도해주세요.',
+        life: 3000
+      });
       router.push('/');
       return;
     }
@@ -36,6 +43,14 @@ onMounted(async () => {
       if (loginData.accessToken) {
         authStore.setAccessToken(loginData.accessToken);
       }
+
+      toast.add({
+        severity: 'success',
+        summary: '로그인 성공',
+        detail: 'Google 로그인에 성공했습니다.',
+        life: 2000
+      });
+
       router.push('/');
     } else {
       throw new Error(response.data.message || '로그인에 실패했습니다.');
@@ -43,7 +58,12 @@ onMounted(async () => {
   } catch (error: any) {
     console.error('Google 로그인 실패:', error);
     const errorMessage = error?.response?.data?.message || error?.message || '로그인에 실패했습니다.';
-    alert(errorMessage);
+    toast.add({
+      severity: 'error',
+      summary: '로그인 실패',
+      detail: errorMessage,
+      life: 3000
+    });
     router.push('/');
   }
 });

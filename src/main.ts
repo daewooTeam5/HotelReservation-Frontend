@@ -7,8 +7,8 @@ import Aura from '@primeuix/themes/aura';
 import App from './App.vue';
 import router from './router';
 import PrimeVue from 'primevue/config';
-import Tooltip from "primevue/tooltip";
-import "v-calendar/style.css";
+import Tooltip from 'primevue/tooltip';
+import 'v-calendar/style.css';
 import ToastService from 'primevue/toastservice';
 
 import Checkbox from 'primevue/checkbox';
@@ -43,15 +43,15 @@ import Skeleton from 'primevue/skeleton';
 import Textarea from 'primevue/textarea';
 import Dialog from 'primevue/dialog';
 
-import VCalendar from "v-calendar";
+import VCalendar from 'v-calendar';
 import { Avatar, DatePicker, Message, Tag, ToggleSwitch } from 'primevue';
-import { useTheme } from '@primeuix/themes';
 import Divider from 'primevue/divider';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputNumber from 'primevue/inputnumber';
-import ConfirmationService from 'primevue/confirmationservice'
+import ConfirmationService from 'primevue/confirmationservice';
 import ConfirmDialog from 'primevue/confirmdialog';
+
 const app = createApp(App);
 
 const koreanLocale = {
@@ -70,8 +70,6 @@ const koreanLocale = {
 app.use(createPinia());
 app.use(router);
 app.use(VueQueryPlugin, { queryClientConfig: { defaultOptions: { queries: { retry: 0 } } } });
-app.use(ToastService);
-app.component('Toast', Toast);
 app.use(PrimeVue, {
   locale: koreanLocale,
   theme: {
@@ -82,6 +80,8 @@ app.use(PrimeVue, {
   }
 });
 
+app.use(ToastService);
+app.component('Toast', Toast);
 app.component('PrimeCarousel', Carousel);
 app.component('PrimeMenu', Menu);
 app.component('PrimeCard', Card);
@@ -99,7 +99,7 @@ app.component('Column', Column);
 app.component('Message', Message);
 app.component('Avatar', Avatar);
 app.component('Tag', Tag);
-app.component('ToggleSwitch',ToggleSwitch)
+app.component('ToggleSwitch', ToggleSwitch);
 app.component('InputNumber', InputNumber);
 app.component('Textarea', Textarea);
 app.component('Dialog', Dialog);
@@ -124,7 +124,7 @@ app.component('PrimeGalleria', Galleria);
 app.component('FileUpload', FileUpload);
 app.component('PrimeSelect', Select);
 app.directive('tooltip', Tooltip);
-app.component('ConfirmDialog',ConfirmDialog)
+app.component('ConfirmDialog', ConfirmDialog);
 app.use(VCalendar, {});
 app.use(ConfirmationService);
 app.mount('#app');

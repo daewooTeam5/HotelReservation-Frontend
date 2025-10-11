@@ -15,6 +15,8 @@ import { useToast } from 'primevue/usetoast';
 import type { ReviewableReservation } from '@/types/reservation';
 import ProgressBar from 'primevue/progressbar';
 import Rating from 'primevue/rating';
+import { useAuthStore } from '@/stores/authStore.ts';
+import { useRouter } from 'vue-router';
 
 // --- 상태 관리 ---
 const props = defineProps<{
@@ -22,6 +24,8 @@ const props = defineProps<{
 }>();
 
 const toast = useToast();
+const authStore = useAuthStore();
+const router = useRouter();
 const queryClient = useQueryClient();
 const isDetailModalVisible = ref(false);
 const isReviewFormModalVisible = ref(false);
@@ -67,6 +71,16 @@ const openDetailModal = () => {
 
 // ✅ [수정] 리뷰 작성 버튼 클릭 시, 작성 가능한 예약이 있는지 먼저 확인
 const handleWriteReviewClick = async () => {
+  if(!authStore.userAuth){
+    toast.add({
+      summary:"로그인이 필요합니다.",
+      detail:"로그인후 이용해주세요",
+      severity:"warn",
+      life:3000
+    })
+    await router.push("/auth/signin")
+    return;
+  }
   isCheckingPermission.value = true;
   try {
     const res = await apiClient.get<ApiResult<ReviewableReservation[]>>(`/v1/reservations/reviewable?placeId=${props.placeId}`);
@@ -116,7 +130,7 @@ const responsiveOptions = ref([
         <p class="text-sm text-gray-600 mt-1">{{ ratingStats.total }}개 리뷰</p>
       </div>
       <div class="flex-1 space-y-1">
-        <div v-for="i in 5" :key="i" class="flex items-center gap-2">
+        <div v-for="i in 5" :key="i" class="flex items-center gap-2 my-1!">
           <span class="text-sm text-gray-600 w-8">{{ 6 - i }}점</span>
           <ProgressBar :value="(ratingStats.counts[6-i] / ratingStats.total) * 100" :showValue="false" class="h-2 flex-1" />
         </div>

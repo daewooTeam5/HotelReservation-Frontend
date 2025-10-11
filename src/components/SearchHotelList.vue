@@ -19,7 +19,7 @@
           v-if="place.fileUrl"
           :src="place.fileUrl"
           alt="호텔 이미지"
-          class="object-cover h-full w-full"
+          class="object-cover h-64"
         />
         <span
           v-else
@@ -31,15 +31,15 @@
 
       <div class="flex-1 p-6 flex flex-col justify-between">
         <div>
-          <h2 class="text-xl font-bold text-gray-800">{{ place.name }}</h2>
-          <p class="text-gray-600 text-sm flex items-center gap-1 mt-1">
-            <i class="pi pi-map-marker"></i> {{ place.sido }}
+          <h2 class="text-2xl font-bold text-gray-800">{{ place.name }}</h2>
+          <p class="text-gray-600 text-sm flex items-center gap-1 mt-1!">
+            <i class="pi pi-map-marker text-red-500"></i> <span class="text-gray-500">{{ place.sido }}</span>
           </p>
-          <div class="flex items-center gap-2 mt-2">
+          <div class="flex items-center gap-2 mt-1!">
             <span class="text-sm text-yellow-500 font-bold flex items-center gap-1">
               <i class="pi pi-star-fill"></i> {{ place.avgRating.toFixed(1) }}
             </span>
-            <span class="text-sm text-gray-500">({{ place.reviewCount }}개 리뷰)</span>
+            <span class="text-sm text-gray-500">( {{ place.reviewCount ?? 0 }}개 리뷰 )</span>
           </div>
         </div>
 
