@@ -307,8 +307,9 @@
               <div class="flex items-center justify-between mb-4">
                 <h3 class="font-semibold">포인트 관리</h3>
                 <div class="flex gap-2">
-                  <PrimeButton label="포인트 지급" icon="pi pi-plus" @click="showPointDialog = true" />
+                  <PrimeButton style="margin-bottom: 10px;" label="포인트 지급" icon="pi pi-plus" @click="showPointDialog = true" />
                   <PrimeButton
+                    style="margin-bottom: 10px;"
                     label="포인트 차감"
                     icon="pi pi-minus"
                     severity="danger"

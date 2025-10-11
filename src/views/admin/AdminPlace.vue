@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-gray-900">숙소 관리</h1>
+        <h1 class="text-3xl font-bold text-gray-900" style="margin-bottom: 10px;">숙소 관리</h1>
       </div>
 
       <!-- 검색 필터 -->
@@ -44,7 +44,7 @@
         <Button label="검색" @click="fetchPlaces" />
       </div>
 
-      <DataTable :value="places" responsiveLayout="scroll" class="mt-4" @row-click="onRowClick">
+      <DataTable :value="places" style="margin-top: 15px;" responsiveLayout="scroll" class="mt-4" @row-click="onRowClick">
         <!-- 상태 -->
         <Column header="상태">
           <template #body="slotProps">
