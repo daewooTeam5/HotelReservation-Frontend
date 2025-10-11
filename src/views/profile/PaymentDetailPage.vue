@@ -144,7 +144,7 @@ const promoDiscountPercent = computed(() => {
 </script>
 
 <template>
-  <section class="max-w-6xl mx-auto p-4 md:p-6">
+  <section class=" mx-auto p-4 md:p-6">
 
     <!-- Loading / Error -->
     <div v-if="isLoading" class="space-y-4">
@@ -159,7 +159,7 @@ const promoDiscountPercent = computed(() => {
     <!-- Content -->
     <div v-else-if="payment" class="space-y-6">
       <!-- Hero -->
-      <PrimeCard class="overflow-hidden shadow-sm border border-gray-200">
+      <PrimeCard class="overflow-hidden shadow-sm border border-gray-200 mb-2!">
         <template #content>
           <div class="flex flex-col md:flex-row">
             <img
@@ -206,7 +206,7 @@ const promoDiscountPercent = computed(() => {
           <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-xl">
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="text-3xl font-bold mb-2">{{ payment.placeName }}</h2>
+                <h2 class="text-3xl font-bold mb-2!">{{ payment.placeName }}</h2>
                 <p class="text-blue-100">숙박 예약 확인증</p>
               </div>
               <div class="text-right">
@@ -218,16 +218,16 @@ const promoDiscountPercent = computed(() => {
           <!-- 메인 티켓 바디 -->
           <div class="bg-white p-8 border-x-2 border-dashed border-gray-300">
             <!-- 예약 번호 -->
-            <div class="text-center mb-8 pb-6 border-b-2 border-dashed border-gray-300">
-              <div class="text-sm text-gray-500 mb-2">예약번호</div>
+            <div class="text-center mb-8! pb-6 border-b-2 border-dashed border-gray-300">
+              <div class="text-sm text-gray-500 mb-2!">예약번호</div>
               <div class="text-3xl font-bold text-gray-900 tracking-wider font-mono">{{ payment.reservationId }}</div>
             </div>
 
             <!-- 체크인/체크아웃 정보 (비행기 티켓 스타일) -->
-            <div class="grid grid-cols-3 gap-4 mb-8 items-center">
+            <div class="grid grid-cols-3 gap-4 mb-8! items-center">
               <!-- 체크인 -->
               <div class="text-center">
-                <div class="text-xs text-gray-500 mb-2">체크인</div>
+                <div class="text-xs text-gray-500 mb-2!">체크인</div>
                 <div class="text-2xl font-bold text-gray-900">{{ new Date(payment.resevStart).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) }}</div>
                 <div class="text-sm text-gray-600">{{ new Date(payment.resevStart).toLocaleDateString('ko-KR', { weekday: 'short' }) }}</div>
                 <div class="text-xs text-gray-500 mt-1">15:00</div>
@@ -247,7 +247,7 @@ const promoDiscountPercent = computed(() => {
 
               <!-- 체크아웃 -->
               <div class="text-center">
-                <div class="text-xs text-gray-500 mb-2">체크아웃</div>
+                <div class="text-xs text-gray-500 mb-2!">체크아웃</div>
                 <div class="text-2xl font-bold text-gray-900">{{ new Date(payment.resevEnd).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) }}</div>
                 <div class="text-sm text-gray-600">{{ new Date(payment.resevEnd).toLocaleDateString('ko-KR', { weekday: 'short' }) }}</div>
                 <div class="text-xs text-gray-500 mt-1">11:00</div>
@@ -255,9 +255,9 @@ const promoDiscountPercent = computed(() => {
             </div>
 
             <!-- 투숙객 정보 -->
-            <div class="grid grid-cols-2 gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
+            <div class="grid grid-cols-2 gap-6 mb-6! p-4 bg-gray-50 rounded-lg">
               <div>
-                <div class="flex items-center gap-2 mb-4">
+                <div class="flex items-center gap-2 mb-4!">
                   <i class="pi pi-user text-blue-600"></i>
                   <span class="font-semibold text-gray-700">투숙객 정보</span>
                 </div>
@@ -278,7 +278,7 @@ const promoDiscountPercent = computed(() => {
               </div>
 
               <div>
-                <div class="flex items-center gap-2 mb-4">
+                <div class="flex items-center gap-2 mb-4!">
                   <i class="pi pi-building text-purple-600"></i>
                   <span class="font-semibold text-gray-700">객실 정보</span>
                 </div>
@@ -301,7 +301,7 @@ const promoDiscountPercent = computed(() => {
 
             <!-- 결제 정보 -->
             <div class="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-              <div class="flex items-center gap-2 mb-3">
+              <div class="flex items-center gap-2 mb-3!">
                 <i class="pi pi-credit-card text-blue-600"></i>
                 <span class="font-semibold text-gray-700">결제 정보</span>
               </div>
@@ -325,7 +325,7 @@ const promoDiscountPercent = computed(() => {
                   </div>
                 </div>
                 <div class="border-l pl-4 flex flex-col justify-center">
-                  <div class="text-sm text-gray-600 mb-1">최종 결제금액</div>
+                  <div class="text-sm text-gray-600 mb-1!">최종 결제금액</div>
                   <div class="text-3xl font-bold text-blue-600">{{ payment.finalAmount.toLocaleString() }}<span class="text-lg">원</span></div>
                   <div class="text-xs text-gray-500 mt-1">{{ payment.method }}</div>
                 </div>
@@ -337,7 +337,7 @@ const promoDiscountPercent = computed(() => {
               <div class="flex items-start gap-2">
                 <i class="pi pi-info-circle text-yellow-600 mt-1"></i>
                 <div class="flex-1">
-                  <div class="font-semibold text-gray-700 mb-1">요청사항</div>
+                  <div class="font-semibold text-gray-700 mb-1!">요청사항</div>
                   <div class="text-sm text-gray-600 whitespace-pre-wrap">{{ payment.request }}</div>
                 </div>
               </div>
@@ -348,13 +348,13 @@ const promoDiscountPercent = computed(() => {
           <div class="bg-gray-100 p-6 rounded-b-xl border-x-2 border-b-2 border-dashed border-gray-300">
             <div class="grid grid-cols-2 gap-4 text-xs text-gray-600">
               <div>
-                <div class="font-semibold mb-2 text-gray-700">예약 정보</div>
+                <div class="font-semibold mb-2! text-gray-700">예약 정보</div>
                 <div>예약 ID: {{ payment.reservationId }}</div>
                 <div>결제 ID: {{ payment.paymentId }}</div>
                 <div>예약일시: {{ new Date(payment.transactionDate).toLocaleString() }}</div>
               </div>
               <div class="text-right">
-                <div class="font-semibold mb-2 text-gray-700">문의</div>
+                <div class="font-semibold mb-2! text-gray-700">문의</div>
                 <div>{{ payment.placeName }}</div>
                 <div>이메일: support@hotel.com</div>
                 <div>전화: 1588-0000</div>
@@ -378,7 +378,7 @@ const promoDiscountPercent = computed(() => {
       <!-- Full-width stacked cards -->
       <div class="space-y-6">
         <!-- Price breakdown -->
-        <PrimeCard class="shadow-sm border border-gray-200">
+        <PrimeCard class="shadow-sm border border-gray-200 mb-2!">
           <template #header>
             <div class="p-4 border-b text-lg font-semibold">결제 금액</div>
           </template>
@@ -463,7 +463,6 @@ const promoDiscountPercent = computed(() => {
                 </span>
               </div>
               <div class="flex justify-between"><span class="text-gray-600">결제 일시</span><span>{{ new Date(payment.transactionDate).toLocaleString() }}</span></div>
-              <div class="flex justify-between"><span class="text-gray-600">Payment ID</span><span>{{ payment.paymentId }}</span></div>
               <div class="flex justify-between"><span class="text-gray-600">Reservation ID</span><span>{{ payment.reservationId }}</span></div>
               <div class="flex justify-between"><span class="text-gray-600">Place</span><span>{{ payment.placeName }} ({{ payment.placeId }})</span></div>
             </div>
