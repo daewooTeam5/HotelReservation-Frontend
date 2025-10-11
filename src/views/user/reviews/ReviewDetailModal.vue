@@ -180,9 +180,9 @@ const onReviewSubmitted = () => {
           </div>
         </div>
         <div class="space-y-1">
-          <div v-for="i in 5" :key="i" class="flex items-center gap-2">
+          <div v-for="i in 5" :key="i" class="flex items-center gap-2 ">
             <span class="text-sm text-gray-600 w-8">{{ 6 - i }}점</span>
-            <ProgressBar :value="(ratingStats.counts[6-i] / ratingStats.total) * 100" :showValue="false" class="h-2 flex-1" />
+            <ProgressBar :value="(ratingStats.counts[6-i] / ratingStats.total) * 100" :showValue="false" class="h-2 flex-1 my-0.5!" />
             <span class="text-sm text-gray-500 w-8 text-right">{{ ratingStats.counts[6-i] }}</span>
           </div>
         </div>

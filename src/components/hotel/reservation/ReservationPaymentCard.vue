@@ -70,8 +70,8 @@ const formatCurrency = (amount: number): string => {
       <div class="p-4 space-y-4">
         <!-- 요금 세부 내역 -->
         <div class="space-y-3">
-          <!-- 원가 표시 -->
-          <div style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
+          <!-- 할인이 있을 경우에만 원가 표시 -->
+          <div v-if="roomDiscount > 0" style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
             <span class="text-gray-600">객실 요금 (원가)</span>
             <div class="text-right">
               <span class="font-medium text-gray-500 line-through">{{ formatCurrency(price || 0) }}</span>
@@ -80,9 +80,9 @@ const formatCurrency = (amount: number): string => {
 
           <!-- 할인된 객실 요금 -->
           <div class="flex justify-between items-center text-sm">
-            <span class="text-gray-600">객실 요금 (할인적용)</span>
+            <span class="text-gray-600">객실 요금{{ roomDiscount > 0 ? ' (할인적용)' : '' }}</span>
             <div class="text-right">
-              <span class="font-medium text-green-600">{{ formatCurrency(finalPrice || price || 0) }}</span>
+              <span class="font-medium" :class="roomDiscount > 0 ? 'text-green-600' : ''">{{ formatCurrency(finalPrice || price || 0) }}</span>
               <span v-if="roomDiscount > 0" class="text-xs text-red-500 ml-1">
                 ({{ Math.round(((roomDiscount / originalTotal) * 100)) }}% 할인)
               </span>
@@ -100,7 +100,8 @@ const formatCurrency = (amount: number): string => {
             <span class="font-medium">-{{ formatCurrency(roomDiscount) }}</span>
           </div>
 
-          <div style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
+          <!-- 소계 (할인 적용 여부에 따라 조건부 표시) -->
+          <div v-if="roomDiscount > 0 || (discount || 0) > 0 || (pointsDiscount || 0) > 0" style="margin-top: 4px; margin-bottom: 4px;" class="flex justify-between items-center text-sm">
             <span class="text-gray-600">소계 (객실 할인 적용)</span>
             <span class="font-medium">{{ formatCurrency(roomDiscountedTotal) }}</span>
           </div>
@@ -132,9 +133,9 @@ const formatCurrency = (amount: number): string => {
             <i class="pi pi-info-circle text-gray-500 mt-0.5"></i>
             <div class="text-xs text-gray-600">
               <p class="font-medium mb-1">결제 안내</p>
-              <p>• 현장에서 결제가 진행됩니다.</p>
-              <p>• 부가세 및 봉사료가 포함된 금액입니다.</p>
-              <p>• 결제는 체크아웃 시 진행됩니다.</p>
+              <p>• 예약 시 전액 결제가 진행됩니다.</p>
+              <p>• 결제 완료 후에는 숙소의 취소 및 환불 정책이 적용됩니다.</p>
+              <p>• 모든 금액은 세금 및 봉사료가 포함된 최종 요금입니다.</p>
             </div>
           </div>
         </div>

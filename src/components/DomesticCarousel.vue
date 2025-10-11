@@ -29,45 +29,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
 const domesticCities = ref([
 
-  { name: "서울", image: "/images/domestic/seoul2.png" },
-  { name: "부산", image: "/images/domestic/busan3.jpg" },
-  { name: "대구", image: "/images/domestic/daegoo.jpg" },
-  { name: "인천", image: "/images/domestic/incheon.jpg" },
-  { name: "광주", image: "/images/domestic/kwang-jo.jpg" },
-  { name: "대전", image: "/images/domestic/daejeon.jpg" },
-  { name: "울산", image: "/images/domestic/ulsan2.jpg" },
-  { name: "경기", image: "/images/domestic/gyong-gi.jpg" },
-  { name: "강원", image: "/images/domestic/kangwon.jpg" },
-  { name: "충북", image: "/images/domestic/chongbook.jpg" },
-  { name: "충남", image: "/images/domestic/gongju.jpg" },
-  { name: "전북", image: "/images/domestic/jeonbook.png" },
-  { name: "전남", image: "/images/domestic/jeonam.jpg" },
-  { name: "경북", image: "/images/domestic/gyuon-book.png" },
-  { name: "경남", image: "/images/domestic/pohang.jpg" },
-  { name: "제주", image: "/images/domestic/jeju.jpg" },
+  { name: '서울', image: '/images/domestic/seoul2.png' },
+  { name: '부산', image: '/images/domestic/busan3.jpg' },
+  { name: '대구', image: '/images/domestic/daegoo.jpg' },
+  { name: '인천', image: '/images/domestic/incheon.jpg' },
+  { name: '광주', image: '/images/domestic/kwang-jo.jpg' },
+  { name: '대전', image: '/images/domestic/daejeon.jpg' },
+  { name: '울산', image: '/images/domestic/ulsan2.jpg' },
+  { name: '경기', image: '/images/domestic/gyong-gi.jpg' },
+  { name: '강원', image: '/images/domestic/kangwon.jpg' },
+  { name: '충북', image: '/images/domestic/chongbook.jpg' },
+  { name: '충남', image: '/images/domestic/gongju.jpg' },
+  { name: '전북', image: '/images/domestic/jeonbook.png' },
+  { name: '전남', image: '/images/domestic/jeonam.jpg' },
+  { name: '경북', image: '/images/domestic/gyuon-book.png' },
+  { name: '경남', image: '/images/domestic/pohang.jpg' },
+  { name: '제주', image: '/images/domestic/jeju.jpg' }
 ]);
 
 const goToDomestic = (city: any) => {
-  const saved = localStorage.getItem("recentSearches");
+  const saved = localStorage.getItem('recentSearches');
   let base = saved ? JSON.parse(saved)[0] : null;
+  const today = new Date();
 
+// checkIn: 오늘 날짜 (YYYY-MM-DD)
+  const defaultCheckIn = today.toISOString().split('T')[0];
+
+// checkOut: 오늘 + 1일
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const defaultCheckOut = tomorrow.toISOString().split('T')[0];
   const searchData = {
     address: city.name,
-    checkIn: base?.checkIn || "",
-    checkOut: base?.checkOut || "",
-    rooms: base?.rooms || "1",
-    adults: base?.adults || "2",
-    children: base?.children || "0",
+    checkIn: base?.checkIn || defaultCheckIn,
+    checkOut: base?.checkOut || defaultCheckOut,
+    rooms: base?.rooms || '1',
+    adults: base?.adults || '2',
+    children: base?.children || '0'
   };
 
-  let recent = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+  let recent = JSON.parse(localStorage.getItem('recentSearches') || '[]');
   recent.unshift(searchData);
   recent = recent.filter(
     (s: any, idx: number, self: any[]) =>
@@ -80,11 +88,11 @@ const goToDomestic = (city: any) => {
       )
   );
   recent = recent.slice(0, 3);
-  localStorage.setItem("recentSearches", JSON.stringify(recent));
+  localStorage.setItem('recentSearches', JSON.stringify(recent));
 
   router.push({
-    name: "list",
-    query: searchData,
+    name: 'list',
+    query: searchData
   });
 };
 </script>

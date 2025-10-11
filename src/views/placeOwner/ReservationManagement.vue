@@ -83,7 +83,7 @@
       </div>
 
       <!-- 고급 검색 -->
-      <div v-if="showAdvanced" class="border-t pt-4 mt-4">
+      <div v-if="showAdvanced" class="border-t pt-4 mt-4 flex flex-col gap-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700">이메일</label>
@@ -390,12 +390,10 @@
 
     <!-- 수정 다이얼로그 -->
     <ReservationEditDialog
-      v-if="selectedReservation"
+      :visible="!!selectedReservation"
       :reservation="selectedReservation"
-      @close="
-        selectedReservation = null;
-        fetchReservations();
-      "
+      @close="selectedReservation = null"
+      @save="fetchReservations"
     />
   </div>
 

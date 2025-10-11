@@ -11,8 +11,8 @@ on:
       - dev
 
 jobs:
-  build:
-    name: Build Frontend
+  deploy:
+    name: Build & Deploy Frontend
     runs-on: ubuntu-latest
     env:
       ENV_FILE: ${{ secrets.FRONT_ENV }}
@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '24'
 
-      # 📄 .env 파일 생성 (루트에)
+      # 📄 .env 파일 생성
       - name: Create .env file
         run: |
           echo "${{ secrets.FRONT_ENV }}" > .env
@@ -40,28 +40,6 @@ jobs:
       # 🏗️ 빌드 실행
       - name: Build project
         run: npm run build-only
-
-      # 📤 빌드 산출물 업로드
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: dist/
-
-  deploy:
-    name: Deploy Frontend to EC2
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: dist/
 
       # 🔐 SSH 설정
       - name: Set up SSH
@@ -78,7 +56,7 @@ jobs:
           scp -i ~/.ssh/aws_key.pem -r dist/* ubuntu@${{ secrets.AWS_URL }}:/var/www/html/dist/
           echo "✅ 업로드 완료!"
 
-      # 🔁 (선택) nginx reload
+      # 🔁 nginx reload
       - name: Reload Nginx
         run: |
           echo "🔄 Nginx reload 실행 중..."

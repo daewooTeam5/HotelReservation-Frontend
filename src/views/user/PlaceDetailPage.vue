@@ -33,7 +33,7 @@
           </div>
         </h1>
         <p class="text-sm text-gray-600 flex items-center gap-1">
-          <i class="pi pi-map-marker"></i>
+          <i class="pi pi-map-marker text-red-500"></i>
           {{ place.sido }} {{ place.sigungu }} {{ place.roadName }} {{ place.detailAddress }}
         </p>
         <p v-if="place.avgRating" class="mb-4!">{{ place.avgRating.toFixed(1) }} / 5</p>
@@ -147,7 +147,7 @@
 
                 <div class="mt-3! text-sm! text-gray-600 space-y-2">
                   <p v-if="room.area" class="flex items-center gap-1 text-lg">
-                    <span>면적: {{ room.area }}평</span>
+                    <span><i class="pi pi-warehouse"></i> 객실크기: {{ room.area }}m<sup>2</sup></span>
                   </p>
                   <div v-if="room.amenities && room.amenities.length > 0">
                     <div class="flex flex-wrap gap-x-4 gap-y-2 mt-2!">
@@ -223,19 +223,28 @@
           <template #content>
             <h2 class="text-2xl font-bold! mb-4!">숙박 시설 정보</h2>
             <p class="text-gray-600 mb-6!">{{ place.description }}</p>
-            <div v-if="place.services && place.services.length > 0" class="pt-6 border-t">
+            <div v-if="place.services && place.services.length > 0" class="pt-6 border-t pb-6">
               <h3 class="text-lg font-semibold! mb-4!">편의시설</h3>
-              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+
+              <div
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-5"
+              >
                 <div
                   v-for="service in place.services"
                   :key="service.id"
-                  class="flex items-center gap-3"
+                  class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-indigo-50 transition-colors duration-200 border border-gray-100 shadow-sm hover:shadow-md"
                 >
-                  <img :src="service.icon" :alt="service.name" class="w-6 h-6" />
-                  <span class="text-gray-700">{{ service.name }}</span>
+                  <img
+                    :src="service.icon"
+                    :alt="service.name"
+                    class="w-7 h-7 mr-3 object-contain"
+                  />
+                  <span class="text-gray-800 font-medium text-sm">{{ service.name }}</span>
                 </div>
               </div>
             </div>
+
+            <OwnerInfo :place-id="id" />
           </template>
         </PrimeCard>
       </section>
@@ -331,6 +340,8 @@ import ReviewSection from '@/views/user/reviews/ReviewSection.vue';
 import QuestionSection from './questions/QuestionSection.vue';
 import { useAuthStore } from '@/stores/authStore.ts';
 import KakaoMapPlaceDetailPage from './KakaoMap/KakaoMapPlaceDetailPage.vue';
+import { useToast } from 'primevue';
+import OwnerInfo from '@/components/place/OwnerInfo.vue';
 
 // --- 상태 변수 및 라우터 설정 ---
 const route = useRoute();
@@ -347,7 +358,7 @@ const placeCoords = ref<{ lat: number; lng: number } | null>(null);
 const isDataReady = ref(false);
 const activeTab = ref('rooms');
 const isSticky = ref(false);
-
+const toast = useToast();
 const tabs = [
   { id: 'rooms', label: '객실' },
   { id: 'info', label: '정보' },
@@ -362,6 +373,21 @@ const infoSection = ref<HTMLElement | null>(null);
 const mapSection = ref<HTMLElement | null>(null);
 const reviewsSection = ref<HTMLElement | null>(null);
 const questionsSection = ref<HTMLElement | null>(null);
+
+const responsiveOptions = ref([
+  {
+    breakpoint: '1024px',
+    numVisible: 3
+  },
+  {
+    breakpoint: '768px',
+    numVisible: 2
+  },
+  {
+    breakpoint: '560px',
+    numVisible: 1
+  }
+]);
 
 // --- 핵심 로직: 데이터 조회 및 관리 ---
 
@@ -524,9 +550,14 @@ const addToCart = async (room: any) => {
 // --- 기타 UI 관련 함수들 (변경 없음) ---
 
 const toggleWish = async () => {
-  if (!useAuthStore().isLoggedIn) {
-    alert('로그인이 필요합니다.');
-    router.push('/sign-in');
+  if (!useAuthStore().userAuth) {
+    toast.add({
+      summary:"로그인이 필요합니다.",
+      detail:"로그인후 이용해주세요",
+      severity:"warn",
+      life:3000
+    })
+    await router.push("/auth/signin")
     return;
   }
   try {

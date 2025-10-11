@@ -19,7 +19,7 @@
           <Divider />
           <div class="text-center">
             <span>계정이 없으신가요? </span>
-            <RouterLink to="/signup1" class="text-blue-600 hover:underline">회원가입</RouterLink>
+            <RouterLink to="/signup" class="text-blue-600 hover:underline">회원가입</RouterLink>
           </div>
         </form>
       </template>
