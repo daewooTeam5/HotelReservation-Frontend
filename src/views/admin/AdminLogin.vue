@@ -14,7 +14,7 @@
             <PrimeInputText id="adminPassword" type="password" v-model="form.adminPassword" class="w-full" required />
           </div>
 
-          <PrimeButton type="submit" label="로그인" class="w-full" />
+          <PrimeButton style="margin-top: 8px;" type="submit" label="로그인" class="w-full" />
 
           <Divider />
           <div class="text-center">

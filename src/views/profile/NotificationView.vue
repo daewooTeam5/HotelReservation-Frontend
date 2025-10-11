@@ -11,6 +11,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Message from 'primevue/message';
 import { apiClient } from '@/utils/axiosClient.ts';
 import Paginator from 'primevue/paginator';
+import Button from 'primevue/button';
 
 const page = ref(1); // 1-based
 const size = ref(10);
@@ -123,7 +124,9 @@ const formatDate = (dateString: string) => {
     <div class="w-full px-4">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">알림</h1>
-        <p class="text-gray-600">받은 알림을 확인하세요</p>
+        <p style="margin-bottom: 10px; margin-top: 2px" class="text-gray-600">
+          받은 알림을 확인하세요
+        </p>
       </div>
 
       <div v-if="isLoading" class="flex justify-center items-center py-12">
@@ -148,31 +151,34 @@ const formatDate = (dateString: string) => {
                 <div class="flex items-center gap-3 mb-3">
                   <div class="flex-shrink-0">
                     <div
-                      class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                      class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"
+                    >
                       <i :class="getNotificationStyle(notification.notificationType).iconClass"></i>
                     </div>
                   </div>
 
                   <Chip
+                    style="margin-bottom: 10px"
                     :label="getNotificationTypeName(notification.notificationType)"
                     :class="getNotificationStyle(notification.notificationType).chipClass"
                     class="text-xs font-medium border"
                   />
                 </div>
 
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                <h3 style="margin-bottom: 5px" class="text-lg font-bold! text-gray-900 mb-2">
                   {{ notification.title }}
                 </h3>
 
-                <p class="text-gray-700 leading-relaxed mb-3">
+                <p style="margin-bottom: 5px" class="text-gray-700 leading-relaxed mb-3">
                   {{ notification.content }}
                 </p>
 
                 <div class="flex items-center text-sm text-gray-500">
-                  <i class="pi pi-clock mr-2"></i>
+                  <i style="margin-right: 5px" class="pi pi-clock mr-2"></i>
                   {{ formatDate(notification.createdAt) }}
                 </div>
               </div>
+
             </div>
           </template>
         </Card>
@@ -180,7 +186,7 @@ const formatDate = (dateString: string) => {
           <Paginator
             :rows="size"
             :totalRecords="totalElements"
-            :first="(page-1)*size"
+            :first="(page - 1) * size"
             :rowsPerPageOptions="[10, 20, 50]"
             @page="onPageChange"
             template="PrevPageLink PageLinks NextPageLink"
