@@ -115,7 +115,7 @@ const sendNotice = async () => {
   }
 
   try {
-    await apiClient.post('/v1/notification/broadcast', {
+    await apiClient.post('/v1/admin/notice', {
       title: noticeTitle.value,
       body: noticeBody.value
     });
