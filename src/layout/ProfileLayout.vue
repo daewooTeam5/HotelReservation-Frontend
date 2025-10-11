@@ -2,7 +2,7 @@
   <div class="flex flex-col h-screen">
     <UserHeader @toggleSidebar="toggleSidebar" />
 
-    <main class="flex-1 overflow-hidden flex relative">
+    <main class="flex-1 overflow-hidden flex relative pb-16 md:pb-0">
       <!-- Mobile Overlay -->
       <div
         v-if="isSidebarOpen"

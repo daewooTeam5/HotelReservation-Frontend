@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col h-screen">
+  <div class="flex flex-col min-h-screen">
     <!-- Header -->
     <DefaultHeader />
 
     <!-- Content -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 pb-16 md:pb-0 overflow-y-auto">
       <slot />
     </main>
 
