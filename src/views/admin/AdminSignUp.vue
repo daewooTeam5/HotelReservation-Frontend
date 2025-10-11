@@ -42,6 +42,7 @@
 
 <script lang="ts">
 import axios from "axios"
+import { apiClient } from '@/utils/axiosClient.ts';
 
 export default {
   name: "SignUp",
@@ -64,7 +65,7 @@ export default {
   methods: {
     async signUp() {
       try {
-        const res = await axios.post("http://localhost:8080/signup", this.form)
+        const res = await apiClient.post("v1/auth/signup", this.form)
         this.message = res.data.message
         this.$router.push("/login")
       } catch (err: any) {
