@@ -17,6 +17,8 @@ const { isLoading, isError, error, data } = useQuery<ApiResult<PaymentDetail>>({
 
 const payment = computed(() => data.value?.data ?? null);
 const qrCanvas = ref<HTMLCanvasElement | null>(null);
+const showQRDialog = ref(false);
+const qrDialogCanvas = ref<HTMLCanvasElement | null>(null);
 
 // QR 코드 생성 함수
 const generateQR = async () => {
@@ -68,6 +70,33 @@ onMounted(() => {
   setTimeout(() => clearInterval(interval), 5000);
 });
 
+// 다이얼로그 QR 코드 생성
+const openQRDialog = async () => {
+  showQRDialog.value = true;
+  await nextTick();
+  generateDialogQR();
+};
+const closeQRDialog = () => {
+  showQRDialog.value = false;
+};
+
+const generateDialogQR = async () => {
+  await nextTick();
+  if (!payment.value?.reservationId) return;
+  if (!qrDialogCanvas.value) return;
+  const reservationId = String(payment.value.orderId).trim();
+  if (!reservationId) return;
+  try {
+    await QRCode.toCanvas(qrDialogCanvas.value, reservationId, {
+      width: 480, // 더 크게
+      margin: 2,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+  } catch (error) {
+    console.error('Dialog QR 코드 생성 실패:', error);
+  }
+};
+
 const nights = computed(() => {
   if (!payment.value?.resevStart || !payment.value?.resevEnd) return 1;
   const start = new Date(payment.value.resevStart);
@@ -96,25 +125,28 @@ const goBack = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div class="min-h-screen bg-gray-50 ">
     <!-- 로딩 -->
-    <div v-if="isLoading" class="max-w-4xl mx-auto px-4">
+    <div v-if="isLoading" class="mx-auto px-4">
       <Skeleton height="600px" />
     </div>
 
     <!-- 에러 -->
-    <div v-else-if="isError" class="max-w-4xl mx-auto px-4">
+    <div v-else-if="isError" class=" mx-auto px-4">
       <div class="p-6 bg-red-50 border border-red-200 rounded-lg text-red-600">
         {{ (error as Error)?.message || '티켓 정보를 불러오지 못했습니다.' }}
       </div>
     </div>
 
     <!-- E-티켓 -->
-    <div v-else-if="payment" class="max-w-4xl mx-auto px-4">
+    <div v-else-if="payment" class="mx-auto px-4">
       <!-- 액션 버튼 (인쇄시 숨김) -->
-      <div class="flex justify-between items-center mb-6 no-print">
+      <div class="flex justify-between items-center no-print my-2!">
         <Button label="뒤로 가기" icon="pi pi-arrow-left" @click="goBack" severity="secondary" />
-        <Button label="인쇄하기" icon="pi pi-print" @click="printTicket" severity="primary" />
+        <div class="flex gap-2">
+          <Button label="QR코드" icon="pi pi-qrcode" severity="info" @click="openQRDialog"/>
+          <Button label="인쇄하기" icon="pi pi-print" @click="printTicket" severity="primary" />
+        </div>
       </div>
 
       <!-- 티켓 디자인 -->
@@ -329,6 +361,24 @@ const goBack = () => {
           </div>
         </div>
       </div>
+
+      <!-- QR 코드 다이얼로그 -->
+      <Dialog v-model:visible="showQRDialog" modal :closable="true" @hide="closeQRDialog">
+        <template #header>
+          <div class="text-lg font-semibold">예약 QR 코드</div>
+        </template>
+        <template #default>
+          <div class="flex justify-center">
+            <canvas
+              ref="qrDialogCanvas"
+              class="border border-gray-200 rounded-xl p-3 bg-white shadow-sm"
+            ></canvas>
+          </div>
+        </template>
+        <template #footer>
+          <Button label="닫기" icon="pi pi-times" @click="closeQRDialog" severity="secondary" />
+        </template>
+      </Dialog>
     </div>
   </div>
 </template>

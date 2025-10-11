@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ReservationPayment } from '@/types/reservation';
-import Card from 'primevue/card';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient';
 import { useToast } from 'primevue/usetoast';
@@ -14,9 +13,9 @@ const queryClient = useQueryClient();
 
 // 상태별 뱃지 색상
 const statusClass = (s: ReservationPayment['status']) => {
-  if (s === 'paid') return 'bg-green-100 text-green-800';
-  if (s === 'pending') return 'bg-yellow-100 text-yellow-800';
-  return 'bg-red-100 text-red-800';
+  if (s === 'paid') return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+  if (s === 'pending') return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+  return 'bg-red-100 text-red-800 border border-red-200';
 };
 
 // 상태 텍스트
@@ -24,12 +23,6 @@ const statusText = (s: ReservationPayment['status']) => {
   if (s === 'paid') return '결제완료';
   if (s === 'pending') return '결제대기';
   return '취소됨';
-};
-
-// 카드 스타일
-const cardClass = () => {
-  if (props.payment.status === 'cancelled') return 'opacity-70';
-  return 'hover:shadow-lg transition-shadow';
 };
 
 // 취소 뮤테이션 (PaymentDetailPage와 동일한 로직)
@@ -67,73 +60,83 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <Card :class="cardClass()">
-    <template #content>
-      <div class="flex gap-4">
-        <!-- 이미지 -->
-        <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
-          <img
-            v-if="payment.firstImageUrl"
-            :src="payment.firstImageUrl"
-            :alt="payment.placeName"
-            class="w-full h-full object-cover"
-            :class="{ 'grayscale': payment.status === 'cancelled' }"
-          />
-          <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-            <i class="pi pi-image text-xl"></i>
-          </div>
-        </div>
-
-        <!-- 메인 정보 -->
-        <div class="flex-1 min-w-0">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <h3 class="font-semibold text-lg text-gray-900 truncate">
-                {{ payment.placeName }}
-              </h3>
-              <p class="text-sm text-gray-600 mt-1">{{ payment.roomType }}</p>
-            </div>
-            <span class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap" :class="statusClass(payment.status)">
-              {{ statusText(payment.status) }}
-            </span>
-          </div>
-
-          <!-- 핵심 정보 -->
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <span class="text-gray-500">기간</span>
-              <span class="font-medium">{{ payment.resevStart }} ~ {{ payment.resevEnd }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">결제금액</span>
-              <span class="font-semibold text-lg text-gray-900">{{ payment.amount.toLocaleString() }}원</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">결제일</span>
-              <span>{{ new Date(payment.transactionDate).toLocaleDateString() }}</span>
-            </div>
-          </div>
-
-          <!-- 액션 버튼 -->
-          <div v-if="showActions" class="flex gap-3 mt-4">
-            <button
-              @click="emit('details', payment.paymentId)"
-              class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-            >
-              상세보기
-            </button>
-<!--            <button-->
-<!--              v-if="payment.status !== 'cancelled'"-->
-<!--              @click="handleCancel"-->
-<!--              class="px-4 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"-->
-<!--            >-->
-<!--              {{ !cancelMutation.isPending ? '처리중...' : '취소' }}-->
-<!--            </button>-->
-          </div>
+  <div
+    class="mb-2! border border-gray-200 rounded-xl bg-white p-4 shadow-sm hover:shadow-md transition-all duration-200"
+    :class="{ 'opacity-60': payment.status === 'cancelled' }"
+  >
+    <div class="flex gap-4">
+      <!-- 이미지 -->
+      <div class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+        <img
+          v-if="payment.firstImageUrl"
+          :src="payment.firstImageUrl"
+          :alt="payment.placeName"
+          class="w-full h-full object-cover"
+          :class="{ 'grayscale': payment.status === 'cancelled' }"
+        />
+        <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+          <i class="pi pi-image text-2xl"></i>
         </div>
       </div>
-    </template>
-  </Card>
+
+      <!-- 메인 정보 -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-3 mb-3!">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-lg text-gray-900 truncate mb-1!">
+              {{ payment.placeName }}
+            </h3>
+            <p class="text-sm text-gray-600 flex items-center gap-1">
+              <i class="pi pi-tag text-xs"></i>
+              {{ payment.roomType }}
+            </p>
+          </div>
+          <span
+            class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0"
+            :class="statusClass(payment.status)"
+          >
+            {{ statusText(payment.status) }}
+          </span>
+        </div>
+
+        <!-- 핵심 정보 -->
+        <div class="space-y-2 text-sm mb-4!">
+          <div class="flex items-center justify-between py-1">
+            <span class="text-gray-600 flex items-center gap-1.5">
+              <i class="pi pi-calendar text-xs"></i>
+              기간
+            </span>
+            <span class="font-medium text-gray-900">{{ payment.resevStart }} ~ {{ payment.resevEnd }}</span>
+          </div>
+          <div class="flex items-center justify-between py-1 border-t border-gray-100">
+            <span class="text-gray-600 flex items-center gap-1.5">
+              <i class="pi pi-wallet text-xs"></i>
+              결제금액
+            </span>
+            <span class="font-bold text-lg text-blue-600">{{ payment.amount.toLocaleString() }}원</span>
+          </div>
+          <div class="flex items-center justify-between py-1">
+            <span class="text-gray-600 flex items-center gap-1.5">
+              <i class="pi pi-clock text-xs"></i>
+              결제일
+            </span>
+            <span class="text-gray-700">{{ new Date(payment.transactionDate).toLocaleDateString() }}</span>
+          </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div v-if="showActions" class="flex gap-2">
+          <button
+            @click="emit('details', payment.paymentId)"
+            class="flex-1 px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center gap-1.5"
+          >
+            <i class="pi pi-file-edit text-xs"></i>
+            상세보기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>

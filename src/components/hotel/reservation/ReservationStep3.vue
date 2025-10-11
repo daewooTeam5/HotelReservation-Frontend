@@ -53,7 +53,7 @@
         </div>
 
         <!-- 버튼 -->
-        <div class="mt-8 flex justify-center gap-4">
+        <div class="mt-8! flex justify-center items-center gap-4">
           <!-- 로그인 된 경우만 예약 목록 버튼 노출 -->
           <PrimeButton
             v-if="isLoggedIn"

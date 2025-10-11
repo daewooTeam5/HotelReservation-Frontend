@@ -106,7 +106,7 @@ const deleteReview = async (reviewId: number, placeId: number) => {
 
 <template>
 
-  <div class="max-w-4xl mx-auto p-4 md:p-8">
+  <div class=" mx-auto p-4 md:p-8">
     <Toast />
     <h1 class="text-3xl font-bold! text-gray-900 mb-8!">내가 작성한 리뷰</h1>
 

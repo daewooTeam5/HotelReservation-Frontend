@@ -18,6 +18,7 @@ const phone = ref('');
 const authStore = useAuthStore();
 const attachedFiles = ref<File[]>([]);
 const toast = useToast();
+const formTouched = ref(false);
 
 // 초기값 설정
 email.value = authStore.getUserAuth?.email ?? '';
@@ -87,6 +88,8 @@ const { mutate: submitApplication, isPending } = useMutation({
 
 // --- 폼 제출 (신청하기) 함수 ---
 const handleSubmit = () => {
+  formTouched.value = true;
+
   if (!hotelName.value || !businessNumber.value || !email.value || !phone.value) {
     toast.add({ severity: 'warn', summary: '정보 부족', detail: '모든 필수 정보를 입력해주세요!', life: 3000 });
     return;
@@ -101,57 +104,98 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <PrimeCard class="w-full max-w-2xl shadow-xl rounded-2xl overflow-hidden">
-    <template #header>
-      <div class="bg-gradient-to-r from-emerald-500 to-teal-400 text-white py-6 px-8">
-        <h2 class="text-2xl font-bold tracking-wide">🏨 호텔 오너 입점 신청</h2>
-        <p class="text-xs mt-1 opacity-90">파트너가 되어 비즈니스를 성장시키세요!</p>
-      </div>
-    </template>
-
-    <template #content>
-      <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="flex flex-col gap-2">
-            <label for="hotelName" class="font-semibold text-gray-700">사업장 이름</label>
-            <PrimeInputText
-              id="hotelName"
-              v-model="hotelName"
-              placeholder="이름을 입력해주세요"
-              class="focus:ring-2 focus:ring-emerald-400"
-            />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="businessNumber" class="font-semibold text-gray-700">사업자 등록번호</label>
-            <PrimeInputText
-              id="businessNumber"
-              v-model="businessNumber"
-              placeholder="'-' 없이 숫자만 입력"
-              class="focus:ring-2 focus:ring-emerald-400"
-            />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="email" class="font-semibold text-gray-700">이메일</label>
-            <PrimeInputText
-              id="email"
-              v-model="email"
-              placeholder="예: owner@email.com"
-              class="focus:ring-2 focus:ring-emerald-400"
-            />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="phone" class="font-semibold text-gray-700">핸드폰 번호</label>
-            <PrimeInputText
-              id="phone"
-              v-model="phone"
-              placeholder="예: 010-1234-5678"
-              class="focus:ring-2 focus:ring-emerald-400"
-            />
+  <div class="space-y-6">
+    <!-- 안내 메시지 -->
+    <div class="p-5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+            <i class="pi pi-building text-white text-2xl"></i>
           </div>
         </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-bold text-blue-800 mb-1!">호텔 오너 입점 신청</h3>
+          <p class="text-blue-700 text-sm">
+            파트너가 되어 비즈니스를 성장시키세요! 필수 정보를 입력하고 관련 서류를 첨부해주세요.
+          </p>
+        </div>
+      </div>
+    </div>
 
-        <div>
-          <label class="font-semibold text-gray-700 mb-2 block">관련 서류 첨부</label>
+    <!-- 입력 폼 -->
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- 입력 필드 그리드 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2!">
+        <div class="flex flex-col gap-2">
+          <label for="hotelName" class="text-sm font-semibold text-gray-700 flex items-center gap-1">
+            <i class="pi pi-building text-blue-600"></i>
+            사업장 이름
+            <span class="text-red-500">*</span>
+          </label>
+          <PrimeInputText
+            id="hotelName"
+            v-model="hotelName"
+            placeholder="사업장 이름을 입력해주세요"
+            class="w-full"
+            :invalid="!hotelName && formTouched"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="businessNumber" class="text-sm font-semibold text-gray-700 flex items-center gap-1">
+            <i class="pi pi-id-card text-blue-600"></i>
+            사업자 등록번호
+            <span class="text-red-500">*</span>
+          </label>
+          <PrimeInputText
+            id="businessNumber"
+            v-model="businessNumber"
+            placeholder="'-' 없이 숫자만 입력"
+            class="w-full"
+            :invalid="!businessNumber && formTouched"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="email" class="text-sm font-semibold text-gray-700 flex items-center gap-1">
+            <i class="pi pi-envelope text-blue-600"></i>
+            이메일
+            <span class="text-red-500">*</span>
+          </label>
+          <PrimeInputText
+            id="email"
+            v-model="email"
+            type="email"
+            placeholder="예: owner@email.com"
+            class="w-full"
+            :invalid="!email && formTouched"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2 ">
+          <label for="phone" class="text-sm font-semibold text-gray-700 flex items-center gap-1">
+            <i class="pi pi-phone text-blue-600"></i>
+            핸드폰 번호
+            <span class="text-red-500">*</span>
+          </label>
+          <PrimeInputText
+            id="phone"
+            v-model="phone"
+            placeholder="예: 010-1234-5678"
+            class="w-full"
+            :invalid="!phone && formTouched"
+          />
+        </div>
+      </div>
+
+      <!-- 서류 첨부 섹션 -->
+      <div class="space-y-3 mt-2!">
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-1">
+          <i class="pi pi-paperclip text-blue-600"></i>
+          관련 서류 첨부
+          <span class="text-red-500">*</span>
+        </label>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors">
           <FileUpload
             name="documents[]"
             @select="onFileSelect"
@@ -167,38 +211,82 @@ const handleSubmit = () => {
             class="w-full"
           >
             <template #empty>
-              <div class="flex flex-col items-center justify-center p-8">
-                <i class="pi pi-cloud-upload text-4xl text-gray-400"></i>
-                <p class="mt-4 text-gray-600 text-sm">
-                  사업자 등록증, 통장 사본 등을 여기에 드래그하거나<br>파일 선택 버튼을 눌러 첨부해주세요.
+              <div class="flex flex-col items-center justify-center py-6">
+                <i class="pi pi-cloud-upload text-5xl text-gray-400 mb-3"></i>
+                <p class="text-gray-600 text-sm text-center">
+                  사업자 등록증, 통장 사본 등을 드래그하거나<br>
+                  파일 선택 버튼을 눌러 첨부해주세요.
+                </p>
+                <p class="text-xs text-gray-500 mt-2">
+                  최대 10MB | 이미지, PDF, HWP 파일 지원
                 </p>
               </div>
             </template>
           </FileUpload>
         </div>
+        <p v-if="attachedFiles.length > 0" class="text-sm text-gray-600">
+          <i class="pi pi-check-circle text-green-600"></i>
+          {{ attachedFiles.length }}개의 파일이 첨부되었습니다.
+        </p>
+      </div>
 
-        <div class="mt-8 flex justify-end">
-          <PrimeButton
-            style="margin-top: 8px;"
-            type="submit"
-            :loading="isPending"
-            label="입점 신청하기"
-            icon="pi pi-check"
-            class="w-full md:w-auto px-8 py-3 text-lg rounded-lg shadow-lg bg-emerald-500 border-0 hover:bg-emerald-600 focus:ring-2 focus:ring-emerald-400"
-            severity="success"
-          />
+      <!-- 안내 사항 -->
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mt-2!">
+        <div class="flex items-start gap-2">
+          <i class="pi pi-info-circle text-yellow-600 mt-0.5!"></i>
+          <div class="text-sm text-yellow-800">
+            <p class="font-semibold mb-1">신청 안내</p>
+            <ul class="list-disc list-inside space-y-1 text-xs">
+              <li>모든 필수 항목(*)을 입력해주세요.</li>
+              <li>사업자 등록증은 필수 첨부 서류입니다.</li>
+              <li>신청 후 영업일 기준 2-3일 이내에 검토 결과를 알려드립니다.</li>
+            </ul>
+          </div>
         </div>
-      </form>
-    </template>
-  </PrimeCard>
+      </div>
+
+      <!-- 제출 버튼 -->
+      <div class="flex justify-end pt-4">
+        <PrimeButton
+          type="submit"
+          :loading="isPending"
+          label="입점 신청하기"
+          icon="pi pi-send"
+          size="large"
+          severity="success"
+          class="px-8"
+          :disabled="isPending"
+        />
+      </div>
+    </form>
+  </div>
 </template>
 
 <style scoped>
+:deep(.p-fileupload) {
+  border: none;
+  background: transparent;
+}
+
 :deep(.p-fileupload-buttonbar) {
   padding: 0.5rem;
+  background: transparent;
+  border: none;
 }
 
 :deep(.p-fileupload-content) {
   padding: 0.5rem;
+  background: transparent;
+  border: none;
+}
+
+:deep(.p-fileupload-choose) {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+:deep(.p-fileupload-choose:hover) {
+  background: #2563eb;
+  border-color: #2563eb;
 }
 </style>
