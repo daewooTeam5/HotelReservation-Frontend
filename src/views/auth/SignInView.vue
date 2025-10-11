@@ -34,10 +34,10 @@ export default defineComponent({
 
     // ✅ Google 로그인 버튼 클릭 시 백엔드 OAuth2 엔드포인트로 리다이렉트
     const handleGoogleLogin = () => {
-      window.location.href = `${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/google`;
+      window.location.href = `${import.meta.env.VITE_SERVER_URL}/../oauth2/authorization/google`;
     };
     const handleKakaoLogin = () => {
-      window.location.href = `${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/kakao`;
+      window.location.href = `${import.meta.env.VITE_SERVER_URL}/../oauth2/authorization/kakao`;
     };
 
     // 이메일 로그인 뮤테이션 (기존 그대로)
