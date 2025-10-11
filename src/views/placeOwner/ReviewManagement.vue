@@ -1,10 +1,9 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 flex flex-col gap-2">
     <h1 class="text-2xl font-bold mb-6">리뷰 관리</h1>
 
-    <div class="flex flex-wrap gap-4 mb-6 items-end">
+    <div class="flex justify-end mb-6">
       <div>
-        <label class="block text-sm font-medium mb-1">정렬</label>
         <Dropdown v-model="sortOption" :options="sortOptions" optionLabel="name" placeholder="선택" class="w-full md:w-48" />
       </div>
     </div>
@@ -16,7 +15,7 @@
       <p>리뷰를 불러오는 데 실패했습니다.</p>
       <p class="text-sm mt-2">{{ error?.message }}</p>
     </div>
-    <div v-else class="bg-white rounded shadow overflow-x-auto">
+    <div v-else class="bg-white rounded shadow overflow-x-auto flex flex-col gap-4">
       <DataTable :value="reviews" :paginator="reviews.length > 10" :rows="10" stripedRows>
         <Column field="reviewId" header="ID" style="width: 5%" />
         <Column field="userName" header="고객명" style="width: 10%" />

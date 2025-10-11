@@ -59,7 +59,7 @@
           </template>
         </Column>
         <template #expansion="slotProps">
-          <div class="p-4 bg-gray-50">
+          <div class="p-4 bg-gray-50 flex flex-col gap-4">
             <h4 class="font-bold text-gray-700">질문 내용</h4>
             <p class="mt-1 mb-4 p-3 bg-white rounded border whitespace-pre-wrap">{{ slotProps.data.content }}</p>
 
