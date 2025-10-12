@@ -35,7 +35,8 @@ onMounted(() => {
             toast.add({
               summary: payload.notification?.title,
               detail: payload.notification?.body,
-              severity: "info"
+              severity: "info",
+              life:3000
             });
           });
           isMessageListenerAdded = true;

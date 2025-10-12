@@ -29,13 +29,13 @@
       <div v-else>
         <!-- 빈 상태 -->
         <div v-if="items.length === 0" class="text-center py-16">
-          <div class="inline-block p-4 bg-gray-100 rounded-full mb-3!">
+          <div class="inline-block p-4 bg-gray-100 rounded-full mb-3! ">
             <i class="pi pi-credit-card text-5xl text-gray-300"></i>
           </div>
           <h3 class="text-lg font-semibold text-gray-900 mb-1!">결제 내역이 없습니다</h3>
-          <p class="text-gray-500 mb-4 text-sm">아직 결제한 내역이 없습니다.</p>
+          <p class="text-gray-500 mb-4! text-sm">아직 결제한 내역이 없습니다.</p>
           <button
-            @click="$router.push('/')"
+            @click="router.push('/')"
             class="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm"
           >
             숙소 둘러보기

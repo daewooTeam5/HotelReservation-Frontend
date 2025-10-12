@@ -15,7 +15,7 @@
 
     <div class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <div v-if="recentSearches.length > 0" class="mt-8 mb-12">
-        <h2 class="text-2xl font-bold mb-4">최근 검색</h2>
+        <h2 class="text-2xl font-bold! mb-4!">최근 검색</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
             v-for="(item, idx) in recentSearches"

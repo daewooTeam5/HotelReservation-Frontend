@@ -48,7 +48,7 @@ onMounted(async () => {
         severity: 'success',
         summary: '로그인 성공',
         detail: 'Google 로그인에 성공했습니다.',
-        life: 2000
+        life: 1000
       });
 
       router.push('/');

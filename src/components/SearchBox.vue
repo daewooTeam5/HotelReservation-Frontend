@@ -1,12 +1,173 @@
 <template>
   <div
     ref="searchContainerRef"
-    class="search-box flex items-center p-2 bg-white rounded-full shadow-lg relative"
+    class="search-box bg-white rounded-2xl md:rounded-full shadow-lg relative"
   >
-    <div class="flex items-center flex-grow">
-      <!-- 도시/호텔 검색 -->
-      <div class="flex flex-col flex-grow relative">
-        <PrimeIconField>
+    <!-- 데스크톱 레이아웃 -->
+    <div class="hidden md:flex items-center p-2">
+      <div class="flex items-center flex-grow">
+        <!-- 도시/호텔 검색 -->
+        <div class="flex flex-col flex-grow relative">
+          <PrimeIconField>
+            <PrimeInputIcon class="pi pi-map-marker" />
+            <PrimeInputText
+              v-model="keyword"
+              placeholder="도시, 호텔, 지하철역"
+              @focus="openSuggestions"
+              @input="fetchSuggestions($event)"
+              autocomplete="off"
+              ref="inputRef"
+              class="border-0! focus:ring-0! shadow-none! bg-transparent w-full"
+            />
+          </PrimeIconField>
+          <span
+            v-if="errorMessage && !keyword"
+            class="text-red-500 text-sm mt-1! absolute -bottom-6"
+          >
+            호텔 이름을 입력해주세요.
+          </span>
+
+          <PrimePopover ref="suggestionPopover" :dismissable="false">
+            <div v-if="regions.length > 0 || places.length > 0" class="w-64 max-h-96 overflow-y-auto p-2">
+              <div v-if="regions.length > 0" class="mb-3!">
+                <h4 class="font-bold text-gray-600 text-sm mb-2! px-2">도시/지역</h4>
+                <ul>
+                  <li
+                    v-for="(region, idx) in regions"
+                    :key="`region-${idx}`"
+                    class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-100 rounded-md"
+                    @click="selectSuggestion(region)"
+                  >
+                    <i class="pi pi-map-marker text-blue-500 bg-blue-50 p-2 rounded-full"></i>
+                    <div>
+                      <span class="font-medium text-gray-800">{{ region }}</span>
+                      <p class="text-xs text-gray-400">대한민국</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div v-if="places.length > 0">
+                <h4 class="font-bold text-gray-600 text-sm mb-2! px-2">숙소</h4>
+                <ul>
+                  <li
+                    v-for="(place, idx) in places"
+                    :key="`place-${idx}`"
+                    class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-100 rounded-md"
+                    @click="selectSuggestion(place)"
+                  >
+                    <i class="pi pi-thumbs-up text-pink-500 bg-pink-50 p-2 rounded-full"></i>
+                    <span class="font-medium text-gray-800">{{ place }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </PrimePopover>
+        </div>
+
+        <div class="border-l h-8 mx-4"></div>
+
+        <div class="flex flex-col relative">
+          <div class="flex items-center">
+            <div ref="checkinWrapperRef">
+              <PrimeIconField>
+                <PrimeInputIcon class="pi pi-calendar" />
+                <PrimeInputText
+                  :value="dateRange?.[0] ? formatDate(dateRange[0]) : ''"
+                  placeholder="체크인"
+                  readonly
+                  @click="openCalendar"
+                  class="border-0! focus:ring-0! shadow-none! bg-transparent w-42"
+                />
+              </PrimeIconField>
+            </div>
+            <span class="mr-5! text-gray-400">-</span>
+            <PrimeInputText
+              :value="dateRange?.[1] ? formatDate(dateRange[1]) : ''"
+              placeholder="체크아웃"
+              readonly
+              @click="openCalendar"
+              class="border-0! focus:ring-0! shadow-none! bg-transparent w-32"
+            />
+            <PrimePopover ref="calendarPopover">
+              <PrimeDatePicker
+                v-model="dateRange"
+                selectionMode="range"
+                numberOfMonths="2"
+                :min-date="minDate"
+                :max-date="maxDate"
+                dateFormat="yy-mm-dd"
+                inline
+              />
+            </PrimePopover>
+          </div>
+          <span
+            v-if="errorMessage && (!dateRange || !dateRange[0] || !dateRange[1])"
+            class="text-red-500 text-sm mt-1! absolute -bottom-6"
+          >
+            날짜를 선택해주세요.
+          </span>
+        </div>
+
+        <div class="border-l h-8 mx-4"></div>
+
+        <div class="flex flex-col relative">
+          <PrimeIconField>
+            <PrimeInputIcon class="pi pi-user" />
+            <PrimeInputText
+              :value="`성인 ${adults}명 · 아동 ${children}명 · 객실 ${rooms}개`"
+              readonly
+              @click="toggleGuestPopover"
+              class="border-0! focus:ring-0! shadow-none! bg-transparent w-64 whitespace-nowrap"
+            />
+          </PrimeIconField>
+          <PrimePopover ref="popover">
+            <div class="space-y-4 w-56">
+              <div class="flex justify-between items-center">
+                <span class="font-medium">객실</span>
+                <div class="flex items-center gap-2">
+                  <PrimeButton icon="pi pi-minus" text @click="rooms > 1 && rooms--" />
+                  <span>{{ rooms }}</span>
+                  <PrimeButton icon="pi pi-plus" text @click="(adults + children) > rooms && rooms++" />
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-medium">
+                  성인 <span class="text-sm text-gray-500">(18세 이상)</span>
+                </span>
+                <div class="flex items-center gap-2">
+                  <PrimeButton icon="pi pi-minus" text @click="decreaseAdults" />
+                  <span>{{ adults }}</span>
+                  <PrimeButton icon="pi pi-plus" text @click="adults++" />
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-medium">
+                  아동 <span class="text-sm text-gray-500">(0 ~ 17세)</span>
+                </span>
+                <div class="flex items-center gap-2">
+                  <PrimeButton icon="pi pi-minus" text @click="decreaseChildren" />
+                  <span>{{ children }}</span>
+                  <PrimeButton icon="pi pi-plus" text @click="children++" />
+                </div>
+              </div>
+            </div>
+          </PrimePopover>
+        </div>
+      </div>
+
+      <PrimeButton
+        icon="pi pi-search"
+        @click="searchPlaces"
+        class="rounded-full! !w-12 !h-12"
+      />
+    </div>
+
+    <!-- 모바일 레이아웃 -->
+    <div class="md:hidden p-4 space-y-3">
+      <!-- 검색어 -->
+      <div class="relative">
+        <PrimeIconField class="w-full">
           <PrimeInputIcon class="pi pi-map-marker" />
           <PrimeInputText
             v-model="keyword"
@@ -14,27 +175,26 @@
             @focus="openSuggestions"
             @input="fetchSuggestions($event)"
             autocomplete="off"
-            ref="inputRef"
-            class="border-0! focus:ring-0! shadow-none! bg-transparent w-full"
+            ref="inputRefMobile"
+            class="w-full"
           />
         </PrimeIconField>
         <span
           v-if="errorMessage && !keyword"
-          class="text-red-500 text-sm mt-1 absolute -bottom-6"
+          class="text-red-500 text-xs mt-1!"
         >
           호텔 이름을 입력해주세요.
         </span>
-
-        <PrimePopover ref="suggestionPopover" :dismissable="false">
+        <PrimePopover ref="suggestionPopoverMobile" :dismissable="false">
           <div v-if="regions.length > 0 || places.length > 0" class="w-64 max-h-96 overflow-y-auto p-2">
-            <div v-if="regions.length > 0" class="mb-3">
-              <h4 class="font-bold text-gray-600 text-sm mb-2 px-2">도시/지역</h4>
+            <div v-if="regions.length > 0" class="mb-3!">
+              <h4 class="font-bold text-gray-600 text-sm mb-2! px-2">도시/지역</h4>
               <ul>
                 <li
                   v-for="(region, idx) in regions"
                   :key="`region-${idx}`"
                   class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-100 rounded-md"
-                  @click="selectSuggestion(region)"
+                  @click="selectSuggestionMobile(region)"
                 >
                   <i class="pi pi-map-marker text-blue-500 bg-blue-50 p-2 rounded-full"></i>
                   <div>
@@ -46,13 +206,13 @@
             </div>
 
             <div v-if="places.length > 0">
-              <h4 class="font-bold text-gray-600 text-sm mb-2 px-2">숙소</h4>
+              <h4 class="font-bold text-gray-600 text-sm mb-2! px-2">숙소</h4>
               <ul>
                 <li
                   v-for="(place, idx) in places"
                   :key="`place-${idx}`"
                   class="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-100 rounded-md"
-                  @click="selectSuggestion(place)"
+                  @click="selectSuggestionMobile(place)"
                 >
                   <i class="pi pi-thumbs-up text-pink-500 bg-pink-50 p-2 rounded-full"></i>
                   <span class="font-medium text-gray-800">{{ place }}</span>
@@ -63,109 +223,102 @@
         </PrimePopover>
       </div>
 
-      <div class="border-l h-8 mx-4"></div>
-
-      <div class="flex flex-col relative">
-        <div class="flex items-center">
-          <div ref="checkinWrapperRef">
-            <PrimeIconField>
-              <PrimeInputIcon class="pi pi-calendar" />
-              <PrimeInputText
-                :value="dateRange?.[0] ? formatDate(dateRange[0]) : ''"
-                placeholder="체크인"
-                readonly
-                @click="openCalendar"
-                class="border-0! focus:ring-0! shadow-none! bg-transparent w-42"
-              />
-            </PrimeIconField>
-          </div>
-          <span class="mr-5! text-gray-400">-</span>
-          <PrimeInputText
-            :value="dateRange?.[1] ? formatDate(dateRange[1]) : ''"
-            placeholder="체크아웃"
-            readonly
-            @click="openCalendar"
-            class="border-0! focus:ring-0! shadow-none! bg-transparent w-32"
-          />
-          <PrimePopover ref="calendarPopover">
-            <PrimeDatePicker
-              v-model="dateRange"
-              selectionMode="range"
-              numberOfMonths="2"
-              :min-date="minDate"
-              :max-date="maxDate"
-              dateFormat="yy-mm-dd"
-              inline
+      <!-- 날짜 선택 -->
+      <div class="grid grid-cols-2 gap-2 my-2!">
+        <div ref="checkinWrapperRefMobile">
+          <PrimeIconField class="w-full">
+            <PrimeInputIcon class="pi pi-calendar" />
+            <PrimeInputText
+              :value="dateRange?.[0] ? formatDate(dateRange[0]) : ''"
+              placeholder="체크인"
+              readonly
+              @click="openCalendarMobile"
+              class="w-full text-sm"
             />
-          </PrimePopover>
+          </PrimeIconField>
         </div>
-        <span
-          v-if="errorMessage && (!dateRange || !dateRange[0] || !dateRange[1])"
-          class="text-red-500 text-sm mt-1 absolute -bottom-6"
-        >
-      날짜를 선택해주세요.
-    </span>
+        <PrimeInputText
+          :value="dateRange?.[1] ? formatDate(dateRange[1]) : ''"
+          placeholder="체크아웃"
+          readonly
+          @click="openCalendarMobile"
+          class="w-full text-sm"
+        />
+        <PrimePopover ref="calendarPopoverMobile">
+          <PrimeDatePicker
+            v-model="dateRange"
+            selectionMode="range"
+            numberOfMonths="1"
+            :min-date="minDate"
+            :max-date="maxDate"
+            dateFormat="yy-mm-dd"
+            inline
+          />
+        </PrimePopover>
       </div>
+      <span
+        v-if="errorMessage && (!dateRange || !dateRange[0] || !dateRange[1])"
+        class="text-red-500 text-xs"
+      >
+        날짜를 선택해주세요.
+      </span>
 
-      <div class="border-l h-8 mx-4"></div>
-
-      <div class="flex flex-col relative">
-        <PrimeIconField>
+      <!-- 인원/객실 선택 -->
+      <div>
+        <PrimeIconField class="w-full">
           <PrimeInputIcon class="pi pi-user" />
           <PrimeInputText
             :value="`성인 ${adults}명 · 아동 ${children}명 · 객실 ${rooms}개`"
             readonly
-            @click="toggleGuestPopover"
-            class="border-0! focus:ring-0! shadow-none! bg-transparent w-64 whitespace-nowrap"
+            @click="toggleGuestPopoverMobile"
+            class="w-full text-sm"
           />
         </PrimeIconField>
-        <PrimePopover ref="popover">
-          <div class="space-y-4 w-56">
+        <PrimePopover ref="popoverMobile">
+          <div class="space-y-4 w-full p-2 ">
             <div class="flex justify-between items-center">
-              <span class="font-medium">객실</span>
+              <span class="font-medium text-sm">객실</span>
               <div class="flex items-center gap-2">
-                <PrimeButton icon="pi pi-minus" text @click="rooms > 1 && rooms--" />
-                <span>{{ rooms }}</span>
-                <PrimeButton icon="pi pi-plus" text @click="(adults + children) > rooms && rooms++" />
+                <PrimeButton icon="pi pi-minus" text @click="rooms > 1 && rooms--" size="small" />
+                <span class="text-sm">{{ rooms }}</span>
+                <PrimeButton icon="pi pi-plus" text @click="(adults + children) > rooms && rooms++" size="small" />
               </div>
             </div>
             <div class="flex justify-between items-center">
-          <span class="font-medium">
-            성인 <span class="text-sm text-gray-500">(18세 이상)</span>
-          </span>
+              <span class="font-medium text-sm">성인</span>
               <div class="flex items-center gap-2">
-                <PrimeButton icon="pi pi-minus" text @click="decreaseAdults" />
-                <span>{{ adults }}</span>
-                <PrimeButton icon="pi pi-plus" text @click="adults++" />
+                <PrimeButton icon="pi pi-minus" text @click="decreaseAdults" size="small" />
+                <span class="text-sm">{{ adults }}</span>
+                <PrimeButton icon="pi pi-plus" text @click="adults++" size="small" />
               </div>
             </div>
             <div class="flex justify-between items-center">
-          <span class="font-medium">
-            아동 <span class="text-sm text-gray-500">(0 ~ 17세)</span>
-          </span>
+              <span class="font-medium text-sm">아동</span>
               <div class="flex items-center gap-2">
-                <PrimeButton icon="pi pi-minus" text @click="decreaseChildren" />
-                <span>{{ children }}</span>
-                <PrimeButton icon="pi pi-plus" text @click="children++" />
+                <PrimeButton icon="pi pi-minus" text @click="decreaseChildren" size="small" />
+                <span class="text-sm">{{ children }}</span>
+                <PrimeButton icon="pi pi-plus" text @click="children++" size="small" />
               </div>
             </div>
           </div>
         </PrimePopover>
       </div>
-    </div>
 
-    <PrimeButton
-      icon="pi pi-search"
-      @click="searchPlaces"
-      class="rounded-full! !w-12 !h-12"
-    />
+      <!-- 검색 버튼 -->
+      <PrimeButton
+        label="검색"
+        icon="pi pi-search"
+        @click="searchPlaces"
+        class="w-full mt-2!"
+        size="large"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { apiClient } from '@/utils/axiosClient.ts';
 
 const router = useRouter()
@@ -187,6 +340,29 @@ const inputRef = ref()
 const suggestionPopover = ref()
 const regions = ref<string[]>([])
 const places = ref<string[]>([])
+
+// 현재 뷰포트(모바일/데스크톱) 감지
+const isDesktop = ref(typeof window !== 'undefined' ? window.innerWidth >= 768 : true)
+const handleResize = () => {
+  const nowDesktop = window.innerWidth >= 768
+  // 뷰 전환 시 열려있는 팝오버 전부 닫기 (중복 표시 방지)
+  if (isDesktop.value !== nowDesktop) {
+    suggestionPopover.value?.hide()
+    suggestionPopoverMobile.value?.hide()
+    popover.value?.hide()
+    popoverMobile.value?.hide()
+    calendarPopover.value?.hide()
+    calendarPopoverMobile.value?.hide()
+  }
+  isDesktop.value = nowDesktop
+}
+
+// 모바일 ref
+const inputRefMobile = ref()
+const suggestionPopoverMobile = ref()
+const checkinWrapperRefMobile = ref()
+const calendarPopoverMobile = ref()
+const popoverMobile = ref()
 
 // 함수들
 const openCalendar = (e: Event) => {
@@ -228,13 +404,28 @@ const fetchSuggestions = async (e?: Event) => {
     places.value = data.places || []
 
     if (regions.value.length > 0 || places.value.length > 0) {
-      suggestionPopover.value?.show(e, inputRef.value.$el)
+      // 현재 뷰포트 유형에 맞게 하나의 팝오버만 노출
+      if (isDesktop.value) {
+        // 데스크톱
+        suggestionPopoverMobile.value?.hide()
+        if (inputRef.value?.$el) {
+          suggestionPopover.value?.show(e, inputRef.value.$el)
+        }
+      } else {
+        // 모바일
+        suggestionPopover.value?.hide()
+        if (inputRefMobile.value?.$el) {
+          suggestionPopoverMobile.value?.show(e, inputRefMobile.value.$el)
+        }
+      }
     } else {
       suggestionPopover.value?.hide()
+      suggestionPopoverMobile.value?.hide()
     }
   } catch (err) {
     console.error('자동완성 데이터 fetching 실패:', err)
     suggestionPopover.value?.hide()
+    suggestionPopoverMobile.value?.hide()
   }
 }
 
@@ -262,12 +453,31 @@ const decreaseChildren = () => {
 const selectSuggestion = (value: string) => {
   keyword.value = value
   suggestionPopover.value?.hide()
+  suggestionPopoverMobile.value?.hide()
+}
+
+const openCalendarMobile = (e: Event) => {
+  popoverMobile.value?.hide()
+  calendarPopoverMobile.value?.show(e, checkinWrapperRefMobile.value)
+}
+
+const toggleGuestPopoverMobile = (e: Event) => {
+  calendarPopoverMobile.value?.hide()
+  popoverMobile.value?.toggle(e)
+}
+
+const selectSuggestionMobile = (value: string) => {
+  keyword.value = value
+  suggestionPopover.value?.hide()
+  suggestionPopoverMobile.value?.hide()
 }
 
 // 메인 리스트 페이지
 const searchPlaces = () => {
-  if (!keyword.value || !dateRange.value?.[0] || !dateRange.value?.[1]) {
+  if (!keyword.value || !dateRange.value?.[0] || !dateRange.value?.[1] || !keyword.value.trim()) {
     errorMessage.value = true;
+    suggestionPopover.value?.hide();
+    suggestionPopoverMobile.value?.hide();
     return;
   }
   errorMessage.value = false;
@@ -291,6 +501,9 @@ const searchPlaces = () => {
 };
 
 onMounted(() => {
+  // 뷰포트 리스너 등록
+  window.addEventListener('resize', handleResize)
+
   // 1. 키 이름을 'recentSearches' (복수형)로 수정
   const saved = localStorage.getItem('recentSearches')
   if (saved) {
@@ -307,5 +520,9 @@ onMounted(() => {
       }
     }
   }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>

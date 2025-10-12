@@ -13,7 +13,7 @@
     <div v-else-if="ownerData" class="space-y-4">
       <div class="flex items-start gap-4 bg-white rounded-lg p-4">
         <div class="flex-shrink-0">
-          <div v-if="ownerData.profileUrl" class="w-16 h-16 rounded-full overflow-hidden ring-2 ring-emerald-200">
+          <div v-if="ownerData.profileUrl" class="w-16 h-16 rounded-full overflow-hidden ">
             <img
               :src="ownerData.profileUrl"
               :alt="ownerData.name"
@@ -27,7 +27,7 @@
             default="identicon"
             class="rounded-full "
           />
-          <div v-else class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center ring-2 ring-emerald-200">
+          <div v-else class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center ">
             <i class="pi pi-user text-2xl text-emerald-600"></i>
           </div>
         </div>
@@ -40,14 +40,14 @@
 
           <div class="space-y-2 text-sm">
             <div v-if="ownerData.email" class="flex items-center gap-2 text-gray-600">
-              <div class="w-6 h-6 bg-emerald-50 rounded-full flex items-center justify-center">
+              <div class="w-6 h-6  rounded-full flex items-center justify-center">
                 <i class="pi pi-envelope text-emerald-600 text-xs"></i>
               </div>
               <span>{{ ownerData.email }}</span>
             </div>
 
             <div v-if="ownerData.phone" class="flex items-center gap-2 text-gray-600">
-              <div class="w-6 h-6 bg-emerald-50 rounded-full flex items-center justify-center">
+              <div class="w-6 h-6  rounded-full flex items-center justify-center">
                 <i class="pi pi-phone text-emerald-600 text-xs"></i>
               </div>
               <span>{{ ownerData.phone }}</span>

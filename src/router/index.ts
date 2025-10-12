@@ -432,6 +432,13 @@ const router = createRouter({
       path: '/signup',
       name: 'admin-signup',
       component: () => import('@/views/admin/AdminSignUp.vue')
+    },
+    // 404 페이지 - 모든 매칭되지 않는 경로를 잡음
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundPage.vue'),
+      meta: { layout: 'default' }
     }
   ],
   scrollBehavior

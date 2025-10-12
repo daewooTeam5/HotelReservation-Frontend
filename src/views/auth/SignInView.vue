@@ -67,7 +67,7 @@ export default defineComponent({
 
     const handleEmailLogin = () => emailMutate.mutate({ email: email.value });
 
-    return { email, emailMutate, handleEmailLogin, handleGoogleLogin, handleKakaoLogin };
+    return { router, email, emailMutate, handleEmailLogin, handleGoogleLogin, handleKakaoLogin };
   }
 });
 </script>
@@ -82,7 +82,8 @@ export default defineComponent({
       <template #content>
         <!-- ✅ Google 로그인 버튼 -->
         <div class="flex flex-col gap-2 mb-4">
-          <Button label="Google 로그인" icon="pi pi-google" severity="secondary" outlined @click="handleGoogleLogin" />
+          <Button label="Google 로그인" icon="pi pi-google" severity="secondary" outlined
+                  @click="handleGoogleLogin" />
           <img
             src="/images/kakao_login_medium_wide.png"
             alt="카카오 로그인"
@@ -108,6 +109,14 @@ export default defineComponent({
             style="margin-top: 6px"
           />
         </form>
+        <Button
+          text
+          severity="secondary"
+          class="w-full mt-3!"
+          @click="router.push('/login')"
+        >
+          <span class="text-sm text-gray-600 hover:text-gray-800">관리자 로그인</span>
+        </Button>
       </template>
     </Card>
   </div>

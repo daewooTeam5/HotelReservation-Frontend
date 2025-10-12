@@ -17,10 +17,12 @@
       <!-- 헤더 영역 -->
       <div class="h-16 flex items-center justify-between px-4 border-b border-gray-700/50">
         <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <div
+            class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
             <i class="pi pi-cog text-white text-sm"></i>
           </div>
-          <span class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          <span
+            class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             &nbsp;Admin Panel
           </span>
         </div>
@@ -92,12 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import AdminHeader from './AdminHeader.vue';
 import AdminFooter from './AdminFooter.vue';
+import { useAuthStore } from '@/stores/authStore.ts';
+import { useToast } from 'primevue';
 
-const route = useRoute();
+const router = useRouter();
+const toast = useToast();
+const authStore = useAuthStore();
 const isSidebarOpen = ref(false);
 
 const toggleSidebar = () => {
@@ -106,11 +112,23 @@ const toggleSidebar = () => {
 
 // 메뉴 리스트
 const menuItems = computed(() => [
-  { name: "대시보드", path: "/admin", icon: "pi pi-th-large" },
-  { name: "숙소 관리", path: "/admin/place", icon: "pi pi-building" },
-  { name: "유저 관리", path: "/admin/user", icon: "pi pi-user" },
-  { name: "리뷰 관리", path: "/admin/review", icon: "pi pi-star" },
-  { name: "결제 관리", path: "/admin/payment", icon: "pi pi-wallet" },
-  { name: "통계", path: "/admin/statistics", icon: "pi pi-chart-bar" }
+  { name: '대시보드', path: '/admin', icon: 'pi pi-th-large' },
+  { name: '숙소 관리', path: '/admin/place', icon: 'pi pi-building' },
+  { name: '유저 관리', path: '/admin/user', icon: 'pi pi-user' },
+  { name: '리뷰 관리', path: '/admin/review', icon: 'pi pi-star' },
+  { name: '결제 관리', path: '/admin/payment', icon: 'pi pi-wallet' },
+  { name: '통계', path: '/admin/statistics', icon: 'pi pi-chart-bar' }
 ]);
+onMounted(() => {
+  if (!authStore.userAuth || !['admin', 'user_admin', 'place_admin'].includes(authStore.userAuth.role)) {
+    toast.add({
+      summary: '접근권한 오류',
+      detail: '해당 페이지에 접근권한이 없습니다.',
+      severity: 'error',
+      life: 2000
+    });
+    router.push('/');
+  }
+
+});
 </script>

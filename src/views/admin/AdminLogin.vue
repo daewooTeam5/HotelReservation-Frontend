@@ -11,7 +11,8 @@
 
           <div>
             <PrimeLabel for="adminPassword">비밀번호</PrimeLabel>
-            <PrimeInputText id="adminPassword" type="password" v-model="form.adminPassword" class="w-full" required />
+            <PrimeInputText id="adminPassword" type="password" v-model="form.adminPassword"
+                            class="w-full" required />
           </div>
 
           <PrimeButton style="margin-top: 8px;" type="submit" label="로그인" class="w-full" />
@@ -30,36 +31,50 @@
   </div>
 </template>
 
-<script lang="ts">
-import { apiClient } from "@/utils/axiosClient"
-import { useAuthStore } from "@/stores/authStore"
-import { reactive, ref } from "vue"
-import { useRouter } from "vue-router"
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { apiClient } from '@/utils/axiosClient';
+import { useAuthStore } from '@/stores/authStore';
+import { useToast } from 'primevue';
 
-export default {
-  name: "AdminLogin",
-  setup() {
-    const authStore = useAuthStore()
-    const router = useRouter()
+const authStore = useAuthStore();
+const router = useRouter();
 
-    const form = reactive({
-      adminId: "",
-      adminPassword: ""
-    })
-    const message = ref("")
+const form = reactive({
+  adminId: '',
+  adminPassword: ''
+});
 
-    const login = async () => {
-      try {
-        const res = await apiClient.post("/v1/auth/admin/login", form, { withCredentials: true })
-        const { accessToken } = res.data.data
-        authStore.setAccessToken(accessToken)
-        router.push("/admin")
-      } catch (err: any) {
-        message.value = err.response?.data?.message || "로그인 실패"
-      }
-    }
+const message = ref('');
+const toast = useToast();
 
-    return { form, message, login }
+const login = async () => {
+  try {
+    const res = await apiClient.post('/v1/auth/admin/login', form, { withCredentials: true });
+    const { accessToken } = res.data.data;
+    authStore.setAccessToken(accessToken);
+    await router.push('/admin');
+  } catch (err: any) {
+    message.value = err.response?.data?.message || '로그인 실패';
   }
-}
+};
+
+onMounted(() => {
+  // 이미 로그인이 되어있을시 로그아웃하고 관리자 로그인
+  if (authStore.userAuth) {
+    if (authStore.userAuth.role === 'admin') {
+      router.replace('/admin');
+    } else {
+      toast.add({
+        severity: 'warn',
+        summary: '로그아웃 필요',
+        detail: '관리자 로그인을 하려면 먼저 로그아웃해주세요.',
+        life: 3000
+      });
+      router.push('/');
+
+    }
+  }
+});
 </script>

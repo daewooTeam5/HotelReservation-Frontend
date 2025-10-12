@@ -107,7 +107,7 @@ const profileItems = [
     command: () => router.push('/auth/point')
 
   },
-  {
+  authStore.userAuth?.role!=="admin" && {
     label: '업주 신청',
     icon: 'pi pi-headphones',
     command: () => router.push('profile/owner-request')
@@ -123,7 +123,7 @@ const profileItems = [
       await router.push('/auth/signin');
     }
   }
-];
+].filter(Boolean);
 
 
 

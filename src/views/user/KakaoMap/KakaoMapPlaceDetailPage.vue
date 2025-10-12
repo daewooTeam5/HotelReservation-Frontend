@@ -24,7 +24,9 @@ const props = defineProps({
   address: { type: String, required: true },
   placeName: { type: String, default: '숙소' },
   placeCategory: { type: String, default: '숙박' },
-  placeRating: { type: Number, default: 0 }
+  placeRating: { type: Number, default: 0 },
+  latitude: { type: Number },
+  longitude: { type: Number }
 });
 
 const emit = defineEmits(['coords-updated']);
@@ -35,49 +37,51 @@ const mapInstance = ref<any>(null);
 const error = ref<string | null>(null);
 
 const initKakaoMap = () => {
-  if (!props.address || !mapContainer.value) return;
+  if (!mapContainer.value || !props.latitude || !props.longitude) return;
 
   const { kakao } = window;
+  const coords = new kakao.maps.LatLng(props.latitude, props.longitude);
+
   const mapOption = {
-    center: new kakao.maps.LatLng(37.566826, 126.9786567),
-    level: 5,
+    center: coords,
+    level: 5
   };
   const map = new kakao.maps.Map(mapContainer.value, mapOption);
   mapInstance.value = map;
-  const geocoder = new kakao.maps.services.Geocoder();
 
-  geocoder.addressSearch(props.address, (result: any, status: any) => {
-    if (status === kakao.maps.services.Status.OK) {
-      const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-      emit('coords-updated', { lat: result[0].y, lng: result[0].x });
-      const marker = new kakao.maps.Marker({ map, position: coords });
-      const content = `
-        <div style="padding:10px; background:white; border:1px solid #ccc; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 4px;">
-          <div style="font-weight:bold; font-size: 14px;">${props.placeName}</div>
-          <div>
-            <span style="color: #FFD700; font-size: 12px;">★</span>
-            <span style="font-size: 12px; font-weight: 600;">${props.placeRating ? props.placeRating.toFixed(1) : 'N/A'}</span>
-            <span style="color: #888; margin-left: 8px; font-size: 12px;">${props.placeCategory}</span>
-          </div>
-        </div>
-      `;
-      const customOverlay = new kakao.maps.CustomOverlay({
-        position: coords,
-        content: content,
-        yAnchor: 2.2
-      });
-      let isOpen = false;
-      kakao.maps.event.addListener(marker, 'click', () => {
-        if (isOpen) {
-          customOverlay.setMap(null);
-        } else {
-          customOverlay.setMap(map);
-        }
-        isOpen = !isOpen;
-      });
-      map.setCenter(coords);
-    }
+  // 마커 생성
+  const marker = new kakao.maps.Marker({ map, position: coords });
+
+  // 커스텀 오버레이 생성
+  const content = `
+    <div style="padding:10px; background:white; border:1px solid #ccc; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 4px;">
+      <div style="font-weight:bold; font-size: 14px;">${props.placeName}</div>
+      <div>
+        <span style="color: #FFD700; font-size: 12px;">★</span>
+        <span style="font-size: 12px; font-weight: 600;">${props.placeRating ? props.placeRating.toFixed(1) : '0'}</span>
+        <span style="color: #888; margin-left: 8px; font-size: 12px;">${props.placeCategory}</span>
+      </div>
+    </div>
+  `;
+
+  const customOverlay = new kakao.maps.CustomOverlay({
+    position: coords,
+    content: content,
+    yAnchor: 2.2
   });
+
+  let isOpen = false;
+  kakao.maps.event.addListener(marker, 'click', () => {
+    if (isOpen) {
+      customOverlay.setMap(null);
+    } else {
+      customOverlay.setMap(map);
+    }
+    isOpen = !isOpen;
+  });
+
+  // 좌표 업데이트 emit
+  emit('coords-updated', { lat: props.latitude, lng: props.longitude });
 };
 
 const loadKakaoMapScript = async () => {

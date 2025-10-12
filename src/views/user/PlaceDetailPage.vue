@@ -279,6 +279,8 @@
               :placeName="place.name"
               :placeCategory="place.category"
               :placeRating="place.avgRating"
+              :latitude="place.latitude"
+              :longitude="place.longitude"
               @coords-updated="updateCoords"
             />
             <p class="mt-2 text-gray-600 flex gap-1">

@@ -125,7 +125,7 @@ const items = [
     icon: 'pi pi-thumbs-up',
     command: () => router.push('/profile/review-list'),
   },
-  {
+  authStore.userAuth?.role!=="admin" && {
     label: '숙박업소 업주신청',
     icon: 'pi pi-headphones',
     command: () => router.push('/profile/owner-request'),
@@ -136,6 +136,6 @@ const items = [
     icon: 'pi pi-sign-out',
     command: handleLogout,
   },
-];
+].filter(Boolean);
 </script>
 <style scoped></style>

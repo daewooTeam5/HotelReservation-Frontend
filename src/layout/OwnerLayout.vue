@@ -95,13 +95,18 @@
 
 <script setup lang="ts">
 import { ref, nextTick, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from 'vue-router';
 import OwnerHeader from "./OwnerHeader.vue";
 import OwnerFooter from "./OwnerFooter.vue";
+import { useAuthStore } from '@/stores/authStore.ts';
+import { useToast } from 'primevue';
+import type { User } from '@/types/users';
 
-const route = useRoute();
+const router = useRouter();
 const isSidebarOpen = ref(false);
 const pageRef = ref();
+const authStore = useAuthStore();
+const toast = useToast();
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
@@ -120,10 +125,19 @@ const menuItems = computed(() => [
   { name: "객실 관리", path: "/owner/rooms", icon: "pi pi-home" },
   { name: "예약 관리", path: "/owner/reservations", icon: "pi pi-calendar" },
   { name: "체크인 관리", path: "/owner/checkin", icon: "pi pi-qrcode" },
-  { name: "리뷰 관리", path: "/owner/reviews", icon: "pi pi-star" },
-  { name: "문의 관리", path: "/owner/inquiries", icon: "pi pi-question-circle" },
+  { name: "리뷰 관리", path: "/owner/reviews", icon: "pi pi-star" }, { name: "문의 관리", path: "/owner/inquiries", icon: "pi pi-question-circle" },
   { name: "쿠폰 관리", path: "/owner/coupons", icon: "pi pi-ticket" },
   { name: "할인 관리", path: "/owner/discounts", icon: "pi pi-tags" },
   { name: "통계", path: "/owner/statistics", icon: "pi pi-chart-bar" }
 ]);
+
+if (!authStore.userAuth || !['hotel_owner'].includes(authStore.userAuth.role)) {
+  toast.add({
+    summary: '접근권한 오류',
+    detail: '해당 페이지에 접근권한이 없습니다.',
+    severity: 'error',
+    life: 2000
+  });
+  router.replace('/');
+}
 </script>
