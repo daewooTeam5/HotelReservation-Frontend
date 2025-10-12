@@ -207,7 +207,7 @@ const getStatusLabel = (status: string) => {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto p-6">
+  <div class="mx-auto p-6">
 
     <!-- 헤더 -->
     <div class="flex items-center justify-between mb-8">

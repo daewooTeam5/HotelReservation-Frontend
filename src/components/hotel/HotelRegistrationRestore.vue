@@ -22,7 +22,15 @@ const emit = defineEmits<{
 }>();
 
 onMounted(() => {
-  // 임시 저장된 데이터가 있는지 확인
+  // 세션 최초 진입 시에는 다이얼로그를 표시하지 않음
+  const firstEntryKey = 'hotel-register-first-entry';
+  const firstVisited = sessionStorage.getItem(firstEntryKey) === '1';
+  if (!firstVisited) {
+    sessionStorage.setItem(firstEntryKey, '1');
+    return; // 최초 진입 → 복구 다이얼로그 미표시
+  }
+
+  // 임시 저장된 데이터가 있는지 확인 후 다음 방문부터만 표시
   if (hasSavedData()) {
     storageStatus.value = getStatus();
     showRestoreDialog.value = true;

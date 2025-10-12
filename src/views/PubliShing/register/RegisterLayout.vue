@@ -1,5 +1,3 @@
-// filepath:
-/Users/kotlinandnode/seungho/daewoo/hotelReservation/frontend/src/views/PubliShing/register/RegisterLayout.vue
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
