@@ -17,6 +17,7 @@ import ProgressBar from 'primevue/progressbar';
 import Rating from 'primevue/rating';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { useRouter } from 'vue-router';
+import ProfileImage from '@/components/common/ProfileImage.vue';
 
 // --- 상태 관리 ---
 const props = defineProps<{
@@ -149,7 +150,7 @@ const responsiveOptions = ref([
           <div style="border: 1px solid lightgray; margin-right: 5px; margin-left: 5px;"
                class="rounded-lg p-4 m-2 h-full flex flex-col min-h-[140px]">
             <div class="flex items-center gap-3 mb-4">
-              <Gravatar :email="slotProps.data.userName + '@example.com'" class="w-10 h-10 rounded-full" style="margin-bottom: 8px;" />
+              <ProfileImage :email="slotProps.data.userEmail" :profile-url="slotProps.data.userProfileUrl"/>
               <div>
                 <p class="font-semibold">{{ slotProps.data.userName }}</p>
               </div>

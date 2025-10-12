@@ -15,6 +15,7 @@ import ReviewFormModal from './ReviewFormModal.vue';
 import { useToast } from 'primevue/usetoast';
 import { useRouter, useRoute } from 'vue-router';
 import type { ReviewableReservation } from '@/types/reservation';
+import ProfileImage from '@/components/common/ProfileImage.vue';
 
 // --- Props & Emits ---
 const props = defineProps<{
@@ -205,7 +206,7 @@ const onReviewSubmitted = () => {
         <div class="flex-1 overflow-y-auto space-y-6 pr-2 review-list-container">
           <div v-for="review in reviews" :key="review.reviewId" :id="`review-${review.reviewId}`" class="border-b pb-4 scroll-mt-4">
             <div style="margin-top: 6px;" class="flex items-start gap-3">
-              <Gravatar :email="review.userName + '@example.com'" class="w-10 h-10 rounded-full flex-shrink-0" style="margin-top: 12px;" />
+              <ProfileImage :email="review.userEmail" :profile-url="review.userProfileUrl"/>
               <div class="flex-1">
                 <div style="margin-top: 2px;" class="flex items-center">
                   <span class="font-semibold">{{ review.userName }}</span>
