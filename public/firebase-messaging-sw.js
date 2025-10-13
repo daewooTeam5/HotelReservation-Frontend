@@ -17,12 +17,13 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  const notificationTitle = payload.notification?.title || 'Background Message Title';
+  const notificationTitle = payload.data?.title || '기본 알림 제목';
   const notificationOptions = {
-    body: payload.notification?.body || 'Background Message body.',
-    icon: '/firebase-logo.png',
-    // 클릭 시 이동할 URL 저장
-    data: { click_action: payload.notification?.click_action || '/' }
+    body: payload.data?.body || '기본 알림 내용',
+    icon: '/images/logo.png',
+    data: {
+      click_action: payload.data?.click_action || '/'
+    }
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
