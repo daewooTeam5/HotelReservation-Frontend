@@ -1,0 +1,154 @@
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import { useRouter } from 'vue-router';
+import Button from "primevue/button";
+import ProgressSpinner from "primevue/progressspinner";
+import { useAuthStore } from '@/stores/authStore.ts';
+import { apiClient } from '@/utils/axiosClient.ts';
+import { categoryMap } from '@/stores/publishing/registerStore.ts';
+
+// --- 인터페이스 정의 ---
+interface AddressDTO {
+  sido: string;
+  sigungu: string;
+  town: string;
+  roadName: string;
+  detailAddress: string;
+  postalCode: string;
+  lat?: number;
+  lng?: number;
+}
+
+interface Place {
+  id: number;
+  hotelName: string;
+  hotelType: string | null;
+  description: string;
+  checkIn: string;
+  checkOut: string;
+  address: AddressDTO | null;
+  images: string[];
+  categoryId: number | null;
+  categoryName: string;
+  capacityRoom: number | null;
+  isPublic: boolean;
+  minPrice: number;
+}
+
+// --- 스크립트 로직 ---
+const router = useRouter();
+const authStore = useAuthStore();
+
+const loading = ref(true);
+const places = ref<Place[]>([]);
+
+// --- 함수 정의 ---
+// 숙소 정보 가져오기
+const fetchPlaces = async () => {
+  loading.value = true;
+  try {
+    const response = await apiClient.get<{ data: Place[] }>(`v1/hotel/publishing/my-list`);
+    const rawPlaces = response.data.data || [];
+
+    places.value = rawPlaces.map(place => ({
+      ...place,
+      categoryName: categoryMap[place.categoryId] || '정보 없음'
+    }));
+  } catch (error) {
+    console.error("숙소 정보를 가져오는 데 실패했습니다:", error);
+    places.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 숙소 삭제
+const deletePlace = async (placeId: number) => {
+  if (confirm("정말 숙소를 삭제하시겠습니까?")) {
+    try {
+      await apiClient.delete(`/v1/hotel/publishing/delete/${placeId}`);
+      places.value = places.value.filter(p => p.id !== placeId);
+      alert("숙소가 삭제되었습니다.");
+    } catch (error) {
+      console.error("숙소 삭제에 실패했습니다:", error);
+      alert("숙소 삭제 중 오류가 발생했습니다.");
+    }
+  }
+};
+
+// --- Lifecycle & Watchers ---
+watch(() => authStore.userAuth, (newUserAuth) => {
+  if (newUserAuth && places.value.length === 0) {
+    fetchPlaces();
+  }
+}, { immediate: true });
+</script>
+
+<template>
+  <ConfirmDialog></ConfirmDialog>
+  <div class="p-6">
+    <h1 class="text-2xl font-bold mb-6 flex items-center gap-4">
+      <span style="margin-left: 3px; margin-bottom: 12px;">내 숙소 관리</span>
+
+      <!-- ✅ 등록된 숙소가 없을 때만 버튼 보이도록 수정 -->
+      <Button
+        v-if="places.length === 0"
+        label="숙소 등록 요청"
+        icon="pi pi-plus"
+        class="p-button-primary"
+        @click="router.push('/hotelregister')"
+        style="margin-left: 3px; margin-bottom: 12px;"
+      />
+    </h1>
+
+    <div v-if="loading" class="bg-white rounded shadow p-6 text-center">
+      <ProgressSpinner style="width: 50px; height: 50px" />
+      <p class="text-gray-600 mt-4">숙소 목록을 불러오는 중입니다...</p>
+    </div>
+
+    <div v-else-if="places.length > 0" class="flex flex-col gap-6">
+      <div
+        v-for="place in places"
+        :key="place.id"
+        class="bg-white rounded shadow p-4 flex flex-col md:flex-row gap-6"
+      >
+        <div class="w-full md:w-1/3 flex flex-col items-center">
+          <img
+            :src="place.images && place.images.length > 0 ? place.images[0] : 'https://via.placeholder.com/400x400'"
+            class="rounded-lg shadow mb-4 w-full h-60 object-cover"
+            alt="숙소 이미지"
+          />
+        </div>
+
+        <div style="margin-top: 10px;" class="w-full md:w-2/3 space-y-4">
+          <p><strong>숙소명:</strong> {{ place.hotelName }}</p>
+          <p><strong>주소:</strong> {{ place.address?.sido }} {{ place.address?.sigungu }}</p>
+          <p><strong>설명:</strong> {{ place.description }}</p>
+          <p><strong>체크인:</strong> {{ place.checkIn }}</p>
+          <p><strong>체크아웃:</strong> {{ place.checkOut }}</p>
+          <p><strong>최저 요금:</strong> {{ place.minPrice?.toLocaleString() ?? '가격 정보 없음' }} 원</p>
+          <p><strong>숙소 유형:</strong> {{ place.categoryName }}</p>
+
+          <div style="margin-top: 10px;" class="flex gap-3 mt-4">
+            <Button
+              label="숙소 정보 수정"
+              icon="pi pi-pencil"
+              class="p-button-primary"
+              @click="router.push(`/hotelregister?id=${place.id}`)"
+            />
+            <Button
+              label="숙소 삭제"
+              icon="pi pi-trash"
+              class="p-button-danger"
+              @click="deletePlace(place.id)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="bg-white rounded shadow p-6 text-center">
+      <p class="text-gray-600 mb-4">등록된 숙소가 없습니다.</p>
+    </div>
+  </div>
+</template>

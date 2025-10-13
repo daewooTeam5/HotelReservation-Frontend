@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import InputOtp from 'primevue/inputotp';
-import Button from 'primevue/button';
+import Buttons from 'primevue/button';
 import Toast from 'primevue/toast';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { apiClient } from '@/utils/axiosClient.ts';
@@ -10,23 +10,23 @@ import type { ApiResult } from '@/types/ApiResult.ts';
 import type { LoginSuccessDto } from '@/types/users.ts';
 import { useToast } from 'primevue';
 import type { AxiosError } from 'axios';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'EmailOtpView',
   components: {
     InputOtp,
-    Button,
+    Buttons,
     Toast
   },
   setup() {
     const { otpEmail,setAccessToken } = useAuthStore();
     const toast = useToast();
     const router = useRouter();
-
+    const route = useRoute(); // 현재 라우트 객체를 가져옵니다.
     const authCodeMutate = useMutation({
       mutationFn: async (data: { email: string, code: string }) => {
-        const result = await apiClient.post<ApiResult<LoginSuccessDto>>('../auth/code', {
+        const result = await apiClient.post<ApiResult<LoginSuccessDto>>('/v1/auth/code', {
           email: data.email,
           code: data.code
         },{
@@ -39,7 +39,16 @@ export default defineComponent({
       onSuccess(data) {
         const param = data as LoginSuccessDto
         setAccessToken(param.accessToken);
-        router.push("/")
+
+        // 주석: 쿼리에서 redirect 경로를 확인합니다.
+        const redirectPath = route.query.redirect as string | undefined;
+
+        // 주석: redirect 경로가 있으면 그곳으로, 없으면 메인 페이지('/')로 이동합니다.
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else {
+          router.push("/");
+        }
       },
       onError(error: AxiosError<ApiResult<any>>) {
         console.log(error.response);
@@ -85,7 +94,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <Toast />
 
   <div class="flex items-center justify-center min-h-screen bg-slate-100 font-sans p-4">
     <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-lg text-center">
@@ -111,9 +119,10 @@ export default defineComponent({
           root: { class: 'flex items-center justify-center gap-2' },
           input: { class: 'w-12 h-14 text-2xl font-bold text-center border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition' }
         }"
+        style="margin-top: 8px; margin-bottom: 8px;"
       />
 
-      <Button
+      <Buttons
         label="인증하기"
         icon="pi pi-check"
         class="w-full !py-3 !text-lg !font-semibold"

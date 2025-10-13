@@ -1,0 +1,182 @@
+<script setup lang="ts">
+// ... 기존 script 로직은 변경 없음
+import { ref, computed } from 'vue';
+import { useQuery, useQueryClient } from '@tanstack/vue-query';
+import { apiClient } from '@/utils/axiosClient';
+import type { ApiResult } from '@/types/ApiResult';
+import type { ReviewResponse } from '@/types/review';
+import Button from 'primevue/button';
+import Carousel from 'primevue/carousel';
+import Skeleton from 'primevue/skeleton';
+import { Gravatar } from '@sauromates/vue-gravatar';
+import ReviewDetailModal from './ReviewDetailModal.vue';
+import ReviewFormModal from './ReviewFormModal.vue';
+import { useToast } from 'primevue/usetoast';
+import type { ReviewableReservation } from '@/types/reservation';
+import ProgressBar from 'primevue/progressbar';
+import Rating from 'primevue/rating';
+import { useAuthStore } from '@/stores/authStore.ts';
+import { useRouter } from 'vue-router';
+import ProfileImage from '@/components/common/ProfileImage.vue';
+
+// --- 상태 관리 ---
+const props = defineProps<{
+  placeId: number;
+}>();
+
+const toast = useToast();
+const authStore = useAuthStore();
+const router = useRouter();
+const queryClient = useQueryClient();
+const isDetailModalVisible = ref(false);
+const isReviewFormModalVisible = ref(false);
+const isCheckingPermission = ref(false);
+const reviewableReservations = ref<ReviewableReservation[]>([]);
+
+// --- 데이터 가져오기 ---
+const { isLoading: isLoadingReviews, data: reviewsData } = useQuery<ApiResult<ReviewResponse[]>>({
+  queryKey: ['reviews', props.placeId],
+  queryFn: () => apiClient.get(`/v1/places/${props.placeId}/reviews`).then(res => res.data),
+  enabled: !!props.placeId,
+});
+
+const reviews = computed(() => reviewsData.value?.data || []);
+
+// [추가] 평점 통계 계산
+const ratingStats = computed(() => {
+  const stats = {
+    total: reviews.value.length,
+    average: 0,
+    counts: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  };
+  if (stats.total === 0) return stats;
+
+  let totalRating = 0;
+  reviews.value.forEach(review => {
+    stats.counts[review.rating as keyof typeof stats.counts]++;
+    totalRating += review.rating;
+  });
+  stats.average = totalRating / stats.total;
+  return stats;
+});
+
+
+// --- 함수 ---
+const openDetailModal = () => {
+  if (reviews.value.length === 0) {
+    handleWriteReviewClick();
+    return;
+  }
+  isDetailModalVisible.value = true;
+};
+
+// ✅ [수정] 리뷰 작성 버튼 클릭 시, 작성 가능한 예약이 있는지 먼저 확인
+const handleWriteReviewClick = async () => {
+  if(!authStore.userAuth){
+    toast.add({
+      summary:"로그인이 필요합니다.",
+      detail:"로그인후 이용해주세요",
+      severity:"warn",
+      life:3000
+    })
+    await router.push("/auth/signin")
+    return;
+  }
+  isCheckingPermission.value = true;
+  try {
+    const res = await apiClient.get<ApiResult<ReviewableReservation[]>>(`/v1/reservations/reviewable?placeId=${props.placeId}`);
+    reviewableReservations.value = res.data.data || [];
+
+    if (reviewableReservations.value.length > 0) {
+      isReviewFormModalVisible.value = true; // 작성 가능하면 폼 열기
+    } else {
+      toast.add({ severity: 'info', summary: '알림', detail: '리뷰를 작성할 수 있는 예약 내역이 없습니다.', life: 3000 });
+    }
+  } catch (error) {
+    toast.add({ severity: 'error', summary: '오류', detail: '정보를 불러오는 데 실패했습니다.', life: 3000 });
+  } finally {
+    isCheckingPermission.value = false;
+  }
+};
+
+const onReviewSubmitted = () => {
+  isReviewFormModalVisible.value = false;
+  queryClient.invalidateQueries({ queryKey: ['reviews', props.placeId] });
+};
+
+const responsiveOptions = ref([
+  { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+  { breakpoint: '768px', numVisible: 1, numScroll: 1 }
+]);
+</script>
+
+<template>
+  <section class="mt-10 p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-gray-800">실제 투숙객 리뷰</h2>
+      <Button
+        style="margin-bottom: 8px;"
+        v-if="reviews.length > 0"
+        label="리뷰 작성하기"
+        icon="pi pi-pencil"
+        @click="handleWriteReviewClick"
+        :loading="isCheckingPermission"
+      />
+    </div>
+
+    <div style="margin-bottom: 12px;" v-if="!isLoadingReviews && reviews.length > 0" class="flex items-center gap-8 mb-6 p-4 bg-gray-150 rounded-lg">
+      <div class="text-center">
+        <p class="text-5xl font-bold text-blue-600">{{ ratingStats.average.toFixed(1) }}</p>
+        <Rating :model-value="ratingStats.average" readonly :cancel="false" />
+        <p class="text-sm text-gray-600 mt-1">{{ ratingStats.total }}개 리뷰</p>
+      </div>
+      <div class="flex-1 space-y-1">
+        <div v-for="i in 5" :key="i" class="flex items-center gap-2 my-1!">
+          <span class="text-sm text-gray-600 w-8">{{ 6 - i }}점</span>
+          <ProgressBar :value="(ratingStats.counts[6-i] / ratingStats.total) * 100" :showValue="false" class="h-2 flex-1" />
+        </div>
+      </div>
+    </div>
+
+    <div v-if="isLoadingReviews" class="text-center"><Skeleton height="12rem" /></div>
+    <div v-else-if="reviews.length === 0" class="text-center text-gray-500 py-8">
+      <p class="text-lg font-semibold">🤔 혹시 이 호텔에서 체크아웃 하셨나요?</p>
+      <p class="mt-2">이 호텔의 첫번째 리뷰어가 되어보세요!</p>
+      <Button label="리뷰 작성하기" class="mt-4" @click="handleWriteReviewClick" :loading="isCheckingPermission" />
+    </div>
+    <div v-else>
+      <Carousel :value="reviews" :numVisible="3" :numScroll="1" :responsiveOptions="responsiveOptions" :showIndicators="false">
+        <template #item="slotProps">
+          <div style="border: 1px solid lightgray; margin-right: 5px; margin-left: 5px;"
+               class="rounded-lg p-4 m-2 h-full flex flex-col min-h-[140px]">
+            <div class="flex items-center gap-3 mb-4">
+              <ProfileImage :email="slotProps.data.userEmail" :profile-url="slotProps.data.userProfileUrl"/>
+              <div>
+                <p class="font-semibold">{{ slotProps.data.userName }}</p>
+              </div>
+            </div>
+            <p class="text-gray-700 flex-grow line-clamp-4">"{{ slotProps.data.comment }}"</p>
+            <Button label="더 보기" text @click="openDetailModal" class="self-start p-0 mt-2 text-blue-600 hover:text-blue-800" />
+          </div>
+        </template>
+      </Carousel>
+    </div>
+
+    <div v-if="reviews.length > 0" class="mt-6">
+      <Button style="margin-left: 10px; margin-top: 12px; margin-bottom: 5px; " label="이용후기 모두 보기" icon="pi pi-users" @click="openDetailModal" outlined/>
+    </div>
+
+    <ReviewDetailModal
+      :place-id="props.placeId"
+      v-model:visible="isDetailModalVisible"
+    />
+
+    <ReviewFormModal
+      v-if="placeId"
+      :place-id="props.placeId"
+      :reservations="reviewableReservations"
+      v-model:visible="isReviewFormModalVisible"
+      @review-submitted="onReviewSubmitted"
+    />
+  </section>
+</template>

@@ -1,0 +1,66 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - main
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Build & Deploy Frontend
+    runs-on: ubuntu-latest
+    env:
+      ENV_FILE: ${{ secrets.FRONT_ENV }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 📦 Node 24 설치
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # 📄 .env 파일 생성
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.FRONT_ENV }}" > .env
+          echo "✅ .env 파일 생성 완료!"
+
+      # 📥 의존성 설치
+      - name: Install dependencies
+        run: npm install
+
+      # 🏗️ 빌드 실행
+      - name: Build project
+        run: npm run build-only
+
+      # 🔐 SSH 설정
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_KEY }}" > ~/.ssh/aws_key.pem
+          chmod 600 ~/.ssh/aws_key.pem
+          ssh-keyscan -H ${{ secrets.AWS_URL }} >> ~/.ssh/known_hosts
+
+      # 🚀 dist 폴더 업로드 (EC2의 nginx 폴더로)
+      - name: Deploy dist to EC2
+        run: |
+          echo "🚀 dist 폴더 업로드 중..."
+          scp -i ~/.ssh/aws_key.pem -r dist/* ubuntu@${{ secrets.AWS_URL }}:/var/www/html/dist/
+          echo "✅ 업로드 완료!"
+
+      # 🔁 nginx reload
+      - name: Reload Nginx
+        run: |
+          echo "🔄 Nginx reload 실행 중..."
+          ssh -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_URL }} << 'EOF'
+            sudo systemctl reload nginx
+            echo "✅ Nginx reloaded!"
+          EOF

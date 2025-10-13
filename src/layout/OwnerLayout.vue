@@ -1,0 +1,143 @@
+<template>
+  <div class="flex h-screen overflow-hidden">
+    <!-- Mobile Overlay -->
+    <div
+      v-if="isSidebarOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+      @click="isSidebarOpen = false"
+    ></div>
+
+    <!-- Sidebar -->
+    <aside
+      :class="[
+        'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white flex flex-col transition-transform duration-300',
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      ]"
+    >
+      <!-- 헤더 영역 -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-gray-700/50">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="pi pi-building text-white text-sm"></i>
+          </div>
+          <span class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            &nbsp;Hotel Owner
+          </span>
+        </div>
+        <!-- 모바일 닫기 버튼 -->
+        <button
+          class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10"
+          @click="isSidebarOpen = false"
+        >
+          <i class="pi pi-times text-white"></i>
+        </button>
+      </div>
+
+      <!-- 네비게이션 메뉴 -->
+      <nav class="flex-1 p-4 overflow-y-auto">
+        <ul class="space-y-3">
+          <li v-for="item in menuItems" :key="item.path">
+            <router-link
+              :to="item.path"
+              @click="isSidebarOpen = false"
+              class="group flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 hover:bg-white/10 hover:translate-x-1"
+              :class="[
+                $route.path === item.path
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              ]"
+            >
+              <div
+                class="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
+                :class="[
+                  $route.path === item.path
+                    ? 'bg-white/20'
+                    : 'group-hover:bg-white/10'
+                ]"
+              >
+                <i
+                  :class="item.icon"
+                  class="text-base transition-colors duration-200 text-white"
+                ></i>
+              </div>
+              <span class="font-medium text-base transition-colors duration-200 text-white">
+                {{ item.name }}
+              </span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- 하단 브랜드/버전 정보 -->
+      <div class="mt-auto px-4 py-3 border-t border-gray-700/50 text-xs text-gray-400">
+        ⓒ 2025 Hotel Reservation<br />
+        v1.0.0
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-w-0 bg-gray-50 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <OwnerHeader @toggleSidebar="toggleSidebar" />
+
+      <!-- Content -->
+      <section class="p-4 lg:p-6 overflow-y-auto flex-1">
+        <router-view v-slot="{ Component }">
+          <component :is="Component" ref="pageRef" />
+        </router-view>
+      </section>
+
+      <!-- Footer -->
+      <OwnerFooter />
+    </main>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, nextTick, computed } from "vue";
+import { useRoute, useRouter } from 'vue-router';
+import OwnerHeader from "./OwnerHeader.vue";
+import OwnerFooter from "./OwnerFooter.vue";
+import { useAuthStore } from '@/stores/authStore.ts';
+import { useToast } from 'primevue';
+import type { User } from '@/types/users';
+
+const router = useRouter();
+const isSidebarOpen = ref(false);
+const pageRef = ref();
+const authStore = useAuthStore();
+const toast = useToast();
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+
+  nextTick(() => {
+    setTimeout(() => {
+      pageRef.value?.refreshData?.();
+    }, 310);
+  });
+};
+
+// 메뉴 리스트
+const menuItems = computed(() => [
+  { name: "대시보드", path: "/owner", icon: "pi pi-th-large" },
+  { name: "숙소 관리", path: "/owner/place", icon: "pi pi-building" },
+  { name: "객실 관리", path: "/owner/rooms", icon: "pi pi-home" },
+  { name: "예약 관리", path: "/owner/reservations", icon: "pi pi-calendar" },
+  { name: "체크인 관리", path: "/owner/checkin", icon: "pi pi-qrcode" },
+  { name: "리뷰 관리", path: "/owner/reviews", icon: "pi pi-star" }, { name: "문의 관리", path: "/owner/inquiries", icon: "pi pi-question-circle" },
+  { name: "쿠폰 관리", path: "/owner/coupons", icon: "pi pi-ticket" },
+  { name: "할인 관리", path: "/owner/discounts", icon: "pi pi-tags" },
+  { name: "통계", path: "/owner/statistics", icon: "pi pi-chart-bar" }
+]);
+
+if (!authStore.userAuth || !['hotel_owner'].includes(authStore.userAuth.role)) {
+  toast.add({
+    summary: '접근권한 오류',
+    detail: '해당 페이지에 접근권한이 없습니다.',
+    severity: 'error',
+    life: 2000
+  });
+  router.replace('/');
+}
+</script>
