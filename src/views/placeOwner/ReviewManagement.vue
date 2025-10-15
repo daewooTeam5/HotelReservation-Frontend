@@ -93,8 +93,8 @@ const sortOptions = ref([
   { name: '평점 낮은순', value: 'rating,asc' },
 ]);
 
-const placeId = ref(1);
-
+const placeId = computed(() => authStore.user?.placeId); // 로그인된 사용자의 placeId를 동적으로 가져옵니다.
+          
 // --- 데이터 가져오기 ---
 const fetchOwnerReviews = async (sortBy: string) => {
   // ===== ✅ 친구가 알려준 토큰 갱신 로직 적용 =====
