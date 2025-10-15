@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import Dialog from "primevue/dialog";
@@ -93,30 +93,36 @@ const sortOptions = ref([
   { name: '평점 낮은순', value: 'rating,asc' },
 ]);
 
-const placeId = computed(() => authStore.user?.placeId); // 로그인된 사용자의 placeId를 동적으로 가져옵니다.
-          
-// --- 데이터 가져오기 ---
-const fetchOwnerReviews = async (sortBy: string) => {
-  // ===== ✅ 친구가 알려준 토큰 갱신 로직 적용 =====
-  const refreshClient = axios.create({
-    baseURL: apiClient.defaults.baseURL,
-    withCredentials: true,
-  });
-  const res1 = await refreshClient.post("/v1/auth/token");
-  const newAccessToken = res1.data.data.accessToken;
-  authStore.setAccessToken(newAccessToken);
-  // ===============================================
+const placeId = ref<number | null>(null);
 
-  const response = await apiClient.get<ApiResult<ReviewResponse[]>>(`/v1/places/${placeId.value}/reviews?sortBy=${sortBy}`);
-  return response.data;
+// ===== ✅ 관리자 소유 숙소 ID 조회 =====
+const fetchPlaceId = async () => {
+  try {
+    const response = await apiClient.get<ApiResult<Array<{ id: number }>>>('/v1/hotel/publishing/my-list');
+    const places = response.data.data;
+    if (places && places.length > 0) {
+      placeId.value = places[0].id;
+    }
+  } catch (error) {
+    console.error('숙소 ID 조회 실패:', error);
+  }
 };
 
-const { data: reviewsData, isLoading, isError, error, refetch } = useQuery<ApiResult<ReviewResponse[]>>({
+// --- 데이터 가져오기 ---
+const fetchOwnerReviews = async (sortBy: string) => {
+  if (!placeId.value) {
+    return [];
+  }
+  const response = await apiClient.get<ApiResult<ReviewResponse[]>>(`/v1/places/${placeId.value}/reviews?sortBy=${sortBy}`);
+  return response.data.data || [];
+};
+
+const { data: reviews, isLoading, isError, error, refetch } = useQuery<ReviewResponse[]>({
   queryKey: ['ownerReviews', placeId, sortOption],
   queryFn: () => fetchOwnerReviews(sortOption.value.value),
+  enabled: computed(() => !!placeId.value),
+  initialData: []
 });
-
-const reviews = computed(() => reviewsData.value?.data || []);
 
 // --- 답글 관리 ---
 const isReplyDialogOpen = ref(false);
@@ -125,15 +131,6 @@ const replyText = ref("");
 
 const { mutate: submitComment, isPending: isSubmittingComment } = useMutation({
   mutationFn: async (payload: { reviewId: number, comment: string }) => {
-    // ===== ✅ 여기에도 토큰 갱신 로직 추가 =====
-    const refreshClient = axios.create({
-      baseURL: apiClient.defaults.baseURL,
-      withCredentials: true,
-    });
-    const res1 = await refreshClient.post("/v1/auth/token");
-    authStore.setAccessToken(res1.data.data.accessToken);
-    // ===============================================
-
     return apiClient.post(`/v1/owner/reviews/${payload.reviewId}/comments`, { comment: payload.comment });
   },
   onSuccess: () => {
@@ -160,5 +157,10 @@ const saveReply = () => {
 
 watch(sortOption, () => {
   refetch();
+});
+
+// ✅ 컴포넌트 마운트 시 placeId 조회
+onMounted(() => {
+  fetchPlaceId();
 });
 </script>

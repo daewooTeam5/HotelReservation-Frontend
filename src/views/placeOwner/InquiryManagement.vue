@@ -5,7 +5,7 @@
     <div class="flex flex-wrap gap-4 mb-6 items-end p-4 bg-gray-50 rounded-lg">
       <div class="flex-1 min-w-[200px]">
         <label class="block text-sm font-medium mb-1">사용자 ID (기본키)</label>
-        <InputText v-model.number="searchParams.userId" type="number" placeholder="User ID" class="w-full"/>
+        <InputText v-model="searchParams.userId" type="text" placeholder="User ID" class="w-full"/>
       </div>
       <div class="flex-1 min-w-[200px]">
         <label class="block text-sm font-medium mb-1">사용자 로그인 ID</label>
@@ -108,8 +108,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient';
 import { useToast } from "primevue/usetoast";
 import type { ApiResult } from '@/types/ApiResult';
+import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
-          
+
 interface Question {
   questionId: number;
   title: string;
@@ -121,29 +122,52 @@ interface Question {
 
 const queryClient = useQueryClient();
 const toast = useToast();
-const expandedRows = ref([]);
 const authStore = useAuthStore();
-          
-const placeId = computed(() => authStore.user?.placeId); // 로그인된 사용자의 placeId를 동적으로 가져옵니다.
+const expandedRows = ref([]);
 
+// ✅ 타입 수정: userId를 string으로 변경
 const searchParams = ref<{
-  userId: number | null;
+  userId: string;
   userLoginId: string;
   keyword: string;
 }>({
-  userId: null,
+  userId: '',
   userLoginId: '',
   keyword: ''
 });
 const isSearching = ref(false);
 
+// ===== ✅ 관리자 소유 숙소 ID 조회 =====
+const { data: placeData } = useQuery<ApiResult<Array<{ id: number }>>>({
+  queryKey: ['ownerPlace'],
+  queryFn: async () => {
+    const response = await apiClient.get<ApiResult<Array<{ id: number }>>>('/v1/hotel/publishing/my-list');
+    return response.data;
+  }
+});
+
+const placeId = computed(() => {
+  const places = placeData.value?.data;
+  return places && places.length > 0 ? places[0].id : null;
+});
+
+// ===== ✅ placeId가 있을 때만 문의 조회 =====
 const { data: questions, isLoading, isError, refetch } = useQuery<Question[]>({
   queryKey: ['ownerQuestions', placeId, searchParams],
   queryFn: async () => {
+    if (!placeId.value) return [];
+
     isSearching.value = true;
+    // ✅ userId를 숫자로 변환하여 전송
+    const params = {
+      userId: searchParams.value.userId ? Number(searchParams.value.userId) : null,
+      userLoginId: searchParams.value.userLoginId,
+      keyword: searchParams.value.keyword
+    };
+
     const response = await apiClient.post<ApiResult<Question[]>>(
       `/v1/owner/places/${placeId.value}/questions/search`,
-      searchParams.value
+      params
     );
     isSearching.value = false;
     return response.data.data || [];
@@ -157,7 +181,7 @@ const handleSearch = () => {
 };
 
 const resetSearch = () => {
-  searchParams.value = { userId: null, userLoginId: '', keyword: '' };
+  searchParams.value = { userId: '', userLoginId: '', keyword: '' };
   refetch();
 };
 
@@ -166,7 +190,7 @@ const currentQuestion = ref<Question | null>(null);
 const answerText = ref("");
 
 const { mutate: submitAnswer, isPending: isSubmitting } = useMutation({
-  mutationFn: (payload: { questionId: number, answer: string }) => {
+  mutationFn: async (payload: { questionId: number, answer: string }) => {
     return apiClient.post(`/v1/owner/questions/${payload.questionId}/answer`, { answer: payload.answer });
   },
   onSuccess: () => {
@@ -180,7 +204,9 @@ const { mutate: submitAnswer, isPending: isSubmitting } = useMutation({
 });
 
 const { mutate: deleteQuestion } = useMutation({
-  mutationFn: (questionId: number) => apiClient.delete(`/v1/owner/questions/${questionId}`),
+  mutationFn: async (questionId: number) => {
+    return apiClient.delete(`/v1/owner/questions/${questionId}`);
+  },
   onSuccess: () => {
     toast.add({ severity: 'success', summary: '성공', detail: '문의가 삭제되었습니다.', life: 3000 });
     queryClient.invalidateQueries({ queryKey: ['ownerQuestions'] });
