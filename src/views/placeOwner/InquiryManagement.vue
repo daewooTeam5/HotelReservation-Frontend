@@ -108,7 +108,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { apiClient } from '@/utils/axiosClient';
 import { useToast } from "primevue/usetoast";
 import type { ApiResult } from '@/types/ApiResult';
-
+import { useAuthStore } from '@/stores/authStore';
+          
 interface Question {
   questionId: number;
   title: string;
@@ -121,9 +122,9 @@ interface Question {
 const queryClient = useQueryClient();
 const toast = useToast();
 const expandedRows = ref([]);
-
-// TODO: 이 부분은 실제 로그인한 관리자의 숙소 ID를 가져오는 로직으로 반드시 교체해야 합니다.
-const placeId = ref(1);
+const authStore = useAuthStore();
+          
+const placeId = computed(() => authStore.user?.placeId); // 로그인된 사용자의 placeId를 동적으로 가져옵니다.
 
 const searchParams = ref<{
   userId: number | null;
