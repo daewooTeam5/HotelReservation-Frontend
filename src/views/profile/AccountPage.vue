@@ -206,16 +206,21 @@ const submit = async () => {
 
   saving.value = true;
   try {
+    const dto = {
+      name: editProfile.value.name,
+      email: editProfile.value.email,
+      phone: editProfile.value.phone || '',
+    };
+
     const formData = new FormData();
-    formData.append('name', editProfile.value.name);
-    formData.append('email', editProfile.value.email);
-    formData.append('phone', editProfile.value.phone || '');
+    formData.append('dto', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
 
     if (selectedFile.value) {
-      formData.append('profileImage', selectedFile.value);
+      formData.append('file', selectedFile.value);
     }
 
-    const response = await apiClient.put('/v1/users/my/profile', formData, {
+
+    const response = await apiClient.put('/v1/users/update', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 

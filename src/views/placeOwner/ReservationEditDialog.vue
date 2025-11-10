@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, watch } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { apiClient } from "@/utils/axiosClient";
@@ -63,12 +63,25 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["close", "save"]);
-
-const form = reactive({ ...props.reservation });
 const toast = useToast();
+
+const form = reactive({});
+
+// ✅ props.reservation 변경 시 form에 반영
+watch(
+  () => props.reservation,
+  (val) => {
+    if (val) Object.assign(form, val);
+  },
+  { immediate: true }
+);
 
 const save = async () => {
   try {
+    if (!form.reservationId) {
+      throw new Error("reservationId가 비어 있습니다.");
+    }
+
     await apiClient.put(`/v1/reservations/${form.reservationId}`, form);
 
     toast.add({
