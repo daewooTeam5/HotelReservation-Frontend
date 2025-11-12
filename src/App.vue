@@ -12,13 +12,23 @@ import { messaging } from './firebase';
 import { getToken, onMessage } from 'firebase/messaging';
 import { useToast } from 'primevue';
 import { apiClient } from '@/utils/axiosClient.ts';
-
+import axios from 'axios';
+declare global {
+  interface Window {
+    // 안드에서 심어준 브리지
+    AndroidBridge?: {
+      isAndroidApp: () => boolean;
+    };
+    // 안드에서 호출할 토큰 리스너
+    setFCMToken?: (token: string) => void;
+  }
+}
 const route = useRoute();
 const authStore = useAuthStore();
 const toast = useToast();
 let isMessageListenerAdded = false;
 onMounted(() => {
-  console.log('appvue init');
+
   void authStore.issueToken();
 
   if (!messaging) {
@@ -37,6 +47,12 @@ onMounted(() => {
       });
     });
     isMessageListenerAdded = true;
+  }
+  if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
+    window.setFCMToken = (token:string)=>{
+      apiClient.post('/v1/auth/fcm-token', { fcmToken: token });
+    }
+    return
   }
 
   // FCM 토큰 요청
