@@ -1,5 +1,13 @@
 @import './base.css';
-
+@font-face {
+  font-family: 'OneStoreMobileGothicTitleFont';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+body {
+  font-family: 'OneStoreMobileGothicTitleFont', sans-serif;
+}
 #app {
   height: 100vh;
 }
