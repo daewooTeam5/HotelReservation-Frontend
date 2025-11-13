@@ -6,7 +6,7 @@ console.log(import.meta.env.VITE_SERVER_URL);
 
 // Axios 인스턴스 생성
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_SERVER_URL,
+  baseURL: import.meta.env.VITE_SERVER_URL+"/api",
   // 기본 Content-Type 설정은 여기서 삭제합니다.
   withCredentials: true,
 });
