@@ -13,6 +13,7 @@ import { getToken, onMessage } from 'firebase/messaging';
 import { useToast } from 'primevue';
 import { apiClient } from '@/utils/axiosClient.ts';
 import axios from 'axios';
+
 declare global {
   interface Window {
     // 안드에서 심어준 브리지
@@ -49,10 +50,10 @@ onMounted(() => {
     isMessageListenerAdded = true;
   }
   if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
-    window.setFCMToken = (token:string)=>{
+    window.setFCMToken = (token: string) => {
       apiClient.post('/v1/auth/fcm-token', { fcmToken: token });
-    }
-    return
+    };
+    return;
   }
 
   // FCM 토큰 요청
@@ -99,7 +100,26 @@ onMounted(() => {
       <router-view />
     </DefaultLayout>
   </div>
-  <div v-else>
-    loading
+  <div v-else
+       class="w-screen h-screen bg-gradient-to-b from-black to-neutral-900 flex items-center justify-center">
+    <div class="text-center animate-fadeIn">
+
+      <div class="w-full flex justify-center mb-2">
+        <img
+          src="/images/logo.png"
+          class="w-56 h-56 mx-auto opacity-95 drop-shadow-[0_0_20px_rgba(255,215,0,0.25)] animate-pulse"
+        />
+      </div>
+
+      <h1
+        class="mt-6! text-4xl font-bold tracking-[0.2em] text-[#e5c76b] drop-shadow-[0_0_12px_rgba(229,199,107,0.4)]">
+        Hotelly
+      </h1>
+
+      <p class="mt-3! text-lg text-neutral-300 font-light">
+        여행의 시작을 더 스마트하게, 당신만의 완벽한 스테이를 연결합니다.
+      </p>
+
+    </div>
   </div>
 </template>
