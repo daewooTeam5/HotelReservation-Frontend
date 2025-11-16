@@ -83,7 +83,7 @@
       <AdminHeader @toggleSidebar="toggleSidebar" />
 
       <!-- Content -->
-      <section class="p-4 lg:p-6 overflow-y-auto flex-1">
+      <section class="p-4 lg:p-6 overflow-y-auto flex-1" ref="mainRef">
         <router-view />
       </section>
 
@@ -110,6 +110,18 @@ const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
 
+const mainRef = ref<HTMLElement | null>(null);
+onMounted(() => {
+  const el = mainRef.value!;
+
+  el.addEventListener("scroll", () => {
+    const scrollTop = el.scrollTop;
+
+    if (window.AndroidBridge && window.AndroidBridge.updateScrollPosition) {
+      window.AndroidBridge.updateScrollPosition(scrollTop);
+    }
+  });
+});
 // 메뉴 리스트
 const menuItems = computed(() => [
   { name: '대시보드', path: '/admin', icon: 'pi pi-th-large' },

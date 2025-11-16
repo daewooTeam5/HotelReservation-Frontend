@@ -81,8 +81,8 @@
       <OwnerHeader @toggleSidebar="toggleSidebar" />
 
       <!-- Content -->
-      <section class="p-4 lg:p-6 overflow-y-auto flex-1">
-        <router-view v-slot="{ Component }">
+      <section class="p-4 lg:p-6 overflow-y-auto flex-1" ref="mainRef">
+        <router-view v-slot="{ Component }" >
           <component :is="Component" ref="pageRef" />
         </router-view>
       </section>
@@ -107,7 +107,19 @@ const isSidebarOpen = ref(false);
 const pageRef = ref();
 const authStore = useAuthStore();
 const toast = useToast();
+import { onMounted } from 'vue';
 
+const mainRef = ref<HTMLElement | null>(null);
+onMounted(() => {
+  const el = mainRef.value!;
+
+  el.addEventListener("scroll", () => {
+    const scrollTop = el.scrollTop;
+    if (window.AndroidBridge && window.AndroidBridge.updateScrollPosition) {
+      window.AndroidBridge.updateScrollPosition(scrollTop);
+    }
+  });
+});
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 
@@ -140,4 +152,5 @@ if (!authStore.userAuth || !['hotel_owner'].includes(authStore.userAuth.role)) {
   });
   router.replace('/');
 }
+
 </script>
