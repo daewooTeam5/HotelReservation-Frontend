@@ -1,12 +1,12 @@
 <template>
-  <div class="space-y-4">
+  <div class="md:space-y-4 ">
     <div class="mb-4!">
       <ReservationGuideCard />
     </div>
 
-    <div class="flex gap-4">
-      <!-- 왼쪽 -->
-      <div class="flex-2 space-y-4 gap-4 flex flex-col">
+    <div class="flex flex-col lg:flex-row gap-4 lg:gap-8">
+
+      <div class="w-full lg:flex-2 space-y-4 gap-4 flex flex-col">
         <ReservationForm
           ref="formRef"
           @data-change="handleReservationDataChange"
@@ -16,8 +16,7 @@
         <ReservationAgreementCard @agreement-change="handleAgreementChange" />
       </div>
 
-      <!-- 오른쪽 -->
-      <div class="flex-1 space-y-4 gap-4 flex flex-col">
+      <div class="w-full lg:flex-1 space-y-4 gap-4 flex flex-col">
         <ReservationHotelCard :hotel-id="Number(hotelId) || 1" />
         <ReservationScheduleCard :check-in="checkIn" :check-out="checkOut" />
         <ReservationCouponCard
@@ -42,38 +41,34 @@
       </div>
     </div>
 
-    <!-- 하단 결제 -->
-    <div class="mt-4!">
-      <PrimeCard class="shadow-md border-t-4 border-t-blue-500">
-        <template #content>
-          <div class="flex justify-between items-center">
-            <div>
-              <p class="text-lg font-bold">
-                총 결제 금액:
-                <span class="text-red-600">₩{{ finalAmount.toLocaleString() }}</span>
-              </p>
-              <p class="text-xs text-gray-600 mt-1">
-                위 정보를 확인한 후 다음 단계로 이동하세요.
-              </p>
-            </div>
-            <PrimeButton
-              severity="success"
-              size="large"
-              :disabled="!isReservationValid"
-              :loading="isProcessing"
-              @click="completeStep1"
-              class="px-8 py-2 font-semibold"
-            >
-              <i class="pi pi-arrow-right mr-2"></i>
-              다음 단계로
-            </PrimeButton>
+    <div class="sticky bottom-0 z-50 w-full bg-white shadow-t-lg border-t border-gray-100 border-t-4 rounded-tr-2.5! rounded-tr-2.5! border-t-blue-400">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+          <div class="w-full sm:w-auto text-center sm:text-left">
+            <p class="text-lg font-bold">
+              총 결제 금액:
+              <span class="text-red-600">₩{{ finalAmount.toLocaleString() }}</span>
+            </p>
+            <p class="text-xs text-gray-600 mt-1">
+              위 정보를 확인한 후 다음 단계로 이동하세요.
+            </p>
           </div>
-        </template>
-      </PrimeCard>
+          <PrimeButton
+            severity="success"
+            size="large"
+            :disabled="!isReservationValid"
+            :loading="isProcessing"
+            @click="completeStep1"
+            class="px-8 py-2 font-semibold w-full sm:w-auto"
+          >
+            <i class="pi pi-arrow-right mr-2"></i>
+            다음 단계로
+          </PrimeButton>
+        </div>
+      </div>
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import ReservationHotelCard from '@/components/hotel/reservation/ReservationHotelCard.vue';
 import ReservationGuideCard from '@/components/hotel/reservation/ReservationGuideCard.vue';
@@ -252,8 +247,8 @@ const completeStep1 = async () => {
       roomId: props.roomId,
       roomCount: props.rooms,
       couponId: selectedCoupon.value?.id,
-      usedPoints:usedPoints.value,
-      discountAmount: discountAmount.value, // <-- 전체 할인 금액 전달
+      usedPoints: usedPoints.value,
+      discountAmount: discountAmount.value // <-- 전체 할인 금액 전달
     });
 
     // 예약 ID를 부모 컴포넌트로 전달 (couponId도 함께 전달)

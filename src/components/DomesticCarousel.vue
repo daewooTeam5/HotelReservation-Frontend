@@ -1,96 +1,120 @@
 <template>
-  <div  class="mt-8!">
-    <div class="mb-6!">
+  <div class="mt-8!">
+    <div class="mb-6! px-4 md:px-0">
       <h2 class="text-2xl font-bold! text-gray-900">인기 여행지</h2>
     </div>
 
-    <div class="flex items-center gap-4">
-      <!-- 좌측 네비게이션 버튼 -->
+    <div
+      class="flex flex-wrap justify-center gap-4 px-4 md:hidden transition-all duration-300 ease-in-out"
+      :class="isMobileExpanded ? 'max-h-none' : 'max-h-28 overflow-hidden'"
+    >
+      <div
+        v-for="city in domesticCities"
+        :key="city.name"
+        class="flex flex-col items-center w-24 group cursor-pointer"
+        @click="goToDomestic(city)"
+      >
+        <div class="w-20 h-20 rounded-full overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110">
+          <img
+            :src="city.image"
+            :alt="city.name"
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <h3 class="mt-2 text-sm font-semibold text-gray-700 group-hover:text-blue-600">{{ city.name }}</h3>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center px-4 md:hidden">
       <Button
-        icon="pi pi-chevron-left"
-        rounded
+        :label="isMobileExpanded ? '간략히 보기' : '인기 여행지 더보기'"
+        :icon="isMobileExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+        @click="isMobileExpanded = !isMobileExpanded"
         severity="secondary"
-        @click="scrollLeft"
-        :disabled="isAtStart"
-        class="flex-shrink-0 w-12 h-12 bg-white shadow-lg hover:shadow-xl transition-shadow"
+        outlined
+        class="w-full"
       />
+    </div>
 
-      <div class="relative overflow-hidden flex-1">
-        <div
-          ref="scrollContainer"
-          @scroll="handleScroll"
-          class="flex gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide"
-          style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
-        >
+    <div class="hidden md:block">
+      <div class="flex items-center gap-4">
+        <Button
+          icon="pi pi-chevron-left"
+          rounded
+          severity="secondary"
+          @click="scrollLeft"
+          :disabled="isAtStart"
+          class="flex-shrink-0 w-12 h-12 bg-white shadow-lg hover:shadow-xl transition-shadow"
+        />
+
+        <div class="relative overflow-hidden flex-1">
           <div
-            v-for="city in domesticCities"
-            :key="city.name"
-            class="flex-shrink-0 w-64 group cursor-pointer"
-            @click="goToDomestic(city)"
+            ref="scrollContainer"
+            @scroll="handleScroll"
+            class="flex gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide"
+            style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;"
           >
-            <div class="relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-              <div class="aspect-square relative">
-                <img
-                  :src="city.image"
-                  :alt="city.name"
-                  class="w-full h-full object-cover"
-                />
-                <!-- 오버레이 그라데이션 -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-
-                <!-- 도시 이름 -->
-                <div class="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 class="text-white text-xl font-bold drop-shadow-lg">{{ city.name }}</h3>
-                </div>
-
-                <!-- Hover 효과 아이콘 -->
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                    <i class="pi pi-eye text-blue-600 text-2xl"></i>
+            <div
+              v-for="city in domesticCities"
+              :key="city.name"
+              class="flex-shrink-0 w-64 group cursor-pointer"
+              @click="goToDomestic(city)"
+            >
+              <div class="relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                <div class="aspect-square relative">
+                  <img
+                    :src="city.image"
+                    :alt="city.name"
+                    class="w-full h-full object-cover"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                  <div class="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 class="text-white text-xl font-bold drop-shadow-lg">{{ city.name }}</h3>
+                  </div>
+                  <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                      <i class="pi pi-eye text-blue-600 text-2xl"></i>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <div
+            v-if="!isAtStart"
+            class="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none"
+          ></div>
+          <div
+            v-if="!isAtEnd"
+            class="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"
+          ></div>
         </div>
 
-        <!-- 좌측 그라데이션 페이드 -->
-        <div
-          v-if="!isAtStart"
-          class="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none"
-        ></div>
-
-        <!-- 우측 그라데이션 페이드 -->
-        <div
-          v-if="!isAtEnd"
-          class="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"
-        ></div>
+        <Button
+          icon="pi pi-chevron-right"
+          rounded
+          severity="secondary"
+          @click="scrollRight"
+          :disabled="isAtEnd"
+          class="flex-shrink-0 w-12 h-12 bg-white shadow-lg hover:shadow-xl transition-shadow"
+        />
       </div>
 
-      <!-- 우측 네비게이션 버튼 -->
-      <Button
-        icon="pi pi-chevron-right"
-        rounded
-        severity="secondary"
-        @click="scrollRight"
-        :disabled="isAtEnd"
-        class="flex-shrink-0 w-12 h-12 bg-white shadow-lg hover:shadow-xl transition-shadow"
-      />
-    </div>
-
-    <!-- 스크롤 인디케이터 -->
-    <div class="flex justify-center gap-2 mt-4">
-      <div
-        v-for="(chunk, index) in Math.ceil(domesticCities.length / 4)"
-        :key="index"
-        class="w-2 h-2 rounded-full transition-all"
-        :class="currentChunk === index ? 'bg-blue-600 w-8' : 'bg-gray-300'"
-      ></div>
+      <div class="flex justify-center gap-2 mt-4">
+        <div
+          v-for="(chunk, index) in Math.ceil(domesticCities.length / 4)"
+          :key="index"
+          class="w-2 h-2 rounded-full transition-all"
+          :class="currentChunk === index ? 'bg-blue-600 w-8' : 'bg-gray-300'"
+        ></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// (니가 준 코드 그대로)
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
@@ -101,23 +125,26 @@ const isAtStart = ref(true);
 const isAtEnd = ref(false);
 const currentChunk = ref(0);
 
+// 🔥 [수정 3] 모바일 확장/축소 상태 변수 추가
+const isMobileExpanded = ref(false);
+
 const domesticCities = ref([
-  { name: '서울', image: '/images/domestic/seoul2.png' },
-  { name: '부산', image: '/images/domestic/busan3.jpg' },
-  { name: '대구', image: '/images/domestic/daegoo.jpg' },
-  { name: '인천', image: '/images/domestic/incheon.jpg' },
-  { name: '광주', image: '/images/domestic/kwang-jo.jpg' },
-  { name: '대전', image: '/images/domestic/daejeon.jpg' },
-  { name: '울산', image: '/images/domestic/ulsan2.jpg' },
-  { name: '경기', image: '/images/domestic/gyong-gi.jpg' },
-  { name: '강원', image: '/images/domestic/kangwon.jpg' },
-  { name: '충북', image: '/images/domestic/chongbook.jpg' },
-  { name: '충남', image: '/images/domestic/gongju.jpg' },
-  { name: '전북', image: '/images/domestic/jeonbook.png' },
-  { name: '전남', image: '/images/domestic/jeonam.jpg' },
-  { name: '경북', image: '/images/domestic/gyuon-book.png' },
-  { name: '경남', image: '/images/domestic/pohang.jpg' },
-  { name: '제주', image: '/images/domestic/jeju.jpg' }
+  { name: '서울', image: '/images/domestic/seoul2.png' ,query:'서울특별시'},
+  { name: '부산', image: '/images/domestic/busan3.jpg' ,query:'부산광역시'},
+  { name: '대구', image: '/images/domestic/daegoo.jpg' ,query:'대구광역시'},
+  { name: '인천', image: '/images/domestic/incheon.jpg', query:'인천광역시' },
+  { name: '광주', image: '/images/domestic/kwang-jo.jpg', query:'광주광역시' },
+  { name: '대전', image: '/images/domestic/daejeon.jpg', query:'대전광역시' },
+  { name: '울산', image: '/images/domestic/ulsan2.jpg', query:'울산광역시' },
+  { name: '경기', image: '/images/domestic/gyong-gi.jpg', query:'경기도' },
+  { name: '강원', image: '/images/domestic/kangwon.jpg', query:'강원특별자치도' },
+  { name: '충북', image: '/images/domestic/chongbook.jpg', query:'충청북도' },
+  { name: '충남', image: '/images/domestic/gongju.jpg', query:'충청남도' },
+  { name: '전북', image: '/images/domestic/jeonbook.png', query:'전북특별자치도' },
+  { name: '전남', image: '/images/domestic/jeonam.jpg', query:'전라남도' },
+  { name: '경북', image: '/images/domestic/gyuon-book.png', query:'경상북도' },
+  { name: '경남', image: '/images/domestic/pohang.jpg', query:'경상남도' },
+  { name: '제주', image: '/images/domestic/jeju.jpg', query:'제주특별자치도' }
 ]);
 
 const handleScroll = () => {
@@ -155,7 +182,7 @@ const goToDomestic = (city: any) => {
   const defaultCheckOut = tomorrow.toISOString().split('T')[0];
 
   const searchData = {
-    address: city.name,
+    address: city.query,
     checkIn: base?.checkIn || defaultCheckIn,
     checkOut: base?.checkOut || defaultCheckOut,
     rooms: base?.rooms || '1',

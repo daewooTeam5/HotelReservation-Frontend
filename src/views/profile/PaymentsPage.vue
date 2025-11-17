@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-8 bg-gray-100 min-h-screen">
+  <div class="p-0 lg:p-8 bg-gray-100 min-h-screen">
     <div class="bg-white w-full p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
       <!-- 헤더 -->
       <div class="mb-6!">

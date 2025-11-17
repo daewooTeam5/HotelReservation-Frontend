@@ -1,21 +1,23 @@
 <template>
-  <div class="search-box flex gap-2 mb-6 items-start">
-    <div class="flex flex-col">
-      <div class="flex gap-2">
-        <div ref="checkinWrapperRef">
+  <div class="search-box flex flex-col md:flex-row gap-2 mb-6 items-stretch md:items-end w-full px-2">
+
+    <div class="flex flex-col w-full md:flex-1">
+      <label class="text-xs font-semibold text-gray-500 mb-1 ml-1">날짜 선택</label>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div ref="checkinWrapperRef" class="w-full sm:w-1/2">
           <PrimeInputText
             :value="dateRange?.[0] ? formatDate(dateRange[0]) : ''"
             placeholder="체크인"
             readonly
             @click="openCalendar"
-          />
+            class="w-full" />
         </div>
         <PrimeInputText
           :value="dateRange?.[1] ? formatDate(dateRange[1]) : ''"
           placeholder="체크아웃"
           readonly
           @click="openCalendar"
-        />
+          class="w-full sm:w-1/2" />
         <PrimePopover ref="calendarPopover">
           <PrimeDatePicker
             v-model="dateRange"
@@ -30,12 +32,13 @@
       </div>
     </div>
 
-    <div class="flex flex-col">
+    <div class="flex flex-col w-full md:flex-1">
+      <label class="text-xs font-semibold text-gray-500 mb-1 ml-1">인원 및 객실</label>
       <PrimeInputText
         :value="`성인 ${adults}명 · 아동 ${children}명 · 객실 ${rooms}개`"
         readonly
         @click="toggleGuestPopover"
-      />
+        class="w-full" />
       <PrimePopover ref="popover">
         <div class="space-y-4 w-56">
           <div class="flex justify-between items-center">
@@ -66,7 +69,7 @@
       </PrimePopover>
     </div>
 
-    <PrimeButton icon="pi pi-search" @click="doSearch" />
+    <PrimeButton icon="pi pi-search" @click="doSearch" class="w-full md:w-auto" />
   </div>
 </template>
 

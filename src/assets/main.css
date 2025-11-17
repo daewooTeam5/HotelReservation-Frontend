@@ -1,23 +1,35 @@
 @import './base.css';
+
 @font-face {
   font-family: 'OneStoreMobileGothicTitleFont';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff') format('woff');
   font-weight: normal;
   font-display: swap;
 }
+
+html,body {
+  padding: 0;
+  margin: 0;
+
+}
+
 body {
   font-family: 'OneStoreMobileGothicTitleFont', sans-serif;
 }
+
 input[type="password"] {
-  font-family:  sans-serif;
+  font-family: sans-serif;
 }
+
 #app {
   height: 100vh;
 }
+
 body {
   background-color: white;
   color: black;
 }
+
 a,
 .green {
   text-decoration: none;
@@ -25,27 +37,5 @@ a,
   transition: 0.4s;
   padding: 3px;
 }
-/* 크롬/엣지/사파리 */
-::-webkit-scrollbar {
-  width: 6px;   /* 얇게 */
-  height: 6px;
-}
 
-::-webkit-scrollbar-track {
-  background: transparent; /* 트랙 색 없애기 */
-}
 
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15); /* 살짝만 보이는 연한 회색 */
-  border-radius: 9999px;           /* 완전 둥글게 */
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25); /* hover 시도 연하게만 */
-}
-
-/* 파이어폭스 */
-* {
-  scrollbar-width: thin;                /* 얇게 */
-  scrollbar-color: rgba(0,0,0,0.15) transparent;
-}

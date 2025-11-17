@@ -1,8 +1,8 @@
 <template>
-  <div class="p-6 lg:p-8">
+  <div class="p-1 lg:p-8">
     <h1 style="margin-bottom: 8px" class="text-2xl font-bold mb-6">환경 설정</h1>
 
-    <div class="bg-white rounded shadow p-6 max-w-xl space-y-6">
+    <div class="bg-white rounded shadow p-6 space-y-6">
       <!-- 푸시 알림 설정 -->
       <div style="margin-bottom: 8px" class="flex items-center justify-between py-4 border-b">
         <div>

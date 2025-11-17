@@ -32,6 +32,12 @@ onMounted(() => {
 
   void authStore.issueToken();
 
+  if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
+    window.setFCMToken = (token: string) => {
+      apiClient.post('/v1/auth/fcm-token', { fcmToken: token });
+    };
+    return;
+  }
   if (!messaging) {
     console.warn('Firebase Messaging is not available');
     return;
@@ -48,12 +54,6 @@ onMounted(() => {
       });
     });
     isMessageListenerAdded = true;
-  }
-  if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
-    window.setFCMToken = (token: string) => {
-      apiClient.post('/v1/auth/fcm-token', { fcmToken: token });
-    };
-    return;
   }
 
   // FCM 토큰 요청

@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-screen">
     <UserHeader />
 
-    <main class="flex-1 w-full pb-16 md:pb-0 overflow-y-auto" ref="mainRef">
+    <main id="main" class="flex-1 w-full pb-16 md:pb-0 overflow-y-auto" ref="mainRef">
       <slot />
     </main>
 
@@ -14,6 +14,7 @@
 import UserHeader from "./UserHeader.vue";
 import DefaultFooter from "./DefaultFooter.vue";
 import { onMounted, ref } from 'vue';
+import "../assets/main.css"
 
 const mainRef = ref<HTMLElement | null>(null);
 onMounted(() => {

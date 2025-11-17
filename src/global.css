@@ -2,3 +2,27 @@
 @import 'tailwindcss-primeui';
 @import 'primeicons/primeicons.css';
 
+/* 모든 요소 공통 */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15); /* 은은한 투명 검정 */
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  * {
+    scrollbar-width: auto;
+  }
+}

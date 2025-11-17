@@ -88,7 +88,7 @@ const handleCancel = () => {
             </h3>
             <p class="text-sm text-gray-600 flex items-center gap-1">
               <i class="pi pi-tag text-xs"></i>
-              {{ payment.roomType }}
+              {{ payment.roomName }}
             </p>
           </div>
           <span

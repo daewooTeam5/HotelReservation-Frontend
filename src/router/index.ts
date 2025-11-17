@@ -198,29 +198,10 @@ const router = createRouter({
       meta: { layout: 'user' }
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/AboutView.vue'),
-      meta: { layout: 'user' }
-    },
-    {
-      path: '/auth/register',
-      name: 'register',
-      component: () => import('@/views/RegisterView.vue'),
-      meta: { layout: 'user' }
-    },
-    // 인증/회원가입
-    {
       path: '/cart',
       name: 'cart',
       meta: { layout: 'user' },
       component: () => import('../views/ShoppingCartPage.vue')
-    },
-    {
-      path: '/auth/register',
-      name: 'register',
-      meta: { layout: 'user' },
-      component: () => import('../views/RegisterView.vue')
     },
     {
       path: '/auth/signin',

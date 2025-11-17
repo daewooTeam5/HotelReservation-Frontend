@@ -190,8 +190,8 @@ const handleSubmit = () => {
 
       <!-- 서류 첨부 섹션 -->
       <div class="space-y-3 mt-2!">
-        <label class="text-sm font-semibold text-gray-700 flex items-center gap-1">
-          <i class="pi pi-paperclip text-blue-600"></i>
+        <label class="text-sm font-semibold text-gray-700 flex items-center gap-1 mb-2!">
+          <i class="pi pi-paperclip text-blue-600 "></i>
           관련 서류 첨부
           <span class="text-red-500">*</span>
         </label>

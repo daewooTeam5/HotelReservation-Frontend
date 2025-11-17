@@ -1,6 +1,6 @@
 <template>
-  <div class="p-4 md:p-8 bg-gray-100 min-h-screen">
-    <div class="bg-white w-full p-4 md:p-6 rounded-lg shadow-sm border border-gray-200">
+  <div class="p-0  md:p-8 bg-gray-100 h-full">
+    <div class="bg-white h-full w-full p-4 md:p-6 md:rounded-lg! shadow-sm border border-gray-200">
       <!-- 헤더 -->
       <div class="mb-6!">
         <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2!">내 계정</h1>
