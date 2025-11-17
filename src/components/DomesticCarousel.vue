@@ -129,22 +129,22 @@ const currentChunk = ref(0);
 const isMobileExpanded = ref(false);
 
 const domesticCities = ref([
-  { name: '서울', image: '/images/domestic/seoul2.png' ,query:'서울'},
-  { name: '부산', image: '/images/domestic/busan3.jpg' ,query:'부산'},
-  { name: '대구', image: '/images/domestic/daegoo.jpg' ,query:'대구'},
-  { name: '인천', image: '/images/domestic/incheon.jpg', query:'인천' },
-  { name: '광주', image: '/images/domestic/kwang-jo.jpg', query:'광주' },
-  { name: '대전', image: '/images/domestic/daejeon.jpg', query:'대전' },
-  { name: '울산', image: '/images/domestic/ulsan2.jpg', query:'울산' },
-  { name: '경기', image: '/images/domestic/gyong-gi.jpg', query:'경기' },
-  { name: '강원', image: '/images/domestic/kangwon.jpg', query:'강원' },
-  { name: '충북', image: '/images/domestic/chongbook.jpg', query:'충북' },
-  { name: '충남', image: '/images/domestic/gongju.jpg', query:'충남' },
-  { name: '전북', image: '/images/domestic/jeonbook.png', query:'전북' },
-  { name: '전남', image: '/images/domestic/jeonam.jpg', query:'전남' },
-  { name: '경북', image: '/images/domestic/gyuon-book.png', query:'경북' },
-  { name: '경남', image: '/images/domestic/pohang.jpg', query:'경남' },
-  { name: '제주', image: '/images/domestic/jeju.jpg', query:'제주' }
+  { name: '서울', image: '/images/domestic/seoul2.png' ,query:'서울특별시'},
+  { name: '부산', image: '/images/domestic/busan3.jpg' ,query:'부산광역시'},
+  { name: '대구', image: '/images/domestic/daegoo.jpg' ,query:'대구광역시'},
+  { name: '인천', image: '/images/domestic/incheon.jpg', query:'인천광역시' },
+  { name: '광주', image: '/images/domestic/kwang-jo.jpg', query:'광주광역시' },
+  { name: '대전', image: '/images/domestic/daejeon.jpg', query:'대전광역시' },
+  { name: '울산', image: '/images/domestic/ulsan2.jpg', query:'울산광역시' },
+  { name: '경기', image: '/images/domestic/gyong-gi.jpg', query:'경기도' },
+  { name: '강원', image: '/images/domestic/kangwon.jpg', query:'강원특별자치도' },
+  { name: '충북', image: '/images/domestic/chongbook.jpg', query:'충청북도' },
+  { name: '충남', image: '/images/domestic/gongju.jpg', query:'충청남도' },
+  { name: '전북', image: '/images/domestic/jeonbook.png', query:'전라북도' },
+  { name: '전남', image: '/images/domestic/jeonam.jpg', query:'전라남도' },
+  { name: '경북', image: '/images/domestic/gyuon-book.png', query:'경상북도' },
+  { name: '경남', image: '/images/domestic/pohang.jpg', query:'경상남도' },
+  { name: '제주', image: '/images/domestic/jeju.jpg', query:'제주특별자치도' }
 ]);
 
 const handleScroll = () => {

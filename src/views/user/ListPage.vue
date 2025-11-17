@@ -228,22 +228,22 @@ const selectedRegion = ref<string | null>(null); // [NEW] 선택된 지역 (quer
 
 // [NEW] 지역 데이터
 const regions = [
-  { name: '서울', query: '서울' },
-  { name: '부산', query: '부산' },
-  { name: '대구', query: '대구' },
-  { name: '인천', query: '인천' },
-  { name: '광주', query: '광주' },
-  { name: '대전', query: '대전' },
-  { name: '울산', query: '울산' },
-  { name: '경기', query: '경기' },
-  { name: '강원', query: '강원' },
-  { name: '충북', query: '충북' },
-  { name: '충남', query: '충남' },
-  { name: '전북', query: '전북' },
-  { name: '전남', query: '전남' },
-  { name: '경북', query: '경북' },
-  { name: '경남', query: '경남' },
-  { name: '제주', query: '제주' }
+  { name: '서울', query: '서울특별시' },
+  { name: '부산', query: '부산광역시' },
+  { name: '대구', query: '대구광역시' },
+  { name: '인천', query: '인천광역시' },
+  { name: '광주', query: '광주광역시' },
+  { name: '대전', query: '대전광역시' },
+  { name: '울산', query: '울산광역시' },
+  { name: '경기', query: '경기도' },
+  { name: '강원', query: '강원특별자치도' },
+  { name: '충북', query: '충청북도' },
+  { name: '충남', query: '충청남도' },
+  { name: '전북', query: '전라북도' },
+  { name: '전남', query: '전라남도' },
+  { name: '경북', query: '경상북도' },
+  { name: '경남', query: '경상남도' },
+  { name: '제주', query: '제주특별자치도' }
 ];
 
 const categories = [
