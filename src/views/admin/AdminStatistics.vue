@@ -60,7 +60,7 @@
 
               <AdminStatisticsChart title="카테고리별 매출" endpoint="admin/statistics/revenue-by-category" label="매출액" type="bar"/>
 
-              <AdminStatisticsChart title="카테고리별 예약 건수" endpoint="admin/statistics/reservations-by-category" label="예약 건수" type="bar"/>
+              <AdminStatisticsChart title="카테고리별 예약 건수" endpoint="admin/statistics/reservations-by-category" label="예약 건수" type="bar" class="w-full"/>
             </div>
           </div>
         </PrimeTabPanel>

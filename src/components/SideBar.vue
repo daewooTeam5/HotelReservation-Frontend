@@ -7,7 +7,7 @@
     <div class="p-6 text-lg font-bold border-b border-gray-700 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <i class="pi pi-user text-purple-400"></i>
-        <span style="margin-left: 5px">안녕하세요 {{ profile.name }}님</span>
+        <span style="margin-left: 5px; font-size: 17px;">안녕하세요 {{ profile.name }}님</span>
       </div>
       <!-- 모바일 닫기 버튼 -->
       <button
@@ -98,7 +98,7 @@ const handleLogout = () => {
       try {
         await apiClient.post('/v1/auth/logout');
         authStore.setAccessToken(null);
-        await router.push('/auth/signin');
+        await router.push('/');
       } catch (error) {
         console.error('로그아웃 실패:', error);
       }

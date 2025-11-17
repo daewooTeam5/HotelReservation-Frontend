@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center w-full gap-4 bg-gray-50 h-full min-h-screen">
+  <div class="flex flex-col items-center w-full gap-4 bg-gray-50 h-full min-h-screen mr-1">
 
     <div class="w-full bg-white shadow-sm py-3 sm:py-4 flex justify-center z-10">
       <div class="w-full px-4 sm:px-10 lg:px-16">
@@ -22,7 +22,7 @@
       <div v-else class="flex flex-col md:flex-row gap-4 sm:gap-6">
 
         <div class="md:hidden w-full sticky top-0 z-20 bg-gray-50 py-2">
-          <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div style="margin-right: 5px;" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
 
             <Button
               type="button"
@@ -57,13 +57,27 @@
               @click="togglePricePop"
             />
             <Popover ref="opPrice" class="w-72">
-              <div class="p-4">
-                <h4 class="font-bold mb-4">1박당 요금</h4>
-                <Slider v-model="priceRange" :min="0" :max="400000" :step="10000" range @change="updateFiltersDebounced" class="w-full mb-4" />
-                <div class="flex justify-between text-sm font-bold text-gray-700">
+              <div class="p-4 flex flex-col gap-4">
+
+                <h4 class="font-bold text-gray-800 text-base">
+                  1박당 요금
+                </h4>
+
+                <Slider
+                  v-model="priceRange"
+                  :min="0"
+                  :max="400000"
+                  :step="10000"
+                  range
+                  @change="updateFiltersDebounced"
+                  class="w-full"
+                />
+
+                <div class="flex justify-between text-sm text-gray-700 font-semibold">
                   <span>{{ priceRange[0].toLocaleString() }}원</span>
                   <span>{{ priceRange[1].toLocaleString() }}원</span>
                 </div>
+
               </div>
             </Popover>
 
@@ -134,32 +148,32 @@
             </div>
 
             <div class="border-t pt-4">
-              <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-lg">1박당 요금</h2>
+              <div class="flex justify-between items-center mb-3 ">
+                <h2 style="margin-bottom: 10px;" class="font-bold text-lg pt-2">1박당 요금</h2>
                 <button class="text-blue-600 text-sm font-semibold hover:underline" @click="resetFilters">초기화</button>
               </div>
               <Slider v-model="priceRange" :min="0" :max="400000" :step="10000" class="w-full mt-3 mb-3" range @change="updateFiltersDebounced" />
-              <div class="flex items-center justify-between text-sm">
+              <div style="margin-top: 10px;" class="flex items-center justify-between text-sm">
                 <span>{{ priceRange[0].toLocaleString() }}원</span>
                 <span>{{ priceRange[1].toLocaleString() }}원</span>
               </div>
             </div>
 
-            <div class="border-t pt-4">
+            <div class="border-t pt-2 mb-2">
               <h2 class="font-bold text-lg mb-2">숙소 종류</h2>
               <div class="flex flex-col gap-2 text-sm">
                 <label v-for="cat in categories" :key="cat.value" class="flex items-center cursor-pointer">
-                  <input type="checkbox" :value="cat.value" v-model="selectedCategories" @change="updateFilters" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2" />
+                  <input style="margin-right: 4px;" type="checkbox" :value="cat.value" v-model="selectedCategories" @change="updateFilters" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2" />
                   <span class="text-gray-700">{{ cat.label }}</span>
                 </label>
               </div>
             </div>
 
-            <div class="border-t pt-4">
+            <div class="border-t pt-2 mb-2">
               <h2 class="font-bold text-lg mb-2">평점</h2>
               <div class="flex flex-col gap-2 text-sm">
                 <label v-for="rating in ratings" :key="rating.value" class="flex items-center cursor-pointer">
-                  <input type="radio" name="d_rating" :value="rating.value" v-model="selectedRating" @change="updateFilters" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 mr-2" />
+                  <input style="margin-right: 4px;" type="radio" name="d_rating" :value="rating.value" v-model="selectedRating" @change="updateFilters" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 mr-2" />
                   <span class="text-gray-700">{{ rating.label }}</span>
                 </label>
               </div>
@@ -225,7 +239,7 @@ const regions = [
   { name: '강원', query: '강원특별자치도' },
   { name: '충북', query: '충청북도' },
   { name: '충남', query: '충청남도' },
-  { name: '전북', query: '전북특별자치도' },
+  { name: '전북', query: '전라북도' },
   { name: '전남', query: '전라남도' },
   { name: '경북', query: '경상북도' },
   { name: '경남', query: '경상남도' },
@@ -389,9 +403,12 @@ watch(
 }
 :deep(.p-slider-handle) {
   border-color: #3b82f6;
+
 }
 /* Dropdown 커스텀 */
 :deep(.p-dropdown) {
   border-radius: 0.5rem;
 }
+
+
 </style>

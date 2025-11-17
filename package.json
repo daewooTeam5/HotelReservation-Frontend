@@ -19,6 +19,7 @@
     "@headlessui/vue": "^1.7.23",
     "@primeuix/themes": "^1.2.5",
     "@sauromates/vue-gravatar": "^1.0.2",
+    "@sentry/vue": "^10.20.0",
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/vue-query": "^5.87.4",
     "@tosspayments/tosspayments-sdk": "^2.4.0",

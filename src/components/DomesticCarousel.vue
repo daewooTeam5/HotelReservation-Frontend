@@ -140,7 +140,7 @@ const domesticCities = ref([
   { name: '강원', image: '/images/domestic/kangwon.jpg', query:'강원특별자치도' },
   { name: '충북', image: '/images/domestic/chongbook.jpg', query:'충청북도' },
   { name: '충남', image: '/images/domestic/gongju.jpg', query:'충청남도' },
-  { name: '전북', image: '/images/domestic/jeonbook.png', query:'전북특별자치도' },
+  { name: '전북', image: '/images/domestic/jeonbook.png', query:'전라북도' },
   { name: '전남', image: '/images/domestic/jeonam.jpg', query:'전라남도' },
   { name: '경북', image: '/images/domestic/gyuon-book.png', query:'경상북도' },
   { name: '경남', image: '/images/domestic/pohang.jpg', query:'경상남도' },

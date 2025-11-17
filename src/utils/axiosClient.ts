@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore.ts';
+import router from '@/router';
+
 
 // 환경 변수 값 확인 (디버깅용)
 console.log(import.meta.env.VITE_SERVER_URL);
@@ -76,7 +78,12 @@ apiClient.interceptors.response.use(
         // 여기서 로그아웃 로직을 호출할 수 있습니다.
         // const { logout } = useAuthStore();
         // logout();
+        const authStore = useAuthStore();
+        authStore.setAccessToken(null);
 
+
+
+router.push('/');
         return Promise.reject(refreshError);
       }
     }

@@ -15,7 +15,7 @@
       class="absolute left-1/2 transform -translate-x-1/2 text-base md:text-2xl lg:text-3xl font-bold
              bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
              cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-      @click="router.push('/admin')"
+      @click="router.push('/')"
     >
       <span class="hidden md:inline">Hotel Reservation Admin</span>
       <span class="md:hidden">Admin</span>
@@ -26,7 +26,7 @@
       <!-- 전체 공지 버튼 -->
       <button
         @click="showModal = true"
-        class="hidden mr-1! md:flex items-center gap-1 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        class="hidden mr-1! md:flex items-center gap-1 px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-800 transition-colors"
       >
         <i class="pi pi-megaphone"></i>
         <span>전체 공지</span>
@@ -35,13 +35,13 @@
       <!-- 모바일 전체 공지 버튼 (아이콘만) -->
       <button
         @click="showModal = true"
-        class="md:hidden mr-1! w-10 h-10 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        class="md:hidden mr-1! w-10 h-10 flex items-center justify-center rounded-lg bg-blue-500 text-white hover:bg-blue-800 transition-colors"
       >
         <i class="pi pi-megaphone"></i>
       </button>
 
       <!-- 프로필 -->
-      <UserProfile type="admin" />
+      <UserProfile type="admin" style="margin-left: 10px;"/>
     </div>
 
     <!-- 전체 공지 모달 -->
