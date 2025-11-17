@@ -3,6 +3,7 @@ import 'primeicons/primeicons.css';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { VueQueryPlugin } from '@tanstack/vue-query';
+import * as Sentry from "@sentry/vue";
 import Aura from '@primeuix/themes/aura';
 import App from './App.vue';
 import router from './router';
@@ -78,6 +79,14 @@ app.use(PrimeVue, {
       darkModeSelector: '.my-dark-mode'
     }
   }
+});
+
+Sentry.init({
+  app,
+  dsn: "https://f127e14959eefd3fb4d5c5597fe95282@o4510198078570496.ingest.us.sentry.io/4510198089252864",
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true
 });
 
 app.use(ToastService);

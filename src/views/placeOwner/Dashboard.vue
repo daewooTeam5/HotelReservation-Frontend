@@ -180,7 +180,7 @@
         <template #title>
           <div class="flex items-center space-x-3 p-2">
             <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
+            <span style="margin-left: 5px;" class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
           </div>
         </template>
         <template #content>
@@ -191,7 +191,7 @@
         <template #title>
           <div class="flex items-center space-x-3 p-2">
             <i class="pi pi-chart-line text-green-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">예약 현황</span>
+            <span style="margin-left: 5px;" class="text-xl font-semibold text-gray-900">예약 현황</span>
           </div>
         </template>
         <template #content>
@@ -208,7 +208,7 @@
           <div class="flex items-center justify-between p-2">
             <div class="flex items-center space-x-3">
               <i class="pi pi-calendar text-blue-600 text-lg"></i>
-              <span class="text-xl font-semibold text-gray-900">최근 예약</span>
+              <span style="margin-left: 5px;" class="text-xl font-semibold text-gray-900">최근 예약</span>
             </div>
             <router-link
               to="/owner/reservations"
@@ -262,7 +262,7 @@
           <div class="flex items-center justify-between p-2">
             <div class="flex items-center space-x-3">
               <i class="pi pi-star text-yellow-600 text-lg"></i>
-              <span class="text-xl font-semibold text-gray-900">최근 리뷰</span>
+              <span style="margin-left: 5px;" class="text-xl font-semibold text-gray-900">최근 리뷰</span>
             </div>
             <router-link
               to="/owner/reviews"

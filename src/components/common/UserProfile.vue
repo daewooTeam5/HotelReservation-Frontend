@@ -120,7 +120,7 @@ const profileItems = [
     command: async () => {
       await apiClient.post('/v1/auth/logout');
       authStore.setAccessToken(null);
-      await router.push('/auth/signin');
+      await router.push('/');
     }
   }
 ].filter(Boolean);

@@ -60,7 +60,7 @@
                 {{ formatCurrency(summary.monthlyRevenue.value) }}
               </p>
               <p class="text-xs text-gray-500 mt-1">
-                지난달 대비 {{ formatCurrency(summary.monthlyRevenue.diff) }}원
+                지난달 대비 {{ formatCurrency(summary.monthlyRevenue.diff) }}
               </p>
             </div>
             <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
@@ -95,7 +95,7 @@
         <template #title>
           <div class="flex items-center space-x-3 p-2">
             <i class="pi pi-chart-bar text-blue-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">월별 매출 추이</span>
+            <span class="text-xl font-semibold text-gray-900" style="margin-left: 5px;">월별 매출 추이</span>
           </div>
         </template>
         <template #content>
@@ -108,7 +108,7 @@
         <template #title>
           <div class="flex items-center space-x-3 p-2">
             <i class="pi pi-chart-pie text-purple-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">지역별 점유율</span>
+            <span class="text-xl font-semibold text-gray-900" style="margin-left: 5px;">지역별 점유율</span>
           </div>
         </template>
         <template #content>
@@ -124,7 +124,7 @@
         <template #title>
           <div class="flex items-center space-x-3 p-2">
             <i class="pi pi-building text-green-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">호텔 매출 TOP 5</span>
+            <span class="text-xl font-semibold text-gray-900" style="margin-left: 5px;">호텔 매출 TOP 5</span>
           </div>
         </template>
         <template #content>
@@ -137,7 +137,7 @@
         <template #title>
           <div class="flex items-center space-x-3 p-2">
             <i class="pi pi-ticket text-orange-600 text-lg"></i>
-            <span class="text-xl font-semibold text-gray-900">호텔 예약 TOP 5</span>
+            <span class="text-xl font-semibold text-gray-900" style="margin-left: 5px;">호텔 예약 TOP 5</span>
           </div>
         </template>
         <template #content>
