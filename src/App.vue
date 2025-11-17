@@ -34,7 +34,7 @@ onMounted(() => {
 
   if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
     window.setFCMToken = (token: string) => {
-      apiClient.post('/v1/auth/fcm-token', { fcmToken: token });
+      apiClient.post('/v1/auth/fcm-token', { fcmToken: token, device: 'ANDROID' });
     };
     return;
   }
@@ -63,7 +63,7 @@ onMounted(() => {
         vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
       }).then((currentToken) => {
         if (currentToken) {
-          apiClient.post('/v1/auth/fcm-token', { fcmToken: currentToken });
+          apiClient.post('/v1/auth/fcm-token', { fcmToken: currentToken,device:'WEB' });
         }
       }).catch((err) => {
         console.error('FCM 토큰 가져오기 실패:', err);
