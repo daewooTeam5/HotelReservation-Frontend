@@ -247,11 +247,13 @@ const regions = [
 ];
 
 const categories = [
-  { label: '아파트', value: '아파트' },
   { label: '호텔', value: '호텔' },
-  { label: '리조트', value: '리조트' },
-  { label: '게스트하우스', value: '게스트하우스' },
+  { label: '콘도', value: '콘도' },
+  { label: '유스호스텔', value: '유스호스텔' },
+  { label: '펜션', value: '펜션' },
   { label: '모텔', value: '모텔' },
+  { label: '게스트하우스', value: '게스트하우스' },
+  { label: '한옥', value: '한옥' },
 ];
 
 const ratings = [
