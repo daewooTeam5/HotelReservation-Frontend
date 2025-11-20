@@ -10,7 +10,10 @@ export function parseJwt<T>(token: string): T | null {
         })
         .join('')
     );
-    return JSON.parse(JSON.parse(jsonPayload)['sub']) as T;
+    console.log(jsonPayload);
+    const parseUser = JSON.parse(jsonPayload);
+    parseUser['id'] = parseUser['sub'];
+    return parseUser as T;
   } catch (e) {
     console.error('토큰 파싱 실패:', e);
     return null;

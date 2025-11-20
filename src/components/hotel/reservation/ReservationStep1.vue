@@ -42,7 +42,7 @@
     </div>
 
     <div class="sticky bottom-0 z-50 w-full bg-white shadow-t-lg border-t border-gray-100 border-t-4 rounded-tr-2.5! rounded-tr-2.5! border-t-blue-400">
-      <div class="max-w-7xl mx-auto px-4 md:px-6 py-4">
+      <div class="w-full mx-auto px-4 md:px-6 py-4">
         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div class="w-full sm:w-auto text-center sm:text-left">
             <p class="text-lg font-bold">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import QrScanner from 'qr-scanner';
@@ -19,8 +19,9 @@ const confirmDialogVisible = ref(false);
 const checkInDetailData = ref<CheckInDetail | null>(null);
 const pendingReservationId = ref<string>('');
 
+
 // 오늘 체크인 예정 목록 조회
-const { data, isLoading, isError,refetch} = useQuery<ApiResult<CheckInReservation[]>>({
+const { data, isLoading, isError, refetch } = useQuery<ApiResult<CheckInReservation[]>>({
   queryKey: ['v1', 'reservations', 'today'],
   queryFn: httpFetcher
 });
@@ -67,9 +68,8 @@ const actualCheckInMutation = useMutation({
     return res.data;
   },
   onSuccess: (res) => {
-    console.log("afds");
-    console.log(res);
-    if ( res.success) {
+    console.log("체크인 완료:", res);
+    if (res.success) {
       confirmDialogVisible.value = false;
       checkInDetailData.value = null;
       pendingReservationId.value = '';
@@ -119,6 +119,21 @@ const closeResultModal = () => {
 };
 
 const openScanner = () => {
+  if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
+    // Android 네이티브 카메라로 QR 스캔
+    openAndroidQRScanner();
+  } else {
+    // 웹 기반 QR 스캐너
+    scanDialogVisible.value = true;
+    setTimeout(() => {
+      startScanner();
+    }, 300);
+  }
+};
+
+// Android QR 스캐너 열기 (실시간 스캔)
+const openAndroidQRScanner = () => {
+  // Android에서도 다이얼로그로 실시간 스캔
   scanDialogVisible.value = true;
   setTimeout(() => {
     startScanner();
@@ -396,7 +411,7 @@ const getStatusLabel = (status: string) => {
       </template>
     </Dialog>
 
-    <!-- QR 스캐너 다이얼로그 -->
+    <!-- QR 스캐너 다이얼로그 (웹 + Android) -->
     <Dialog
       v-model:visible="scanDialogVisible"
       modal

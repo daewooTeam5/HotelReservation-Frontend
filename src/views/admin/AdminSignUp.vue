@@ -24,7 +24,7 @@
             <PrimeSelect id="adminRole" v-model="form.adminRole" :options="roles" optionLabel="label" optionValue="value" class="w-full" placeholder="권한 선택" required />
           </div>
 
-          <PrimeButton type="submit" label="회원가입" class="w-full" />
+          <PrimeButton type="submit" label="회원가입" class="w-full mt-4!" />
 
           <Divider />
           <div class="text-center">
