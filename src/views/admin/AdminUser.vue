@@ -182,26 +182,12 @@ const token = authStore.accessToken;
 
 const userRole = computed(() => {
   if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    // 'sub' 클레임이 JSON 문자열일 경우 한 번 더 파싱
-    const sub = JSON.parse(payload.sub);
-    return sub.role;
-  } catch (e) {
-    console.error("JWT 파싱 실패:", e);
-    return null;
-  }
+  return authStore.userAuth?.role;
 });
 
 const userStatus = computed(() => {
   if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const sub = JSON.parse(payload.sub);
-    return sub.status;
-  } catch {
-    return null;
-  }
+  return authStore.userAuth?.status;
 });
 
 const hasPermission = computed(() => {

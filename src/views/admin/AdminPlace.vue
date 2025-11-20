@@ -102,7 +102,8 @@ const userRole = computed(() => {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return JSON.parse(payload.sub).role;
+    console.log(payload.role);
+    return payload.role;
   } catch {
     return null;
   }
@@ -110,12 +111,7 @@ const userRole = computed(() => {
 
 const userStatus = computed(() => {
   if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return JSON.parse(payload.sub).status;
-  } catch {
-    return null;
-  }
+  return authStore.userAuth?.status
 });
 
 // 권한 체크 (AdminPlace → admin, place_admin만 가능)

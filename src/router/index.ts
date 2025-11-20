@@ -433,12 +433,7 @@ router.beforeEach((to, from, next) => {
   let role: string | null = null;
 
   if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      role = JSON.parse(payload.sub).role;
-    } catch (e) {
-      console.error('JWT 파싱 실패:', e);
-    }
+    role = authStore?.userAuth?.role ?? null;
   }
 
   if (to.path.startsWith('/admin')) {
@@ -451,13 +446,11 @@ router.beforeEach((to, from, next) => {
       if (!token) {
         console.log('➡️ 토큰 없음 → admin-login으로 이동');
         return next({ name: 'home' });
-      }
-
-      else if (!role || !['admin', 'place_admin', 'user_admin'].includes(role)) {
+      } else if (!role || !['admin', 'place_admin', 'user_admin'].includes(role)) {
         console.log('➡️ 권한 없음 → home으로 이동');
         return next({ name: 'home' });
       }
-    }, 0);
+    }, 10);
   }
 
   if (to.name === 'admin-login' && token) {

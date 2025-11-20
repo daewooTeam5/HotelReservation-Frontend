@@ -28,9 +28,9 @@ const route = useRoute();
 const authStore = useAuthStore();
 const toast = useToast();
 let isMessageListenerAdded = false;
-onMounted(() => {
+onMounted(async () => {
 
-  void authStore.issueToken();
+  await  authStore.issueToken();
 
   if (window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === 'function' && window.AndroidBridge.isAndroidApp()) {
     window.setFCMToken = (token: string) => {
