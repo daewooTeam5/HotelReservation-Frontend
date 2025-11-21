@@ -1,5 +1,7 @@
 <template>
-  <main class="grid grid-cols-4 gap-9">
+  <main
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-9"
+  >
     <div v-for="place in places" :key="place.id">
       <PrimeCard
         class="transition-all duration-300 bg-white/90 backdrop-blur-sm
@@ -45,7 +47,7 @@
             <span class="text-sm text-gray-600">평점 {{ place.avgRating }}</span>
 
             <div class="flex flex-col items-end gap-1 min-h-[60px]">
-              <!-- 높이 고정 -->
+              <!-- 할인 있을 때 -->
               <div v-if="place.discountValue > 0" class="flex flex-col items-end">
                 <span
                   class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-1 inline-block text-center min-w-[50px]"
@@ -62,6 +64,7 @@
                 </div>
               </div>
 
+              <!-- 할인 없을 때 -->
               <div v-else>
                 <span class="font-bold text-lg">
                   {{ Number(place.originalPrice).toLocaleString() }}원

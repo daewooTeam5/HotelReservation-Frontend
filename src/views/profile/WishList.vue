@@ -18,7 +18,7 @@ const loadWishlist = async (searchData?: any) => {
   searchNotice.value = "";
 
   try {
-    const res = await apiClient.get("http://localhost:8080/api/v1/places/wishlist", {
+    const res = await apiClient.get("v1/places/wishlist", {
       params: {
         start: 0,
         ...(searchData || {}),
@@ -54,7 +54,7 @@ onMounted(() => loadWishlist());
 
       <!-- 리스트 -->
       <div v-else class="mt-6 flex flex-col-5">
-        <div class="max-w-6xl w-full px-4 lg:p-2">
+        <div class="w-full px-4 lg:p-2">
           <SearchWishHotelList :places="places" :searchNotice="searchNotice" />
         </div>
       </div>
