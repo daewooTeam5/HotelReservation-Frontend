@@ -69,7 +69,7 @@
                   :max="400000"
                   :step="10000"
                   range
-                  @change="updateFiltersDebounced"
+                  @slideend="updateFilters"
                   class="w-full"
                 />
 
@@ -152,7 +152,7 @@
                 <h2 style="margin-bottom: 10px;" class="font-bold text-lg pt-2">1박당 요금</h2>
                 <button class="text-blue-600 text-sm font-semibold hover:underline" @click="resetFilters">초기화</button>
               </div>
-              <Slider v-model="priceRange" :min="0" :max="400000" :step="10000" class="w-full mt-3 mb-3" range @change="updateFiltersDebounced" />
+              <Slider v-model="priceRange" :min="0" :max="400000" :step="10000" class="w-full mt-3 mb-3" range @slideend="updateFilters" />
               <div style="margin-top: 10px;" class="flex items-center justify-between text-sm">
                 <span>{{ priceRange[0].toLocaleString() }}원</span>
                 <span>{{ priceRange[1].toLocaleString() }}원</span>
@@ -183,7 +183,13 @@
         </aside>
 
         <div class="flex-1 min-w-0">
-          <SearchHotelList :places="places" :searchNotice="searchNotice" />
+          <SearchHotelList
+            :places="places"
+            :searchNotice="searchNotice"
+            :hasNextPage="hasMore"
+            :isFetchingNextPage="isFetchingMore"
+            @load-more="loadMore"
+          />
         </div>
 
       </div>
@@ -192,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, nextTick, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SearchBox from '@/components/SearchBox.vue';
 import SearchHotelList from '@/components/SearchHotelList.vue';
@@ -208,6 +214,9 @@ import Dropdown from 'primevue/dropdown';
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+
+// UserLayout에서 제공하는 scrollToTop 함수를 inject
+const scrollToTop = inject<(() => void) | undefined>('scrollToTop');
 
 // --- Popover Refs ---
 const opRegion = ref(); // [NEW] 지역 팝오버
@@ -270,6 +279,9 @@ const isLoading = ref(true);
 const isError = ref(false);
 const error = ref('');
 const searchNotice = ref('');
+const currentPage = ref(1);
+const isFetchingMore = ref(false);
+const hasMore = ref(true);
 
 // 필터 활성화 여부 체크
 const isFilterActive = computed(() => {
@@ -280,8 +292,6 @@ const isFilterActive = computed(() => {
     selectedRegion.value !== null // [NEW] 지역 필터 체크
   );
 });
-
-let debounceTimer: number | null = null;
 
 // URL 업데이트 (address 파라미터에 지역 query 매핑)
 const updateFilters = () => {
@@ -297,20 +307,11 @@ const updateFilters = () => {
   });
 };
 
-const updateFiltersDebounced = () => {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-  }
-  debounceTimer = window.setTimeout(() => {
-    updateFilters();
-  }, 200);
-};
-
-const fetchSearchPlaces = async () => {
+const fetchSearchPlaces = async (page: number) => {
   const params = {
     ...route.query,
-    start: 1,
-    address: route.query.address || undefined, // [NEW] API 요청 파라미터에 추가
+    start: page,
+    address: route.query.address || undefined,
     placeCategory: route.query.placeCategory || undefined,
     minPrice: route.query.minPrice || 0,
     maxPrice: route.query.maxPrice || 400000,
@@ -347,15 +348,25 @@ const resetFilters = () => {
 };
 
 const loadPlaces = async () => {
+  // 스크롤을 맨 위로 즉시 이동
+  if (scrollToTop) {
+    scrollToTop();
+  }
+
   isLoading.value = true;
   isError.value = false;
   error.value = '';
   searchNotice.value = '';
+  currentPage.value = 1;
+  hasMore.value = true;
 
   try {
-    let results = await fetchSearchPlaces();
+    let results = await fetchSearchPlaces(1);
     if (!results || results.length === 0) {
       searchNotice.value = '조건에 맞는 숙소가 없습니다.';
+      hasMore.value = false;
+    } else {
+      hasMore.value = results.length >= 10; // 10개 미만이면 더 이상 없음
     }
     places.value = results;
   } catch(e) {
@@ -363,6 +374,32 @@ const loadPlaces = async () => {
     error.value = '숙소 데이터를 불러오는 데 실패했습니다.';
   } finally {
     isLoading.value = false;
+    // 데이터 로드 후에도 한 번 더 스크롤 이동
+    await nextTick();
+    if (scrollToTop) {
+      scrollToTop();
+    }
+  }
+};
+
+const loadMore = async () => {
+  if (isFetchingMore.value || !hasMore.value) return;
+
+  isFetchingMore.value = true;
+  try {
+    currentPage.value += 1;
+    const results = await fetchSearchPlaces(currentPage.value);
+
+    if (!results || results.length === 0) {
+      hasMore.value = false;
+    } else {
+      places.value = [...places.value, ...results];
+      hasMore.value = results.length >= 10; // 10개 미만이면 더 이상 없음
+    }
+  } catch(e) {
+    console.error('추가 데이터 로딩 실패:', e);
+  } finally {
+    isFetchingMore.value = false;
   }
 };
 
