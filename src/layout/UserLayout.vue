@@ -13,10 +13,20 @@
 <script setup lang="ts">
 import UserHeader from "./UserHeader.vue";
 import DefaultFooter from "./DefaultFooter.vue";
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, provide } from 'vue';
 import "../assets/main.css"
 
 const mainRef = ref<HTMLElement | null>(null);
+
+// 스크롤을 맨 위로 이동하는 함수를 provide
+const scrollToTop = () => {
+  if (mainRef.value) {
+    mainRef.value.scrollTo({ top: 0, behavior: 'instant' });
+  }
+};
+
+provide('scrollToTop', scrollToTop);
+
 onMounted(() => {
   const el = mainRef.value!;
 
