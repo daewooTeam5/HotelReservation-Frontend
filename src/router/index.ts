@@ -167,6 +167,13 @@ const router = createRouter({
       redirect: { name: 'RegisterBasic' }
     },
     {
+      path: '/places/search',
+      name: 'PlacesSearch',
+      component: () => import('../views/user/PlaceSearchPage.vue'),
+      meta: { layout: 'user' },
+      props: true
+    },
+    {
       path: '/places/:id',
       name: 'PlaceDetail',
       component: () => import('../views/user/PlaceDetailPage.vue'),
